@@ -23,6 +23,10 @@ Estados validos:
 | A-006 | Media-Baja | PENDIENTE | Deuda tecnica por codigo/props no usados | `types.ts`, `screens/LibraryScreen.tsx`, `screens/RoundScreen.tsx`, `services/geminiService.ts` | Eliminar o integrar elementos huerfanos (`GameSession`, `validateClue`, props/estados sin uso) |
 | A-007 | Alta | CORREGIDO | Gestion de jugadores en pantalla de nombres (orden, alta, baja) sin sincronizar con configuracion | `screens/SetupScreen.tsx` | Permitir reordenar por drag and drop, anadir y borrar jugadores, manteniendo `playerCount` sincronizado |
 | A-008 | Media | CORREGIDO | La palabra secreta hacia wrap en recuadros estrechos | `screens/RevealScreen.tsx`, `screens/GameOverScreen.tsx`, `components/FitSingleLineText.tsx` | Autoajustar tamano de fuente a ancho disponible y forzar una sola linea |
+| A-009 | Alta | CORREGIDO | Inicio de partida lento por espera bloqueante de IA | `App.tsx`, `services/geminiService.ts` | Limitar tiempo de espera de palabra IA y usar fallback local rapido |
+| A-010 | Alta | CORREGIDO | Generacion de palabra acoplada siempre a IA | `types.ts`, `screens/SetupScreen.tsx`, `App.tsx` | Usar `INITIAL_WORDS` por defecto y habilitar IA solo por opcion explicita |
+| A-011 | Alta | CORREGIDO | Catalogo insuficiente de palabras por dificultad | `constants.ts` | Tener 150 palabras por cada dificultad manteniendo nivel |
+| A-012 | Baja | CORREGIDO | Switch "Palabra por IA" desalineado (thumb fuera del track) | `screens/SetupScreen.tsx` | Ajustar posicionamiento y desplazamiento del thumb para mantenerlo dentro del track |
 
 ## Bitacora de correcciones
 
@@ -42,6 +46,10 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-005 | EN PROGRESO | Se creo `index.css` con estilos de `custom-scrollbar` y `no-scrollbar` para ocultar/suavizar scroll en movil | `npm run build` OK |
 | 2026-02-07 | A-005 | EN PROGRESO | `custom-scrollbar` actualizado para ocultar la barra en todas las plataformas, manteniendo scroll funcional | `npm run build` OK |
 | 2026-02-07 | A-008 | CORREGIDO | Se implemento componente de auto-fit de texto en una linea para palabra secreta (reveal y game over) | `npm run build` OK |
+| 2026-02-07 | A-009 | CORREGIDO | `startGame` ahora usa timeout de 1500 ms para IA y fallback local para arrancar sin bloqueo largo | `npm run build` OK |
+| 2026-02-07 | A-010 | CORREGIDO | Se agrego toggle de IA para palabra en Setup (apagado por defecto) y App solo consulta IA si el toggle esta activo | `npm run build` OK |
+| 2026-02-07 | A-011 | CORREGIDO | `INITIAL_WORDS` ampliado y validado a 150 terminos por dificultad (600 total) | `npm run build` OK |
+| 2026-02-07 | A-012 | CORREGIDO | Se corrigio layout del switch de IA usando posicion absoluta estable (`left-1`) y desplazamiento `translate-x-0/6` | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

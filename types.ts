@@ -37,6 +37,7 @@ export interface GameConfig {
   impostorCount: number;
   difficulty: Difficulty;
   categories: string[];
+  aiWordGenerationEnabled: boolean;
   timerEnabled: boolean;
   timerSeconds: number;
   winCondition: 'TWO_LEFT' | 'PARITY';

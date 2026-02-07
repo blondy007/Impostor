@@ -87,6 +87,7 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart }) => {
   const [playerCount, setPlayerCount] = useState(7);
   const [impostorCount, setImpostorCount] = useState(1);
   const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.MEDIUM);
+  const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(false);
   const [playerDrafts, setPlayerDrafts] = useState<PlayerDraft[]>([]);
   const [view, setView] = useState<'config' | 'names'>('config');
   const [isListening, setIsListening] = useState(false);
@@ -261,6 +262,7 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart }) => {
       impostorCount: safeImpostorCount,
       difficulty,
       categories: [...CATEGORIES],
+      aiWordGenerationEnabled,
       timerEnabled: true,
       timerSeconds: 60,
       winCondition: 'TWO_LEFT',
@@ -337,6 +339,29 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart }) => {
                   {d}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="bg-slate-900/50 p-4 rounded-3xl border border-slate-800">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Palabra por IA</p>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Desactivado por defecto</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAiWordGenerationEnabled((prev) => !prev)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full border p-1 transition-colors ${
+                  aiWordGenerationEnabled ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-800 border-slate-700'
+                }`}
+                aria-label="Activar o desactivar palabra por IA"
+              >
+                <span
+                  className={`absolute left-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white transition-transform ${
+                    aiWordGenerationEnabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
             </div>
           </div>
 
