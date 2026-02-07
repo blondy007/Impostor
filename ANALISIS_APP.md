@@ -35,6 +35,7 @@ Estados validos:
 | A-018 | Media | CORREGIDO | Flujo de agotamiento usaba dialogs nativos de navegador | `App.tsx` | Sustituir `confirm/alert` por modal propia con estetica del juego y decisiones asincronas |
 | A-019 | Baja | CORREGIDO | Boton "Saltar todo" demasiado pequeno en ronda de pistas | `screens/RoundScreen.tsx` | Incrementar area tactil y tamano visual del boton |
 | A-020 | Alta | CORREGIDO | Riesgo de fuga visual de rol/palabra al pasar rapido de agente | `screens/RevealScreen.tsx` | Forzar cierre de persiana antes de avanzar y bloquear interaccion durante la transicion |
+| A-021 | Media | CORREGIDO | Solo existia un tema visual | `App.tsx`, `index.css` | Agregar selector global con 3 temas (actual, claro y loco) y cambio en caliente |
 
 ## Bitacora de correcciones
 
@@ -69,6 +70,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-018 | CORREGIDO | Reemplazo de `window.confirm/alert` por modal estilizada en `App` para flujo de palabras agotadas/IA | `npm run build` OK |
 | 2026-02-07 | A-019 | CORREGIDO | Boton "Saltar todo" ampliado (padding, tipografia y borde) para mejor uso tactil | `npm run build` OK |
 | 2026-02-07 | A-020 | CORREGIDO | Al pulsar "Siguiente agente" ahora se baja primero la persiana y luego cambia de jugador tras 240ms | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Selector de temas agregado con persistencia local y 3 modos: `Actual`, `Claro`, `Loco` | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

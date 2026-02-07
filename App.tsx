@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CATEGORIES, INITIAL_WORDS } from './constants';
 import { fetchSecretWord } from './services/geminiService';
 import { Difficulty, GameConfig, GameState, Player, Role, Word } from './types';
@@ -15,9 +15,11 @@ import VoteScreen from './screens/VoteScreen';
 const START_WORD_TIMEOUT_MS = 5000;
 const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
 const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
+const THEME_STORAGE_KEY = 'impostor_theme_mode_v1';
 
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
+type ThemeMode = 'default' | 'light' | 'wild';
 
 interface WordFlowModalState {
   title: string;
@@ -25,6 +27,12 @@ interface WordFlowModalState {
   primaryLabel: string;
   secondaryLabel?: string;
 }
+
+const THEME_OPTIONS: { id: ThemeMode; label: string; subtitle: string }[] = [
+  { id: 'default', label: 'Actual', subtitle: 'Noir clasico' },
+  { id: 'light', label: 'Claro', subtitle: 'Mas luminoso' },
+  { id: 'wild', label: 'Loco', subtitle: 'Neon extremo' },
+];
 
 const createEmptyUsedWords = (): UsedWordsByDifficulty => ({
   [Difficulty.EASY]: new Set<string>(),
@@ -63,6 +71,13 @@ const persistUsedWordsInSession = (usedWords: UsedWordsByDifficulty) => {
   window.sessionStorage.setItem(USED_WORDS_SESSION_KEY, JSON.stringify(serializable));
 };
 
+const getInitialThemeMode = (): ThemeMode => {
+  if (typeof window === 'undefined') return 'default';
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === 'default' || stored === 'light' || stored === 'wild') return stored;
+  return 'default';
+};
+
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.HOME);
   const [config, setConfig] = useState<GameConfig>({
@@ -81,9 +96,17 @@ const App: React.FC = () => {
   const [lastExpelled, setLastExpelled] = useState<Player | null>(null);
   const [gameId, setGameId] = useState(Math.random().toString());
   const [wordFlowModal, setWordFlowModal] = useState<WordFlowModalState | null>(null);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode());
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
 
   const usedWordsRef = useRef<UsedWordsByDifficulty>(loadUsedWordsFromSession());
   const wordFlowModalResolverRef = useRef<((action: WordFlowModalAction) => void) | null>(null);
+  const currentTheme = THEME_OPTIONS.find((theme) => theme.id === themeMode) || THEME_OPTIONS[0];
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
 
   const resetToHome = () => {
     setGameState(GameState.HOME);
@@ -225,7 +248,6 @@ const App: React.FC = () => {
 
       const revealStartIndex = Math.floor(Math.random() * initialPlayers.length);
       const tableOrderedPlayers = [...initialPlayers.slice(revealStartIndex), ...initialPlayers.slice(0, revealStartIndex)];
-
       const { word, effectiveConfig } = await resolveSecretWord(newConfig);
 
       setConfig(effectiveConfig);
@@ -268,9 +290,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-950 min-h-screen w-full flex flex-col items-center overflow-hidden">
+    <div className={`app-shell theme-${themeMode} min-h-screen w-full flex flex-col items-center overflow-hidden`}>
       <div
-        className="max-w-md w-full min-h-screen flex flex-col relative bg-slate-950 text-slate-100 shadow-2xl"
+        className="app-viewport max-w-md w-full min-h-screen flex flex-col relative bg-slate-950 text-slate-100 shadow-2xl"
         style={{
           transform: 'scale(0.9)',
           transformOrigin: 'top center',
@@ -371,6 +393,33 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
+
+        <div className="absolute bottom-16 left-4 z-[130]">
+          {isThemeMenuOpen && (
+            <div className="mb-3 bg-slate-900/95 border border-slate-700 rounded-2xl p-2 w-44 shadow-2xl backdrop-blur">
+              {THEME_OPTIONS.map((theme) => (
+                <button
+                  key={theme.id}
+                  onClick={() => {
+                    setThemeMode(theme.id);
+                    setIsThemeMenuOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-xl transition-all ${
+                    themeMode === theme.id ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-300'
+                  }`}
+                >
+                  <p className="text-[11px] font-black uppercase tracking-wide">{theme.label}</p>
+                  <p className="text-[9px] font-bold opacity-80 uppercase tracking-wide">{theme.subtitle}</p>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <button onClick={() => setIsThemeMenuOpen((prev) => !prev)} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Tema</p>
+            <p className="text-[11px] text-white font-black uppercase tracking-wide">{currentTheme.label}</p>
+          </button>
+        </div>
 
         <footer className="h-14 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-4 shrink-0">
           <span className="text-slate-500 text-[10px] tracking-widest uppercase font-black italic">El Impostor - Social Deduction</span>

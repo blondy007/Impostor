@@ -17,3 +17,95 @@
 .custom-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.app-shell {
+  position: relative;
+  background: radial-gradient(1200px 600px at 50% -10%, #1e293b 0%, #020617 65%);
+  transition: background 400ms ease;
+}
+
+.app-viewport {
+  position: relative;
+  transition: filter 350ms ease, box-shadow 350ms ease;
+}
+
+.theme-default .app-viewport {
+  filter: none;
+}
+
+.theme-light .app-shell {
+  background: radial-gradient(1000px 600px at 50% -10%, #c7d2fe 0%, #e2e8f0 35%, #cbd5e1 100%);
+}
+
+.theme-light .app-viewport {
+  filter: invert(0.95) hue-rotate(180deg) saturate(0.75) contrast(0.94) brightness(1.04);
+  box-shadow: 0 35px 80px -25px rgba(30, 41, 59, 0.4);
+}
+
+.theme-wild .app-shell {
+  background: radial-gradient(1100px 650px at 10% 5%, #f97316 0%, #7c3aed 35%, #0f172a 80%);
+}
+
+.theme-wild::before {
+  content: '';
+  position: absolute;
+  inset: -35%;
+  pointer-events: none;
+  background: conic-gradient(from 45deg, rgba(34, 211, 238, 0.25), rgba(236, 72, 153, 0.25), rgba(250, 204, 21, 0.25), rgba(34, 211, 238, 0.25));
+  animation: wild_spin 14s linear infinite;
+}
+
+.theme-wild::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(600px 220px at 15% 85%, rgba(236, 72, 153, 0.2), transparent 70%),
+    radial-gradient(700px 280px at 85% 20%, rgba(34, 211, 238, 0.18), transparent 70%);
+  animation: wild_breathe 4.5s ease-in-out infinite alternate;
+}
+
+.theme-wild .app-viewport {
+  filter: hue-rotate(28deg) saturate(1.45) contrast(1.08);
+  box-shadow: 0 0 70px rgba(244, 114, 182, 0.22), 0 0 120px rgba(34, 211, 238, 0.18);
+}
+
+.theme-wild .app-viewport::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background: repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.2) 0 2px, transparent 2px 12px);
+  mix-blend-mode: screen;
+  animation: wild_scan 9s linear infinite;
+}
+
+@keyframes wild_spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wild_breathe {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes wild_scan {
+  from {
+    transform: translateX(-25%);
+  }
+  to {
+    transform: translateX(25%);
+  }
+}
