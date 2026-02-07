@@ -8,13 +8,15 @@ interface Props {
 }
 
 const HomeScreen: React.FC<Props> = ({ bannerSrc, onNewGame, onLibrary }) => {
+  const fallbackBanner = `${import.meta.env.BASE_URL}nuevos/noir.png`;
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center space-y-12 animate-in fade-in zoom-in duration-500">
       <div className="relative">
         <div className="absolute -inset-4 bg-indigo-600 opacity-20 blur-2xl rounded-full"></div>
         <div className="text-center space-y-1 relative flex flex-col items-center">
           <img
-            src={bannerSrc || '/nuevos/noir.png'}
+            src={bannerSrc || fallbackBanner}
             alt="El Impostor"
             className="w-full max-w-[300px] h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)]"
           />

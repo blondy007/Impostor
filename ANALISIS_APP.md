@@ -56,6 +56,7 @@ Estados validos:
 | A-039 | Media | CORREGIDO | El voto grupal no tenia puntuacion y dejaba huecos en el conteo | `App.tsx` | Asignar puntos simples a todos los participantes del voto grupal (+1 acierto / -1 fallo) |
 | A-040 | Baja | CORREGIDO | Faltaba guia clara de despliegue Android + hosting gratis sin codificar cambios aun | `DESPLIEGUE_ANDROID_GITHUB.md` | Documentar opciones sin cambios, cambios minimos PWA y pasos para GitHub Pages |
 | A-041 | Media | CORREGIDO | Faltaba automatizar publicacion en GitHub Pages y preparar Vite para subpath de repo | `vite.config.ts`, `.github/workflows/deploy-pages.yml`, `README.md` | Configurar `BASE_PATH`, workflow de Pages con Actions y guia de publicacion |
+| A-042 | Media | CORREGIDO | Banners no cargaban en GitHub Pages por rutas absolutas desde raiz y nombre con acento | `App.tsx`, `screens/HomeScreen.tsx`, `public/nuevos/fantasia.png` | Usar `import.meta.env.BASE_URL` para rutas de banners y alias ASCII para tema fantasia |
 
 ## Bitacora de correcciones
 
@@ -123,6 +124,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-039 | CORREGIDO | Puntuacion simple para voto grupal integrada en scoring: todos los participantes de la ronda suman +1 si expulsan impostor o restan -1 si expulsan civil | `npm run build` OK |
 | 2026-02-07 | A-040 | CORREGIDO | Creado documento de decision de despliegue (`Android`/`PWA`/`GitHub Pages`) con esfuerzo estimado y enlaces oficiales | Validacion manual del contenido en fichero |
 | 2026-02-07 | A-041 | CORREGIDO | Se configuro despliegue automatico a GitHub Pages (workflow Actions), soporte de `BASE_PATH` en Vite y README con pasos de publicacion | `npm run build` OK |
+| 2026-02-07 | A-042 | CORREGIDO | Corregidas rutas de banners para GitHub Pages usando `BASE_URL` + fallback en Home y alias `fantasia.png` sin acentos para evitar 404 | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

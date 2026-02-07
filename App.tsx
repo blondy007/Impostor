@@ -44,16 +44,18 @@ const THEME_OPTIONS: { id: ThemeMode; label: string; subtitle: string }[] = [
   { id: 'handdrawn', label: 'Dibujo', subtitle: 'Hecho a mano' },
 ];
 
+const withBasePath = (relativePath: string) => `${import.meta.env.BASE_URL}${relativePath.replace(/^\/+/, '')}`;
+
 const HOME_BANNER_BY_THEME: Record<ThemeMode, string> = {
-  default: '/nuevos/noir.png',
-  light: '/nuevos/arena.png',
-  wild: '/nuevos/fiesta.png',
-  cute: '/nuevos/cartoon.png',
-  fantasy: '/nuevos/Fantasía.png',
-  scifi: '/nuevos/sci-fi.png',
-  puzzle: '/nuevos/puzzle.png',
-  cosmos: '/nuevos/cosmos.png',
-  handdrawn: '/nuevos/hand_made.png',
+  default: withBasePath('nuevos/noir.png'),
+  light: withBasePath('nuevos/arena.png'),
+  wild: withBasePath('nuevos/fiesta.png'),
+  cute: withBasePath('nuevos/cartoon.png'),
+  fantasy: withBasePath('nuevos/fantasia.png'),
+  scifi: withBasePath('nuevos/sci-fi.png'),
+  puzzle: withBasePath('nuevos/puzzle.png'),
+  cosmos: withBasePath('nuevos/cosmos.png'),
+  handdrawn: withBasePath('nuevos/hand_made.png'),
 };
 
 const createEmptyUsedWords = (): UsedWordsByDifficulty => ({
