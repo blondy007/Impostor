@@ -1,0 +1,49 @@
+# Analisis Tecnico de la App "El Impostor"
+
+Fecha de analisis inicial: 2026-02-07
+Proyecto: `c:\Users\ivan.barriga\Documentos\Trabajo\DEV\Impostor`
+
+## Objetivo
+Mantener un registro vivo de hallazgos tecnicos para marcar su estado a medida que se corrigen.
+
+Estados validos:
+- `PENDIENTE`: detectado, aun no corregido
+- `EN PROGRESO`: en implementacion
+- `CORREGIDO`: implementado y validado
+
+## Hallazgos y estado
+
+| ID | Severidad | Estado | Hallazgo | Evidencia principal | Criterio de correccion |
+|---|---|---|---|---|---|
+| A-001 | Alta | PENDIENTE | API key expuesta en frontend | `vite.config.ts`, `services/geminiService.ts` | Mover llamadas Gemini a backend/edge function y no inyectar clave privada en cliente |
+| A-002 | Alta | EN PROGRESO | Configuracion incoherente entre `App` y `Setup` | `App.tsx`, `screens/SetupScreen.tsx` | Unificar fuente de verdad de `categories`, `timerEnabled`, `timerSeconds`, `winCondition` |
+| A-003 | Alta | PENDIENTE | Pipeline de pistas incompleto (no se capturan ni usan) | `screens/RoundScreen.tsx`, `App.tsx`, `screens/DebateScreen.tsx` | Capturar pistas por jugador, validarlas y pasarlas a debate/votacion |
+| A-004 | Media | PENDIENTE | Votacion sin desempate explicito | `screens/VoteScreen.tsx` | Definir regla de empate (segunda vuelta, azar, no expulsion, etc.) y aplicarla |
+| A-005 | Media | EN PROGRESO | Dependencia de estilos/clases no garantizadas | `index.html`, ausencia de `index.css`, varias pantallas | Crear hoja de estilos base y/o configuracion Tailwind consistente para clases usadas |
+| A-006 | Media-Baja | PENDIENTE | Deuda tecnica por codigo/props no usados | `types.ts`, `screens/LibraryScreen.tsx`, `screens/RoundScreen.tsx`, `services/geminiService.ts` | Eliminar o integrar elementos huerfanos (`GameSession`, `validateClue`, props/estados sin uso) |
+| A-007 | Alta | CORREGIDO | Gestion de jugadores en pantalla de nombres (orden, alta, baja) sin sincronizar con configuracion | `screens/SetupScreen.tsx` | Permitir reordenar por drag and drop, anadir y borrar jugadores, manteniendo `playerCount` sincronizado |
+
+## Bitacora de correcciones
+
+Agregar una linea por cada cambio aplicado:
+
+| Fecha | ID | Nuevo estado | Cambio aplicado | Validacion |
+|---|---|---|---|---|
+| 2026-02-07 | A-001 | PENDIENTE | Detectado en analisis inicial | Build local OK, riesgo aun abierto |
+| 2026-02-07 | A-002 | PENDIENTE | Detectado en analisis inicial | Build local OK, riesgo aun abierto |
+| 2026-02-07 | A-003 | PENDIENTE | Detectado en analisis inicial | Build local OK, riesgo aun abierto |
+| 2026-02-07 | A-004 | PENDIENTE | Detectado en analisis inicial | Build local OK, riesgo aun abierto |
+| 2026-02-07 | A-005 | PENDIENTE | Detectado en analisis inicial | Build local OK, warning CSS presente |
+| 2026-02-07 | A-006 | PENDIENTE | Detectado en analisis inicial | Build local OK, deuda aun abierta |
+| 2026-02-07 | A-002 | EN PROGRESO | `SetupScreen` ahora usa `categories` compartidas y sincroniza `playerCount` con lista de jugadores | `npm run build` OK |
+| 2026-02-07 | A-007 | CORREGIDO | Se anadio mover arriba/abajo, eliminar y anadir jugadores en vista de nombres | `npm run build` OK |
+| 2026-02-07 | A-007 | CORREGIDO | Reordenacion migrada a drag and drop tactil/desktop (sin botones de subir/bajar) | `npm run build` OK |
+| 2026-02-07 | A-005 | EN PROGRESO | Se creo `index.css` con estilos de `custom-scrollbar` y `no-scrollbar` para ocultar/suavizar scroll en movil | `npm run build` OK |
+| 2026-02-07 | A-005 | EN PROGRESO | `custom-scrollbar` actualizado para ocultar la barra en todas las plataformas, manteniendo scroll funcional | `npm run build` OK |
+
+## Regla de actualizacion durante ejecucion
+
+Cada vez que se corrija un hallazgo:
+1. Cambiar su `Estado` en la tabla principal.
+2. Anadir una fila en `Bitacora de correcciones` con fecha y validacion.
+3. Si la correccion no queda completa, dejar `EN PROGRESO` y documentar el bloqueo.
