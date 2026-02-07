@@ -16,6 +16,7 @@ const START_WORD_TIMEOUT_MS = 5000;
 const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
 const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
 const THEME_STORAGE_KEY = 'impostor_theme_mode_v1';
+const THEME_RANDOM_STORAGE_KEY = 'impostor_theme_random_v1';
 const VOTE_MODE_SESSION_KEY = 'impostor_vote_mode_v1';
 
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
@@ -97,6 +98,11 @@ const getInitialThemeMode = (): ThemeMode => {
   return 'default';
 };
 
+const getInitialRandomThemeEnabled = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(THEME_RANDOM_STORAGE_KEY) === '1';
+};
+
 const getInitialVoteMode = (): 'INDIVIDUAL' | 'GROUP' => {
   if (typeof window === 'undefined') return 'GROUP';
   const stored = window.sessionStorage.getItem(VOTE_MODE_SESSION_KEY);
@@ -124,6 +130,7 @@ const App: React.FC = () => {
   const [gameId, setGameId] = useState(Math.random().toString());
   const [wordFlowModal, setWordFlowModal] = useState<WordFlowModalState | null>(null);
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode());
+  const [randomThemeEnabled, setRandomThemeEnabled] = useState<boolean>(getInitialRandomThemeEnabled());
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
 
   const usedWordsRef = useRef<UsedWordsByDifficulty>(loadUsedWordsFromSession());
@@ -137,11 +144,28 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    window.localStorage.setItem(THEME_RANDOM_STORAGE_KEY, randomThemeEnabled ? '1' : '0');
+  }, [randomThemeEnabled]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     window.sessionStorage.setItem(VOTE_MODE_SESSION_KEY, config.voteMode);
   }, [config.voteMode]);
 
   const resetToHome = () => {
     setGameState(GameState.HOME);
+  };
+
+  const getRandomTheme = (exclude?: ThemeMode): ThemeMode => {
+    const allThemes = THEME_OPTIONS.map((theme) => theme.id);
+    const pool = exclude ? allThemes.filter((theme) => theme !== exclude) : allThemes;
+    const candidates = pool.length > 0 ? pool : allThemes;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  };
+
+  const applyRandomThemeForNewWord = () => {
+    if (!randomThemeEnabled) return;
+    setThemeMode((prev) => getRandomTheme(prev));
   };
 
   const resolveWordFlowModal = (action: WordFlowModalAction) => {
@@ -287,6 +311,7 @@ const App: React.FC = () => {
       setPlayers(tableOrderedPlayers);
       setLastExpelled(null);
       setSecretWord(word);
+      applyRandomThemeForNewWord();
       setIvanCheatUsedForCurrentWord(false);
       setRoundNumber(1);
       setGameState(GameState.ROLE_REVEAL);
@@ -336,7 +361,7 @@ const App: React.FC = () => {
         }}
       >
         {gameState !== GameState.HOME && gameState !== GameState.SETUP && gameState !== GameState.LIBRARY && (
-          <div className="absolute top-4 right-4 z-50">
+          <div className="absolute top-[4.4rem] right-4 z-50">
             <div className="bg-slate-800/90 backdrop-blur border-2 border-slate-700 px-4 py-2 rounded-full text-[10px] font-black tracking-widest uppercase shadow-xl">
               {config.difficulty}
             </div>
@@ -376,6 +401,7 @@ const App: React.FC = () => {
                   const { word, effectiveConfig } = await resolveSecretWord(config);
                   setConfig(effectiveConfig);
                   setSecretWord(word);
+                  applyRandomThemeForNewWord();
                   setIvanCheatUsedForCurrentWord(false);
                 } catch (error: any) {
                   if (error?.message !== WORD_SELECTION_CANCELLED) {
@@ -445,9 +471,28 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className="absolute bottom-16 left-4 z-[130]">
+        <div className="absolute top-4 right-4 z-[130]">
+          <button onClick={() => setIsThemeMenuOpen((prev) => !prev)} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Tema</p>
+            <p className="text-[11px] text-white font-black uppercase tracking-wide">{randomThemeEnabled ? 'Aleatorio' : currentTheme.label}</p>
+          </button>
+
           {isThemeMenuOpen && (
-            <div className="mb-3 bg-slate-900/95 border border-slate-700 rounded-2xl p-2 w-56 max-h-[22rem] overflow-y-auto custom-scrollbar shadow-2xl backdrop-blur">
+            <div className="mt-3 bg-slate-900/95 border border-slate-700 rounded-2xl p-2 w-56 max-h-[24rem] overflow-y-auto custom-scrollbar shadow-2xl backdrop-blur">
+              <div className="px-2 pb-2 mb-2 border-b border-slate-800">
+                <button
+                  onClick={() => setRandomThemeEnabled((prev) => !prev)}
+                  className={`w-full text-left px-3 py-2 rounded-xl transition-all border ${
+                    randomThemeEnabled ? 'bg-indigo-600 border-indigo-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  <p className="text-[10px] font-black uppercase tracking-wide">Tema aleatorio</p>
+                  <p className="text-[9px] font-bold opacity-85 uppercase tracking-wide">
+                    {randomThemeEnabled ? 'Activo: cambia en cada palabra' : 'Desactivado'}
+                  </p>
+                </button>
+              </div>
+
               {THEME_OPTIONS.map((theme) => (
                 <button
                   key={theme.id}
@@ -465,11 +510,6 @@ const App: React.FC = () => {
               ))}
             </div>
           )}
-
-          <button onClick={() => setIsThemeMenuOpen((prev) => !prev)} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">
-            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Tema</p>
-            <p className="text-[11px] text-white font-black uppercase tracking-wide">{currentTheme.label}</p>
-          </button>
         </div>
 
         <footer className="h-14 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-4 shrink-0">

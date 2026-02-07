@@ -42,6 +42,7 @@ Estados validos:
 | A-025 | Baja | CORREGIDO | Falta de guia unificada de prompts por grupos de imagen para generacion con fallback sin alpha real | `PROMPTS_IMAGENES_APP.txt` | Consolidar prompts por tipo (banners, botones, tarjetas, iconos, etc.) incluyendo regla de alpha o color solido de alto contraste |
 | A-026 | Baja | CORREGIDO | Faltaba fichero exclusivo de prompts de banners por tema para copy/paste rapido | `PROMPTS_BANNERS_TEMAS.txt` | Consolidar los 9 prompts iniciales de banner (incluyendo Arena, Fiesta y Cartoon) en un archivo dedicado |
 | A-027 | Alta | CORREGIDO | No existia seleccion de modo de votacion (grupo/individual) ni persistencia durante la sesion | `types.ts`, `screens/SetupScreen.tsx`, `screens/VoteScreen.tsx`, `App.tsx` | Permitir elegir modo en setup, aplicarlo en votacion y recordarlo en `sessionStorage` |
+| A-028 | Media | CORREGIDO | Faltaba modo de tema aleatorio por palabra y acceso del selector de tema en posicion mas usable | `App.tsx` | Permitir activar tema aleatorio para cada nueva palabra y recolocar boton de tema arriba a la derecha |
 
 ## Bitacora de correcciones
 
@@ -94,6 +95,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-026 | CORREGIDO | Creado `PROMPTS_BANNERS_TEMAS.txt` con los 9 prompts de banner iniciales en un solo archivo (incluye Arena, Fiesta y Cartoon) | Validacion manual del contenido en fichero |
 | 2026-02-07 | A-027 | CORREGIDO | Se agrego selector de votacion (`Individual`/`Grupo`) en setup, voto grupal directo y persistencia de modo en sesion (`impostor_vote_mode_v1`) | `npm run build` OK |
 | 2026-02-07 | A-027 | CORREGIDO | `Grupo` pasa a ser el modo por defecto cuando no hay preferencia previa en sesion | `npm run build` OK |
+| 2026-02-07 | A-028 | CORREGIDO | Se anadio toggle de tema aleatorio por palabra (persistente) y se movio el boton de tema a la esquina superior derecha | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 
