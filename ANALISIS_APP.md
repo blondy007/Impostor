@@ -30,6 +30,8 @@ Estados validos:
 | A-013 | Alta | CORREGIDO | Orden inconsistente entre revelar rol, pistas y votacion | `App.tsx`, `screens/RevealScreen.tsx`, `screens/RoundScreen.tsx`, `screens/VoteScreen.tsx` | Aleatorizar solo el primer jugador al revelar y mantener ese orden para el resto de fases |
 | A-014 | Baja | CORREGIDO | CTA final redirigia a menu principal en vez de nueva partida | `screens/GameOverScreen.tsx`, `App.tsx` | Cambiar texto a "Nueva Partida" y redirigir a pantalla de setup |
 | A-015 | Media | CORREGIDO | Cortina de revelar exigia apertura excesiva y se percibia estatica | `screens/RevealScreen.tsx` | Mostrar CTA desde ~40% de apertura y redisenar cortina estilo persiana metalica |
+| A-016 | Alta | CORREGIDO | Repeticion posible de palabra entre partidas por seleccion aleatoria sin historial | `App.tsx` | Registrar palabras usadas por dificultad y excluirlas en toda la sesion |
+| A-017 | Alta | CORREGIDO | Sin manejo al agotar palabras locales por dificultad | `App.tsx`, `screens/SetupScreen.tsx` | Mostrar mensaje, permitir activar IA o cambiar dificultad, y persistir decision en sesion |
 
 ## Bitacora de correcciones
 
@@ -58,6 +60,8 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-014 | CORREGIDO | Boton final actualizado a "Nueva Partida" y cambio de destino a `SETUP` | `npm run build` OK |
 | 2026-02-07 | A-015 | CORREGIDO | CTA "Siguiente agente" ajustado a umbral de 40% y cortina actualizada con look de persiana metalica | `npm run build` OK |
 | 2026-02-07 | A-015 | CORREGIDO | CTA de revelar ajustado para mostrarse tambien durante arrastre (sin requerir soltar la persiana) | `npm run build` OK |
+| 2026-02-07 | A-016 | CORREGIDO | Se agrego registro de palabras usadas por dificultad (sessionStorage) y seleccion sin repeticion hasta agotar pool | `npm run build` OK |
+| 2026-02-07 | A-017 | CORREGIDO | Al agotar palabras locales se muestra decision: activar IA (persistente) o cambiar dificultad; inicio cancelado vuelve a configuracion | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

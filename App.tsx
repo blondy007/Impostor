@@ -1,18 +1,59 @@
-import React, { useState } from 'react';
-import { GameConfig, GameState, Difficulty, Player, Role } from './types';
+import React, { useRef, useState } from 'react';
 import { CATEGORIES, INITIAL_WORDS } from './constants';
+import { fetchSecretWord } from './services/geminiService';
+import { Difficulty, GameConfig, GameState, Player, Role, Word } from './types';
+import DebateScreen from './screens/DebateScreen';
+import GameOverScreen from './screens/GameOverScreen';
 import HomeScreen from './screens/HomeScreen';
-import SetupScreen from './screens/SetupScreen';
+import LibraryScreen from './screens/LibraryScreen';
+import ResultScreen from './screens/ResultScreen';
 import RevealScreen from './screens/RevealScreen';
 import RoundScreen from './screens/RoundScreen';
-import DebateScreen from './screens/DebateScreen';
+import SetupScreen from './screens/SetupScreen';
 import VoteScreen from './screens/VoteScreen';
-import ResultScreen from './screens/ResultScreen';
-import GameOverScreen from './screens/GameOverScreen';
-import LibraryScreen from './screens/LibraryScreen';
-import { fetchSecretWord } from './services/geminiService';
 
 const START_WORD_TIMEOUT_MS = 5000;
+const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
+const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
+
+type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
+
+const createEmptyUsedWords = (): UsedWordsByDifficulty => ({
+  [Difficulty.EASY]: new Set<string>(),
+  [Difficulty.MEDIUM]: new Set<string>(),
+  [Difficulty.HARD]: new Set<string>(),
+  [Difficulty.EXTREME]: new Set<string>(),
+});
+
+const loadUsedWordsFromSession = (): UsedWordsByDifficulty => {
+  if (typeof window === 'undefined') return createEmptyUsedWords();
+
+  try {
+    const raw = window.sessionStorage.getItem(USED_WORDS_SESSION_KEY);
+    if (!raw) return createEmptyUsedWords();
+
+    const parsed = JSON.parse(raw) as Partial<Record<Difficulty, string[]>>;
+    return {
+      [Difficulty.EASY]: new Set(parsed[Difficulty.EASY] || []),
+      [Difficulty.MEDIUM]: new Set(parsed[Difficulty.MEDIUM] || []),
+      [Difficulty.HARD]: new Set(parsed[Difficulty.HARD] || []),
+      [Difficulty.EXTREME]: new Set(parsed[Difficulty.EXTREME] || []),
+    };
+  } catch {
+    return createEmptyUsedWords();
+  }
+};
+
+const persistUsedWordsInSession = (usedWords: UsedWordsByDifficulty) => {
+  if (typeof window === 'undefined') return;
+  const serializable: Record<Difficulty, string[]> = {
+    [Difficulty.EASY]: Array.from(usedWords[Difficulty.EASY]),
+    [Difficulty.MEDIUM]: Array.from(usedWords[Difficulty.MEDIUM]),
+    [Difficulty.HARD]: Array.from(usedWords[Difficulty.HARD]),
+    [Difficulty.EXTREME]: Array.from(usedWords[Difficulty.EXTREME]),
+  };
+  window.sessionStorage.setItem(USED_WORDS_SESSION_KEY, JSON.stringify(serializable));
+};
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.HOME);
@@ -31,16 +72,10 @@ const App: React.FC = () => {
   const [roundNumber, setRoundNumber] = useState(1);
   const [lastExpelled, setLastExpelled] = useState<Player | null>(null);
   const [gameId, setGameId] = useState(Math.random().toString());
+  const usedWordsRef = useRef<UsedWordsByDifficulty>(loadUsedWordsFromSession());
 
   const resetToHome = () => {
     setGameState(GameState.HOME);
-  };
-
-  const getRandomLocalWord = (diff: Difficulty) => {
-    const filtered = INITIAL_WORDS.filter((w) => w.difficulty === diff);
-    const pool = filtered.length > 0 ? filtered : INITIAL_WORDS;
-    const randomIndex = Math.floor(Math.random() * pool.length);
-    return pool[randomIndex].text;
   };
 
   const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> => {
@@ -52,11 +87,84 @@ const App: React.FC = () => {
     ]);
   };
 
+  const getUnusedLocalWord = (difficulty: Difficulty): Word | null => {
+    const usedIds = usedWordsRef.current[difficulty];
+    const candidates = INITIAL_WORDS.filter((word) => word.difficulty === difficulty && !usedIds.has(word.id));
+    if (candidates.length === 0) return null;
+
+    const selected = candidates[Math.floor(Math.random() * candidates.length)];
+    usedIds.add(selected.id);
+    persistUsedWordsInSession(usedWordsRef.current);
+    return selected;
+  };
+
+  const tryFetchAiWord = async (activeConfig: GameConfig): Promise<string> => {
+    try {
+      return await withTimeout(fetchSecretWord(activeConfig.difficulty, activeConfig.categories), START_WORD_TIMEOUT_MS, '');
+    } catch {
+      return '';
+    }
+  };
+
+  const askUserWhenLocalWordsExhausted = (activeConfig: GameConfig): GameConfig | null => {
+    const shouldEnableAI = window.confirm(
+      `No quedan palabras locales en dificultad "${activeConfig.difficulty}" para esta sesion.\n\n` +
+        `Opciones:\n` +
+        `- Cambiar dificultad\n` +
+        `- Activar busqueda por IA\n\n` +
+        `¿Quieres activar "Palabra por IA" ahora?`
+    );
+
+    if (!shouldEnableAI) {
+      window.alert('Mantienes IA desactivada. Cambia la dificultad en configuracion para continuar.');
+      return null;
+    }
+
+    const updatedConfig: GameConfig = {
+      ...activeConfig,
+      aiWordGenerationEnabled: true,
+    };
+    setConfig(updatedConfig);
+    return updatedConfig;
+  };
+
+  const resolveSecretWord = async (baseConfig: GameConfig): Promise<{ word: string; effectiveConfig: GameConfig }> => {
+    if (!baseConfig.aiWordGenerationEnabled) {
+      const localWord = getUnusedLocalWord(baseConfig.difficulty);
+      if (localWord) {
+        return { word: localWord.text, effectiveConfig: baseConfig };
+      }
+
+      const updatedConfig = askUserWhenLocalWordsExhausted(baseConfig);
+      if (!updatedConfig) {
+        throw new Error(WORD_SELECTION_CANCELLED);
+      }
+
+      const aiWord = await tryFetchAiWord(updatedConfig);
+      if (aiWord && aiWord.trim() !== '') {
+        return { word: aiWord.trim(), effectiveConfig: updatedConfig };
+      }
+
+      window.alert('No se pudo obtener palabra por IA. Cambia dificultad o reintenta.');
+      throw new Error(WORD_SELECTION_CANCELLED);
+    }
+
+    const aiWord = await tryFetchAiWord(baseConfig);
+    if (aiWord && aiWord.trim() !== '') {
+      return { word: aiWord.trim(), effectiveConfig: baseConfig };
+    }
+
+    const fallbackLocalWord = getUnusedLocalWord(baseConfig.difficulty);
+    if (fallbackLocalWord) {
+      return { word: fallbackLocalWord.text, effectiveConfig: baseConfig };
+    }
+
+    window.alert(`No quedan palabras locales para "${baseConfig.difficulty}" y la IA no respondio a tiempo.\nCambia dificultad o reintenta la IA.`);
+    throw new Error(WORD_SELECTION_CANCELLED);
+  };
+
   const startGame = async (newConfig: GameConfig, playerNames: string[]) => {
     try {
-      setConfig(newConfig);
-      setGameId(Math.random().toString());
-
       const totalPlayers = playerNames.length;
       const safeImpostorCount = Math.max(1, Math.min(newConfig.impostorCount, totalPlayers - 1));
       const roles: Role[] = new Array(totalPlayers).fill(Role.CIVIL);
@@ -80,30 +188,23 @@ const App: React.FC = () => {
 
       const revealStartIndex = Math.floor(Math.random() * initialPlayers.length);
       const tableOrderedPlayers = [...initialPlayers.slice(revealStartIndex), ...initialPlayers.slice(0, revealStartIndex)];
+
+      const { word, effectiveConfig } = await resolveSecretWord(newConfig);
+
+      setConfig(effectiveConfig);
+      setGameId(Math.random().toString());
       setPlayers(tableOrderedPlayers);
       setLastExpelled(null);
-
-      const localFallbackWord = getRandomLocalWord(newConfig.difficulty);
-      let word = '';
-
-      if (newConfig.aiWordGenerationEnabled) {
-        try {
-          word = await withTimeout(fetchSecretWord(newConfig.difficulty, newConfig.categories), START_WORD_TIMEOUT_MS, '');
-        } catch {
-          word = '';
-        }
-      }
-
-      if (!word || word.trim() === '') {
-        word = localFallbackWord;
-      }
-
       setSecretWord(word);
       setRoundNumber(1);
       setGameState(GameState.ROLE_REVEAL);
-    } catch (criticalError) {
-      console.error('Error critico al iniciar:', criticalError);
+    } catch (error: any) {
+      if (error?.message === WORD_SELECTION_CANCELLED) {
+        throw error;
+      }
+      console.error('Error critico al iniciar:', error);
       setGameState(GameState.HOME);
+      throw error;
     }
   };
 
@@ -150,7 +251,7 @@ const App: React.FC = () => {
 
         <main className="flex-1 flex flex-col p-6 pb-20 overflow-y-auto custom-scrollbar">
           {gameState === GameState.HOME && <HomeScreen onNewGame={() => setGameState(GameState.SETUP)} onLibrary={() => setGameState(GameState.LIBRARY)} />}
-          {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} />}
+          {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} initialConfig={config} />}
           {gameState === GameState.ROLE_REVEAL && (
             <RevealScreen key={`reveal-${gameId}`} players={players} secretWord={secretWord} onFinished={() => setGameState(GameState.ROUND_CLUES)} onBack={resetToHome} />
           )}
@@ -162,16 +263,14 @@ const App: React.FC = () => {
               roundNumber={roundNumber}
               onCluesFinished={() => setGameState(GameState.ROUND_DEBATE)}
               onChangeWord={async () => {
-                if (!config.aiWordGenerationEnabled) {
-                  setSecretWord(getRandomLocalWord(config.difficulty));
-                  return;
-                }
-
                 try {
-                  const w = await withTimeout(fetchSecretWord(config.difficulty, config.categories), START_WORD_TIMEOUT_MS, '');
-                  setSecretWord(w || getRandomLocalWord(config.difficulty));
-                } catch {
-                  setSecretWord(getRandomLocalWord(config.difficulty));
+                  const { word, effectiveConfig } = await resolveSecretWord(config);
+                  setConfig(effectiveConfig);
+                  setSecretWord(word);
+                } catch (error: any) {
+                  if (error?.message !== WORD_SELECTION_CANCELLED) {
+                    console.error('No se pudo cambiar palabra:', error);
+                  }
                 }
               }}
               onBack={resetToHome}
@@ -195,7 +294,13 @@ const App: React.FC = () => {
             />
           )}
           {gameState === GameState.GAME_OVER && (
-            <GameOverScreen key={`gameover-${gameId}`} players={players} secretWord={secretWord} onHome={() => setGameState(GameState.SETUP)} onBack={() => setGameState(GameState.HOME)} />
+            <GameOverScreen
+              key={`gameover-${gameId}`}
+              players={players}
+              secretWord={secretWord}
+              onHome={() => setGameState(GameState.SETUP)}
+              onBack={() => setGameState(GameState.HOME)}
+            />
           )}
           {gameState === GameState.LIBRARY && <LibraryScreen onBack={() => setGameState(GameState.HOME)} />}
         </main>

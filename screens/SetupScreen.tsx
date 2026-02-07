@@ -17,6 +17,7 @@ interface PlayerDraft {
 interface Props {
   onBack: () => void;
   onStart: (config: GameConfig, playerNames: string[]) => void | Promise<void>;
+  initialConfig: GameConfig;
 }
 
 interface SortablePlayerRowProps {
@@ -83,11 +84,11 @@ const SortablePlayerRow: React.FC<SortablePlayerRowProps> = ({ draft, index, can
   );
 };
 
-const SetupScreen: React.FC<Props> = ({ onBack, onStart }) => {
-  const [playerCount, setPlayerCount] = useState(7);
-  const [impostorCount, setImpostorCount] = useState(1);
-  const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.MEDIUM);
-  const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(false);
+const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
+  const [playerCount, setPlayerCount] = useState(initialConfig.playerCount || 7);
+  const [impostorCount, setImpostorCount] = useState(initialConfig.impostorCount || 1);
+  const [difficulty, setDifficulty] = useState<Difficulty>(initialConfig.difficulty || Difficulty.MEDIUM);
+  const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(initialConfig.aiWordGenerationEnabled || false);
   const [playerDrafts, setPlayerDrafts] = useState<PlayerDraft[]>([]);
   const [view, setView] = useState<'config' | 'names'>('config');
   const [isListening, setIsListening] = useState(false);
@@ -135,6 +136,13 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart }) => {
       setImpostorCount(maxImpostors);
     }
   }, [impostorCount, maxImpostors]);
+
+  useEffect(() => {
+    setPlayerCount(initialConfig.playerCount || 7);
+    setImpostorCount(initialConfig.impostorCount || 1);
+    setDifficulty(initialConfig.difficulty || Difficulty.MEDIUM);
+    setAiWordGenerationEnabled(initialConfig.aiWordGenerationEnabled || false);
+  }, [initialConfig.playerCount, initialConfig.impostorCount, initialConfig.difficulty, initialConfig.aiWordGenerationEnabled]);
 
   const startListening = () => {
     if (!recognitionRef.current) return;
@@ -270,8 +278,11 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart }) => {
 
     try {
       await onStart(config, normalizedNames);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error starting game:', error);
+      if (error?.message === 'WORD_SELECTION_CANCELLED') {
+        setView('config');
+      }
       setIsStarting(false);
     }
   };
