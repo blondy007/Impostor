@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Player, Role } from '../types';
+import FitSingleLineText from '../components/FitSingleLineText';
 
 interface Props {
   players: Player[];
@@ -12,13 +13,6 @@ interface Props {
 const GameOverScreen: React.FC<Props> = ({ players, secretWord, onHome, onBack }) => {
   const impostors = players.filter(p => p.role === Role.IMPOSTOR);
   const winners = impostors.every(i => i.isEliminated) ? Role.CIVIL : Role.IMPOSTOR;
-
-  const getWordSizeClass = (word: string) => {
-    if (word.length > 15) return 'text-xl';
-    if (word.length > 12) return 'text-2xl';
-    if (word.length > 8) return 'text-3xl';
-    return 'text-4xl';
-  };
 
   return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-700">
@@ -39,9 +33,14 @@ const GameOverScreen: React.FC<Props> = ({ players, secretWord, onHome, onBack }
 
       <div className="bg-white/5 border border-white/10 p-6 rounded-3xl text-center mb-8">
         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Palabra Secreta</span>
-        <p className={`font-black text-white tracking-widest mt-1 italic uppercase break-words w-full ${getWordSizeClass(secretWord)}`}>
-          {secretWord}
-        </p>
+        <div className="mt-1">
+          <FitSingleLineText
+            text={secretWord}
+            minSizePx={14}
+            maxSizePx={52}
+            className="font-black text-white tracking-widest italic uppercase"
+          />
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">

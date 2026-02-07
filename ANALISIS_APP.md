@@ -22,6 +22,7 @@ Estados validos:
 | A-005 | Media | EN PROGRESO | Dependencia de estilos/clases no garantizadas | `index.html`, ausencia de `index.css`, varias pantallas | Crear hoja de estilos base y/o configuracion Tailwind consistente para clases usadas |
 | A-006 | Media-Baja | PENDIENTE | Deuda tecnica por codigo/props no usados | `types.ts`, `screens/LibraryScreen.tsx`, `screens/RoundScreen.tsx`, `services/geminiService.ts` | Eliminar o integrar elementos huerfanos (`GameSession`, `validateClue`, props/estados sin uso) |
 | A-007 | Alta | CORREGIDO | Gestion de jugadores en pantalla de nombres (orden, alta, baja) sin sincronizar con configuracion | `screens/SetupScreen.tsx` | Permitir reordenar por drag and drop, anadir y borrar jugadores, manteniendo `playerCount` sincronizado |
+| A-008 | Media | CORREGIDO | La palabra secreta hacia wrap en recuadros estrechos | `screens/RevealScreen.tsx`, `screens/GameOverScreen.tsx`, `components/FitSingleLineText.tsx` | Autoajustar tamano de fuente a ancho disponible y forzar una sola linea |
 
 ## Bitacora de correcciones
 
@@ -40,6 +41,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-007 | CORREGIDO | Reordenacion migrada a drag and drop tactil/desktop (sin botones de subir/bajar) | `npm run build` OK |
 | 2026-02-07 | A-005 | EN PROGRESO | Se creo `index.css` con estilos de `custom-scrollbar` y `no-scrollbar` para ocultar/suavizar scroll en movil | `npm run build` OK |
 | 2026-02-07 | A-005 | EN PROGRESO | `custom-scrollbar` actualizado para ocultar la barra en todas las plataformas, manteniendo scroll funcional | `npm run build` OK |
+| 2026-02-07 | A-008 | CORREGIDO | Se implemento componente de auto-fit de texto en una linea para palabra secreta (reveal y game over) | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

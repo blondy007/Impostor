@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useMemo } from 'react';
 import { Player, Role } from '../types';
+import FitSingleLineText from '../components/FitSingleLineText';
 
 interface Props {
   players: Player[];
@@ -71,13 +72,6 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
     }
   };
 
-  const getWordSizeClass = (word: string) => {
-    if (word.length > 15) return 'text-lg';
-    if (word.length > 12) return 'text-xl';
-    if (word.length > 8) return 'text-2xl';
-    return 'text-3xl';
-  };
-
   if (!currentPlayer) return null;
 
   return (
@@ -123,9 +117,12 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
              {currentPlayer.role === Role.CIVIL ? (
                <div className="w-full bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-4 shadow-2xl flex flex-col items-center justify-center min-h-[80px]">
                  <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1 block">Palabra Secreta</span>
-                 <p className={`font-black text-white tracking-widest uppercase break-words w-full ${getWordSizeClass(secretWord)}`}>
-                   {secretWord}
-                 </p>
+                 <FitSingleLineText
+                   text={secretWord}
+                   minSizePx={12}
+                   maxSizePx={36}
+                   className="font-black text-white tracking-widest uppercase"
+                 />
                </div>
              ) : (
                <div className="w-full bg-red-900/10 border border-red-500/20 rounded-3xl p-4">
