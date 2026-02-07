@@ -338,9 +338,7 @@ const App: React.FC = () => {
 
     if (activeImpostors.length === 0) {
       setGameState(GameState.GAME_OVER);
-    } else if (config.winCondition === 'TWO_LEFT' && activeCivilians.length + activeImpostors.length <= 2) {
-      setGameState(GameState.GAME_OVER);
-    } else if (config.winCondition === 'PARITY' && activeImpostors.length >= activeCivilians.length) {
+    } else if (activeCivilians.length === 0) {
       setGameState(GameState.GAME_OVER);
     } else {
       setGameState(GameState.ROUND_RESULT);

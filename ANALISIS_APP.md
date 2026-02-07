@@ -48,6 +48,7 @@ Estados validos:
 | A-031 | Baja | CORREGIDO | Uso de `[TEMA]` era ambiguo al mover prompts a otras IAs sin contexto | `PROMPTS_IMAGENES_APP.txt` | Incluir mini-briefs por tema debajo de cada grupo con placeholders para copia/pegado directo |
 | A-032 | Baja | CORREGIDO | No habia matriz objetiva de prioridad para decidir produccion de assets por tema | `PROMPTS_IMAGENES_APP.txt` | Incluir tabla impacto vs coste y orden recomendado de temas/fases de produccion |
 | A-033 | Baja | CORREGIDO | Faltaba plan operativo para ejecutar generacion por lotes | `PROMPTS_IMAGENES_APP.txt` | Anadir checklist de produccion por sprint (objetivo, temas y entregables) |
+| A-034 | Alta | CORREGIDO | Fin de partida prematuro al expulsar un civil | `App.tsx` | Tras expulsar un no impostor, continuar a nueva ronda con jugadores activos; solo terminar cuando una faccion queda sin miembros |
 
 ## Bitacora de correcciones
 
@@ -107,6 +108,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-031 | CORREGIDO | Anadida guia de mini-briefs (9 temas) debajo de cada grupo que usa `[TEMA]` para evitar dependencia de contexto externo | Validacion manual del contenido en fichero |
 | 2026-02-07 | A-032 | CORREGIDO | Anadida matriz de prioridad en prompts (activos globales, orden de temas y plan por fases MVP/Plus) para priorizar generacion | Validacion manual del contenido en fichero |
 | 2026-02-07 | A-033 | CORREGIDO | Anadida tabla de checklist por sprint en prompts (sprint 1/2/3 con objetivos, temas y entregables) | Validacion manual del contenido en fichero |
+| 2026-02-07 | A-034 | CORREGIDO | Lógica de cierre ajustada: expulsar civil ya no cierra partida; se sigue con ronda nueva y solo termina con victoria civil (sin impostores) o impostora (sin civiles) | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 
