@@ -1,6 +1,67 @@
-# PROMPTS DE IMAGENES - EL IMPOSTOR
+﻿# PROMPTS DE IMAGENES - EL IMPOSTOR
 # Uso recomendado: Gemini (Nano Banana)
 # Nota: todos los prompts incluyen la regla de alpha + fallback solicitado.
+
+================================================================
+MATRIZ DE PRIORIDAD (IMPACTO VISUAL VS COSTE DE PRODUCCION)
+================================================================
+
+Escala usada:
+- Impacto visual: 1 (bajo) a 5 (alto)
+- Coste de produccion: 1 (bajo) a 5 (alto)
+- Prioridad recomendada: cuanto mas impacto y menos coste, antes se genera
+
+TABLA 1 - PRIORIDAD DE ACTIVOS (GLOBAL)
+
+| Activo | Impacto visual | Coste de produccion | Prioridad | Nota de lanzamiento |
+|---|---:|---:|---|---|
+| Banners por tema | 5 | 2 | Muy alta | Ya son la firma visual principal |
+| Botones pack base | 5 | 3 | Muy alta | Se ven en casi todas las pantallas |
+| Iconos UI pack | 4 | 3 | Alta | Mejora calidad percibida en toda la app |
+| Overlay cortina (revelar rol) | 4 | 2 | Alta | Impacto directo en momento clave del juego |
+| Tarjeta modal (sin palabras) | 3 | 2 | Media alta | Da coherencia cuando aparece feedback del sistema |
+| Overlay timer (normal/warning/critico) | 3 | 2 | Media | Aporta dinamismo en debate |
+| Tarjetas de fase (pack 8) | 3 | 4 | Media baja | Coste alto, beneficio moderado por ahora |
+| Badges dificultad/categorias | 2 | 2 | Baja media | Mejora detalle, no bloquea lanzamiento |
+| Role chips (civil/impostor) | 2 | 1 | Baja media | Rapido de producir, impacto menor |
+| Ornamento cabecera | 2 | 1 | Baja | Decorativo, prescindible al inicio |
+| Overlays glow/sombra (pack 10) | 2 | 3 | Baja | Facil de posponer |
+| Textura global tileable | 2 | 3 | Baja | Opcional si CSS actual ya funciona bien |
+
+TABLA 2 - ORDEN DE TEMAS (QUE GENERAR PRIMERO)
+
+| Orden | Tema | Impacto diferencial | Coste relativo | Prioridad | Motivo |
+|---:|---|---:|---:|---|---|
+| 1 | NOIR (default) | 5 | 1 | Muy alta | Referencia base del juego y comparador de estilo |
+| 2 | ARENA (light) | 4 | 2 | Alta | Alternativa clara muy usada y facil de mantener |
+| 3 | FIESTA | 4 | 2 | Alta | Da variedad visual inmediata y divertida |
+| 4 | CARTOON | 4 | 2 | Alta | Estilo muy reconocible, buen contraste con NOIR |
+| 5 | FANTASIA | 3 | 3 | Media alta | Tema fuerte, mas trabajo de consistencia |
+| 6 | SCI-FI | 3 | 3 | Media alta | Requiere control de glow para no saturar |
+| 7 | COSMOS | 3 | 3 | Media | Puede solaparse visualmente con sci-fi si no se cuida |
+| 8 | PUZZLE | 2 | 2 | Media baja | Estetica simple, menor impacto diferencial |
+| 9 | DIBUJO (hand-drawn) | 2 | 3 | Media baja | Mas sensible a incoherencias de trazo |
+
+TABLA 3 - PLAN PRACTICO POR TEMA (MVP -> PLUS)
+
+| Fase | Que generar por tema |
+|---|---|
+| MVP (imprescindible) | Banner + Botones pack base + Iconos UI pack |
+| Fase 2 (recomendado) | Overlay cortina + Tarjeta modal + Overlay timer |
+| Fase 3 (opcional) | Badges + Role chips + Ornamento cabecera + Textura global + Overlays glow + Tarjetas de fase |
+
+TABLA 4 - CHECKLIST DE PRODUCCION POR SPRINT
+
+| Sprint | Objetivo | Temas | Checklist de entrega |
+|---|---|---|---|
+| Sprint 1 (base de lanzamiento) | Cerrar identidad visual principal y consistencia funcional | NOIR, ARENA, FIESTA, CARTOON | Banner + Botones pack base + Iconos UI pack + Overlay cortina + Tarjeta modal sin palabras |
+| Sprint 2 (expansion de estilos) | Completar temas fuertes y estabilizar feedback visual | FANTASIA, SCI-FI, COSMOS | Banner + Botones pack base + Iconos UI pack + Overlay timer + Ajustes finos de contraste |
+| Sprint 3 (acabado y detalle) | Completar temas restantes y enriquecer decoracion opcional | PUZZLE, DIBUJO | Banner + Botones pack base + Iconos UI pack + (Opcional) badges, role chips, ornamento cabecera, textura global, glows |
+
+REGLA DE CIERRE POR SPRINT:
+- Validar legibilidad en movil (botones, iconos, textos clave) antes de pasar al siguiente sprint.
+- Si un tema falla contraste, priorizar correccion antes de generar assets opcionales.
+
 
 ================================================================
 GRUPO: BANNERS (LOGO WORDMARK "IMPOSTOR")
@@ -73,6 +134,17 @@ Formato: PNG, 2400x800, bordes limpios.
 GRUPO: BOTONES (CTA, SECUNDARIO, BACK, TOGGLE)
 ================================================================
 
+GUIA RAPIDA PARA RELLENAR [TEMA] (COPIAR/PEGAR):
+- NOIR: "Noir clasico de deduccion social, oscuro elegante, alto contraste, acentos azul petroleo y gris humo, bordes metalicos suaves, brillo contenido, look premium."
+- ARENA: "Arena calida y clara, tonos beige/cobre/ambar, textura fina de polvo, contraste medio-alto, estilo limpio y sofisticado."
+- FIESTA: "Fiesta divertida clara, tonos coral/naranja/rosa/amarillo, energia alta, formas dinamicas, brillo moderado, sin neon fosforito."
+- CARTOON: "Cartoon cute/kawaii, bordes redondeados, colores amables pastel-vibrantes, sombras suaves, estilo jugueton y muy legible."
+- FANTASIA: "RPG fantasia medieval, madera/piedra/metal envejecido, runas discretas, contraste claro, atmosfera de aventura."
+- SCI-FI: "Sci-fi futurista, geometria tecnica, HUD minimal, acentos cian/azul electrico, glow controlado, acabado limpio."
+- PUZZLE: "Minimal puzzle, geometrico, bloques de color bien definidos, composicion limpia, contraste alto, estilo moderno."
+- COSMOS: "Espacial/cosmos elegante, azules profundos con destellos estelares, orbitas sutiles, look flotante y legible."
+- DIBUJO: "Hand-drawn hecho a mano, trazo rotulador/lapiz, imperfeccion controlada, tonos calidos suaves, estilo artesanal."
+
 [BOTONES PACK BASE - TEMA VARIABLE]
 Genera un pack de botones UI para juego movil "El Impostor" en [TEMA]. Incluir en un sprite sheet horizontal o en archivos separados:
 1) Boton CTA grande (estado normal, hover, pressed, disabled)
@@ -85,17 +157,28 @@ No incluir texto quemado salvo placeholders minimos (sin branding extra).
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
 - sin watermark, sin mockup de telefono, sin marco.
-Formato: PNG RGBA, resolucion alta (minimo 2048 px lado mayor).
+Formato: PNG RGBA optimizado para app movil (lado mayor 1024-1280 px).
 
 [BOTON ESPECIAL - "A JUGAR"]
 Genera un unico boton super destacado para la accion "A JUGAR", estilo [TEMA], con borde, profundidad y respuesta tactil clara. Debe leerse perfecto en movil y soportar escalado.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 1200x400.
+Formato: PNG RGBA, 900x300.
 
 ================================================================
 GRUPO: TARJETAS DE FASE (PANTALLAS DE JUEGO)
 ================================================================
+
+GUIA RAPIDA PARA RELLENAR [TEMA] (COPIAR/PEGAR):
+- NOIR: "Noir clasico de deduccion social, oscuro elegante, alto contraste, acentos azul petroleo y gris humo, bordes metalicos suaves, brillo contenido, look premium."
+- ARENA: "Arena calida y clara, tonos beige/cobre/ambar, textura fina de polvo, contraste medio-alto, estilo limpio y sofisticado."
+- FIESTA: "Fiesta divertida clara, tonos coral/naranja/rosa/amarillo, energia alta, formas dinamicas, brillo moderado, sin neon fosforito."
+- CARTOON: "Cartoon cute/kawaii, bordes redondeados, colores amables pastel-vibrantes, sombras suaves, estilo jugueton y muy legible."
+- FANTASIA: "RPG fantasia medieval, madera/piedra/metal envejecido, runas discretas, contraste claro, atmosfera de aventura."
+- SCI-FI: "Sci-fi futurista, geometria tecnica, HUD minimal, acentos cian/azul electrico, glow controlado, acabado limpio."
+- PUZZLE: "Minimal puzzle, geometrico, bloques de color bien definidos, composicion limpia, contraste alto, estilo moderno."
+- COSMOS: "Espacial/cosmos elegante, azules profundos con destellos estelares, orbitas sutiles, look flotante y legible."
+- DIBUJO: "Hand-drawn hecho a mano, trazo rotulador/lapiz, imperfeccion controlada, tonos calidos suaves, estilo artesanal."
 
 [PACK TARJETAS DE FASE - TEMA VARIABLE]
 Genera 8 tarjetas de fase para UI del juego "El Impostor" en [TEMA], consistentes entre si:
@@ -112,17 +195,28 @@ No anadir personajes completos ni escenas complejas.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
 - sin watermark, sin texto excesivo.
-Formato: PNG RGBA, cada tarjeta 1200x1600 (o proporcion vertical similar).
+Formato: PNG RGBA, cada tarjeta 900x1200 (o proporcion vertical similar).
 
 [TARJETA MODAL - SIN PALABRAS DISPONIBLES]
 Genera una tarjeta modal para mensaje de sistema "Sin palabras disponibles" en estilo [TEMA], con look de alerta elegante y dos zonas de accion visual (primaria/secundaria) sin texto incrustado.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 1400x1600.
+Formato: PNG RGBA, 900x1100.
 
 ================================================================
 GRUPO: ICONOS FUNCIONALES
 ================================================================
+
+GUIA RAPIDA PARA RELLENAR [TEMA] (COPIAR/PEGAR):
+- NOIR: "Noir clasico de deduccion social, oscuro elegante, alto contraste, acentos azul petroleo y gris humo, bordes metalicos suaves, brillo contenido, look premium."
+- ARENA: "Arena calida y clara, tonos beige/cobre/ambar, textura fina de polvo, contraste medio-alto, estilo limpio y sofisticado."
+- FIESTA: "Fiesta divertida clara, tonos coral/naranja/rosa/amarillo, energia alta, formas dinamicas, brillo moderado, sin neon fosforito."
+- CARTOON: "Cartoon cute/kawaii, bordes redondeados, colores amables pastel-vibrantes, sombras suaves, estilo jugueton y muy legible."
+- FANTASIA: "RPG fantasia medieval, madera/piedra/metal envejecido, runas discretas, contraste claro, atmosfera de aventura."
+- SCI-FI: "Sci-fi futurista, geometria tecnica, HUD minimal, acentos cian/azul electrico, glow controlado, acabado limpio."
+- PUZZLE: "Minimal puzzle, geometrico, bloques de color bien definidos, composicion limpia, contraste alto, estilo moderno."
+- COSMOS: "Espacial/cosmos elegante, azules profundos con destellos estelares, orbitas sutiles, look flotante y legible."
+- DIBUJO: "Hand-drawn hecho a mano, trazo rotulador/lapiz, imperfeccion controlada, tonos calidos suaves, estilo artesanal."
 
 [ICONOS UI PACK - TEMA VARIABLE]
 Genera un pack de iconos para UI de juego en [TEMA], trazo consistente, grosor uniforme, legibles a 20-32 px:
@@ -142,77 +236,121 @@ Genera un pack de iconos para UI de juego en [TEMA], trazo consistente, grosor u
 Entregar estilo unificado y con version normal + activa.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA (sprite sheet 2048x2048 o individuales 512x512).
+Formato: PNG RGBA (sprite sheet 1024x1024 o individuales 256x256).
 
 [ICONOS DE ESTADO - VOTACION]
 Genera iconos de estado para votacion privada: "pendiente", "votado", "eliminado", "empate", "impostor detectado", estilo [TEMA], claros y distintos entre si.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 512x512 cada icono.
+Formato: PNG RGBA, 256x256 cada icono.
 
 ================================================================
 GRUPO: ROLES, BADGES Y ETIQUETAS
 ================================================================
 
+GUIA RAPIDA PARA RELLENAR [TEMA] (COPIAR/PEGAR):
+- NOIR: "Noir clasico de deduccion social, oscuro elegante, alto contraste, acentos azul petroleo y gris humo, bordes metalicos suaves, brillo contenido, look premium."
+- ARENA: "Arena calida y clara, tonos beige/cobre/ambar, textura fina de polvo, contraste medio-alto, estilo limpio y sofisticado."
+- FIESTA: "Fiesta divertida clara, tonos coral/naranja/rosa/amarillo, energia alta, formas dinamicas, brillo moderado, sin neon fosforito."
+- CARTOON: "Cartoon cute/kawaii, bordes redondeados, colores amables pastel-vibrantes, sombras suaves, estilo jugueton y muy legible."
+- FANTASIA: "RPG fantasia medieval, madera/piedra/metal envejecido, runas discretas, contraste claro, atmosfera de aventura."
+- SCI-FI: "Sci-fi futurista, geometria tecnica, HUD minimal, acentos cian/azul electrico, glow controlado, acabado limpio."
+- PUZZLE: "Minimal puzzle, geometrico, bloques de color bien definidos, composicion limpia, contraste alto, estilo moderno."
+- COSMOS: "Espacial/cosmos elegante, azules profundos con destellos estelares, orbitas sutiles, look flotante y legible."
+- DIBUJO: "Hand-drawn hecho a mano, trazo rotulador/lapiz, imperfeccion controlada, tonos calidos suaves, estilo artesanal."
+
 [PACK BADGES - DIFICULTAD]
 Genera badges de dificultad para juego movil: Facil, Media, Dificil, Extrema, estilo [TEMA], con forma consistente y legibilidad perfecta.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 1000x400 cada badge.
+Formato: PNG RGBA, 640x256 cada badge.
 
 [PACK BADGES - CATEGORIAS]
 Genera badges de categoria: Comida, Objetos, Animales, Profesiones, Lugares, Deportes, Tecnologia, Cultura, Naturaleza, estilo [TEMA].
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 1000x400 cada badge.
+Formato: PNG RGBA, 640x256 cada badge.
 
 [ROLE CHIPS]
 Genera chips visuales de rol: CIVIL e IMPOSTOR, con version normal, resaltada y eliminada (tachado/atenuado), estilo [TEMA], sin texto adicional.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 900x300 cada variante.
+Formato: PNG RGBA, 640x220 cada variante.
 
 ================================================================
 GRUPO: OVERLAYS Y EFECTOS DE PANTALLA
 ================================================================
 
+GUIA RAPIDA PARA RELLENAR [TEMA] (COPIAR/PEGAR):
+- NOIR: "Noir clasico de deduccion social, oscuro elegante, alto contraste, acentos azul petroleo y gris humo, bordes metalicos suaves, brillo contenido, look premium."
+- ARENA: "Arena calida y clara, tonos beige/cobre/ambar, textura fina de polvo, contraste medio-alto, estilo limpio y sofisticado."
+- FIESTA: "Fiesta divertida clara, tonos coral/naranja/rosa/amarillo, energia alta, formas dinamicas, brillo moderado, sin neon fosforito."
+- CARTOON: "Cartoon cute/kawaii, bordes redondeados, colores amables pastel-vibrantes, sombras suaves, estilo jugueton y muy legible."
+- FANTASIA: "RPG fantasia medieval, madera/piedra/metal envejecido, runas discretas, contraste claro, atmosfera de aventura."
+- SCI-FI: "Sci-fi futurista, geometria tecnica, HUD minimal, acentos cian/azul electrico, glow controlado, acabado limpio."
+- PUZZLE: "Minimal puzzle, geometrico, bloques de color bien definidos, composicion limpia, contraste alto, estilo moderno."
+- COSMOS: "Espacial/cosmos elegante, azules profundos con destellos estelares, orbitas sutiles, look flotante y legible."
+- DIBUJO: "Hand-drawn hecho a mano, trazo rotulador/lapiz, imperfeccion controlada, tonos calidos suaves, estilo artesanal."
+
 [OVERLAY - REVELAR ROL / CORTINA]
 Genera una textura/overlay para la cortina de "Revelar Rol" en estilo [TEMA]. Debe verse con volumen y permitir animacion vertical sin artefactos. No incluir texto ni personajes.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 1200x2200.
+Formato: PNG RGBA, 900x1600.
 
 [OVERLAY - TIMER DE DEBATE]
 Genera un aro de temporizador (ring) con estados: normal, warning, critico, estilo [TEMA], legible sobre fondos oscuros y claros.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 1200x1200 cada estado.
+Formato: PNG RGBA, 640x640 cada estado.
 
 [OVERLAY - RESPLANDORES Y SOMBRAS]
 Genera 10 overlays abstractos de glow/sombra para UI de juego en [TEMA], para usar como capas decorativas detras de botones y tarjetas.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 1600x900 cada overlay.
+Formato: PNG RGBA, 1024x576 cada overlay.
 
 ================================================================
 GRUPO: FONDOS/TEXTURAS POR TEMA (DECORACION GLOBAL)
 ================================================================
 
+GUIA RAPIDA PARA RELLENAR [TEMA] (COPIAR/PEGAR):
+- NOIR: "Noir clasico de deduccion social, oscuro elegante, alto contraste, acentos azul petroleo y gris humo, bordes metalicos suaves, brillo contenido, look premium."
+- ARENA: "Arena calida y clara, tonos beige/cobre/ambar, textura fina de polvo, contraste medio-alto, estilo limpio y sofisticado."
+- FIESTA: "Fiesta divertida clara, tonos coral/naranja/rosa/amarillo, energia alta, formas dinamicas, brillo moderado, sin neon fosforito."
+- CARTOON: "Cartoon cute/kawaii, bordes redondeados, colores amables pastel-vibrantes, sombras suaves, estilo jugueton y muy legible."
+- FANTASIA: "RPG fantasia medieval, madera/piedra/metal envejecido, runas discretas, contraste claro, atmosfera de aventura."
+- SCI-FI: "Sci-fi futurista, geometria tecnica, HUD minimal, acentos cian/azul electrico, glow controlado, acabado limpio."
+- PUZZLE: "Minimal puzzle, geometrico, bloques de color bien definidos, composicion limpia, contraste alto, estilo moderno."
+- COSMOS: "Espacial/cosmos elegante, azules profundos con destellos estelares, orbitas sutiles, look flotante y legible."
+- DIBUJO: "Hand-drawn hecho a mano, trazo rotulador/lapiz, imperfeccion controlada, tonos calidos suaves, estilo artesanal."
+
 [TEXTURA GLOBAL - TEMA VARIABLE]
 Genera una textura global para fondo de app en [TEMA], repetible (tileable), con detalles sutiles que no molesten la legibilidad del contenido.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 2048x2048, seamless tile.
+Formato: PNG RGBA, 1024x1024, seamless tile.
 
 [ORNAMENTO CABECERA - TEMA VARIABLE]
 Genera un ornamento horizontal para cabeceras de pantalla (Setup, Debate, Vote, etc.) en [TEMA], fino y elegante, sin texto.
 Reglas obligatorias de salida:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Formato: PNG RGBA, 2400x500.
+Formato: PNG RGBA, 1280x280.
 
 ================================================================
 GRUPO: PROMPTS RAPIDOS LISTOS (COPIAR/PEGAR)
 ================================================================
+
+GUIA RAPIDA PARA RELLENAR [TEMA] (COPIAR/PEGAR):
+- NOIR: "Noir clasico de deduccion social, oscuro elegante, alto contraste, acentos azul petroleo y gris humo, bordes metalicos suaves, brillo contenido, look premium."
+- ARENA: "Arena calida y clara, tonos beige/cobre/ambar, textura fina de polvo, contraste medio-alto, estilo limpio y sofisticado."
+- FIESTA: "Fiesta divertida clara, tonos coral/naranja/rosa/amarillo, energia alta, formas dinamicas, brillo moderado, sin neon fosforito."
+- CARTOON: "Cartoon cute/kawaii, bordes redondeados, colores amables pastel-vibrantes, sombras suaves, estilo jugueton y muy legible."
+- FANTASIA: "RPG fantasia medieval, madera/piedra/metal envejecido, runas discretas, contraste claro, atmosfera de aventura."
+- SCI-FI: "Sci-fi futurista, geometria tecnica, HUD minimal, acentos cian/azul electrico, glow controlado, acabado limpio."
+- PUZZLE: "Minimal puzzle, geometrico, bloques de color bien definidos, composicion limpia, contraste alto, estilo moderno."
+- COSMOS: "Espacial/cosmos elegante, azules profundos con destellos estelares, orbitas sutiles, look flotante y legible."
+- DIBUJO: "Hand-drawn hecho a mano, trazo rotulador/lapiz, imperfeccion controlada, tonos calidos suaves, estilo artesanal."
 
 [PROMPT RAPIDO - BANNER SOLO TEXTO]
 Crea un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe ocupar 80-90% de la composicion, estilo [TEMA], muy legible en movil, con 2-3 elementos decorativos maximo. No personajes, no escena completa, no texto extra.
@@ -224,10 +362,11 @@ Salida: PNG RGBA, 2400x800.
 Genera un icono de [NOMBRE_ICONO] para juego de deduccion social, estilo [TEMA], limpio, legible a 24px y 32px.
 Reglas obligatorias:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Salida: PNG RGBA, 512x512.
+Salida: PNG RGBA, 256x256.
 
 [PROMPT RAPIDO - BOTON CTA]
 Genera un boton CTA premium para app movil con estilo [TEMA], alto contraste y gran legibilidad tactil.
 Reglas obligatorias:
 - fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
-Salida: PNG RGBA, 1200x400.
+Salida: PNG RGBA, 900x300.
+

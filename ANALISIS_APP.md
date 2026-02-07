@@ -44,6 +44,10 @@ Estados validos:
 | A-027 | Alta | CORREGIDO | No existia seleccion de modo de votacion (grupo/individual) ni persistencia durante la sesion | `types.ts`, `screens/SetupScreen.tsx`, `screens/VoteScreen.tsx`, `App.tsx` | Permitir elegir modo en setup, aplicarlo en votacion y recordarlo en `sessionStorage` |
 | A-028 | Media | CORREGIDO | Faltaba modo de tema aleatorio por palabra y acceso del selector de tema en posicion mas usable | `App.tsx` | Permitir activar tema aleatorio para cada nueva palabra y recolocar boton de tema arriba a la derecha |
 | A-029 | Media | CORREGIDO | El CTA final redirigia a setup en vez de reiniciar con la misma mesa | `App.tsx`, `screens/GameOverScreen.tsx` | Boton final debe iniciar otra partida con nueva palabra manteniendo jugadores y configuracion |
+| A-030 | Baja | CORREGIDO | Prompts de imagen no-banner pedian resoluciones altas y generaban assets pesados | `PROMPTS_IMAGENES_APP.txt` | Reducir resoluciones objetivo para uso movil/web manteniendo legibilidad |
+| A-031 | Baja | CORREGIDO | Uso de `[TEMA]` era ambiguo al mover prompts a otras IAs sin contexto | `PROMPTS_IMAGENES_APP.txt` | Incluir mini-briefs por tema debajo de cada grupo con placeholders para copia/pegado directo |
+| A-032 | Baja | CORREGIDO | No habia matriz objetiva de prioridad para decidir produccion de assets por tema | `PROMPTS_IMAGENES_APP.txt` | Incluir tabla impacto vs coste y orden recomendado de temas/fases de produccion |
+| A-033 | Baja | CORREGIDO | Faltaba plan operativo para ejecutar generacion por lotes | `PROMPTS_IMAGENES_APP.txt` | Anadir checklist de produccion por sprint (objetivo, temas y entregables) |
 
 ## Bitacora de correcciones
 
@@ -99,6 +103,10 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-027 | CORREGIDO | Migrada clave de sesion de voto a `impostor_vote_mode_v2` para evitar arrastrar defaults antiguos y garantizar `Grupo` por defecto en esta version | `npm run build` OK |
 | 2026-02-07 | A-028 | CORREGIDO | Se anadio toggle de tema aleatorio por palabra (persistente) y se movio el boton de tema a la esquina superior derecha | `npm run build` OK |
 | 2026-02-07 | A-029 | CORREGIDO | En Game Over, el boton ahora lanza una nueva partida con mismos jugadores/configuracion y palabra nueva (sin pasar por setup) | `npm run build` OK |
+| 2026-02-07 | A-030 | CORREGIDO | Ajustadas resoluciones de prompts no-banner (botones, tarjetas, iconos, overlays, texturas, ornamentos y prompts rapidos) para reducir peso final de imagenes | Validacion manual del contenido en fichero |
+| 2026-02-07 | A-031 | CORREGIDO | Anadida guia de mini-briefs (9 temas) debajo de cada grupo que usa `[TEMA]` para evitar dependencia de contexto externo | Validacion manual del contenido en fichero |
+| 2026-02-07 | A-032 | CORREGIDO | Anadida matriz de prioridad en prompts (activos globales, orden de temas y plan por fases MVP/Plus) para priorizar generacion | Validacion manual del contenido en fichero |
+| 2026-02-07 | A-033 | CORREGIDO | Anadida tabla de checklist por sprint en prompts (sprint 1/2/3 con objetivos, temas y entregables) | Validacion manual del contenido en fichero |
 
 ## Regla de actualizacion durante ejecucion
 
