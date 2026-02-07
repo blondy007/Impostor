@@ -54,6 +54,8 @@ Estados validos:
 | A-037 | Media | CORREGIDO | No habia pantalla de marcador consultable en cualquier momento | `App.tsx`, `screens/ScoreboardScreen.tsx` | Agregar acceso persistente a marcador y vista de clasificacion + historial de rondas |
 | A-038 | Alta | CORREGIDO | En modo de voto de grupo faltaba alternativa individual cuando no hay unanimidad | `screens/VoteScreen.tsx` | Permitir elegir en pantalla entre consenso grupal o registro individualizado para puntuar por votante |
 | A-039 | Media | CORREGIDO | El voto grupal no tenia puntuacion y dejaba huecos en el conteo | `App.tsx` | Asignar puntos simples a todos los participantes del voto grupal (+1 acierto / -1 fallo) |
+| A-040 | Baja | CORREGIDO | Faltaba guia clara de despliegue Android + hosting gratis sin codificar cambios aun | `DESPLIEGUE_ANDROID_GITHUB.md` | Documentar opciones sin cambios, cambios minimos PWA y pasos para GitHub Pages |
+| A-041 | Media | CORREGIDO | Faltaba automatizar publicacion en GitHub Pages y preparar Vite para subpath de repo | `vite.config.ts`, `.github/workflows/deploy-pages.yml`, `README.md` | Configurar `BASE_PATH`, workflow de Pages con Actions y guia de publicacion |
 
 ## Bitacora de correcciones
 
@@ -119,6 +121,8 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-037 | CORREGIDO | Integrada pantalla de marcador consultable en cualquier momento con clasificacion total e historial de deltas por ronda | `npm run build` OK |
 | 2026-02-07 | A-038 | CORREGIDO | En votacion de grupo se anadio selector de unanimidad: consenso grupal o paso a votos individuales (con puntuacion por persona cuando no hay consenso) | `npm run build` OK |
 | 2026-02-07 | A-039 | CORREGIDO | Puntuacion simple para voto grupal integrada en scoring: todos los participantes de la ronda suman +1 si expulsan impostor o restan -1 si expulsan civil | `npm run build` OK |
+| 2026-02-07 | A-040 | CORREGIDO | Creado documento de decision de despliegue (`Android`/`PWA`/`GitHub Pages`) con esfuerzo estimado y enlaces oficiales | Validacion manual del contenido en fichero |
+| 2026-02-07 | A-041 | CORREGIDO | Se configuro despliegue automatico a GitHub Pages (workflow Actions), soporte de `BASE_PATH` en Vite y README con pasos de publicacion | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 
