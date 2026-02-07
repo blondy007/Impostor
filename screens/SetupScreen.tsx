@@ -89,6 +89,7 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   const [playerCount, setPlayerCount] = useState(initialConfig.playerCount || 7);
   const [impostorCount, setImpostorCount] = useState(initialConfig.impostorCount || 1);
   const [difficulty, setDifficulty] = useState<Difficulty>(initialConfig.difficulty || Difficulty.MEDIUM);
+  const [voteMode, setVoteMode] = useState<'INDIVIDUAL' | 'GROUP'>(initialConfig.voteMode || 'GROUP');
   const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(initialConfig.aiWordGenerationEnabled || false);
   const [playerDrafts, setPlayerDrafts] = useState<PlayerDraft[]>([]);
   const [view, setView] = useState<'config' | 'names'>('config');
@@ -185,8 +186,9 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
     setPlayerCount(initialConfig.playerCount || 7);
     setImpostorCount(initialConfig.impostorCount || 1);
     setDifficulty(initialConfig.difficulty || Difficulty.MEDIUM);
+    setVoteMode(initialConfig.voteMode || 'GROUP');
     setAiWordGenerationEnabled(initialConfig.aiWordGenerationEnabled || false);
-  }, [initialConfig.playerCount, initialConfig.impostorCount, initialConfig.difficulty, initialConfig.aiWordGenerationEnabled]);
+  }, [initialConfig.playerCount, initialConfig.impostorCount, initialConfig.difficulty, initialConfig.voteMode, initialConfig.aiWordGenerationEnabled]);
 
   useEffect(() => {
     if (!exhaustedDifficulties[difficulty]) return;
@@ -322,6 +324,7 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
       impostorCount: safeImpostorCount,
       difficulty,
       categories: [...CATEGORIES],
+      voteMode,
       aiWordGenerationEnabled,
       timerEnabled: true,
       timerSeconds: 60,
@@ -408,6 +411,30 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
                   {d}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Modo de votacion</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setVoteMode('INDIVIDUAL')}
+                className={`p-4 rounded-2xl font-bold border-2 transition-all ${
+                  voteMode === 'INDIVIDUAL' ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-500'
+                }`}
+              >
+                Individual
+              </button>
+              <button
+                type="button"
+                onClick={() => setVoteMode('GROUP')}
+                className={`p-4 rounded-2xl font-bold border-2 transition-all ${
+                  voteMode === 'GROUP' ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-500'
+                }`}
+              >
+                Grupo
+              </button>
             </div>
           </div>
 

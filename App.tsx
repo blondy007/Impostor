@@ -98,9 +98,9 @@ const getInitialThemeMode = (): ThemeMode => {
 };
 
 const getInitialVoteMode = (): 'INDIVIDUAL' | 'GROUP' => {
-  if (typeof window === 'undefined') return 'INDIVIDUAL';
+  if (typeof window === 'undefined') return 'GROUP';
   const stored = window.sessionStorage.getItem(VOTE_MODE_SESSION_KEY);
-  return stored === 'GROUP' ? 'GROUP' : 'INDIVIDUAL';
+  return stored === 'INDIVIDUAL' ? 'INDIVIDUAL' : 'GROUP';
 };
 
 const App: React.FC = () => {

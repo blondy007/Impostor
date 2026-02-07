@@ -1,42 +1,53 @@
-
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Player } from '../types';
 
 interface Props {
   players: Player[];
+  voteMode: 'INDIVIDUAL' | 'GROUP';
   onVoteFinished: (expelledId: string) => void;
   onBack: () => void;
 }
 
-const VoteScreen: React.FC<Props> = ({ players, onVoteFinished, onBack }) => {
-  const activePlayers = players.filter(p => !p.isEliminated);
+const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack }) => {
+  const activePlayers = useMemo(() => players.filter((p) => !p.isEliminated), [players]);
+  const isGroupVote = voteMode === 'GROUP';
+
   const [voterIndex, setVoterIndex] = useState(0);
   const [isPrivate, setIsPrivate] = useState(true);
   const [votes, setVotes] = useState<Record<string, number>>({});
 
   const currentVoter = activePlayers[voterIndex];
 
-  const handleVote = (targetId: string) => {
+  const finishWithMostVoted = (nextVotes: Record<string, number>) => {
+    let maxVotes = -1;
+    let expelledId = '';
+
+    Object.entries(nextVotes).forEach(([id, count]) => {
+      const voteCount = count as number;
+      if (voteCount > maxVotes) {
+        maxVotes = voteCount;
+        expelledId = id;
+      }
+    });
+
+    if (expelledId) onVoteFinished(expelledId);
+  };
+
+  const handleIndividualVote = (targetId: string) => {
     const newVotes = { ...votes };
     newVotes[targetId] = (newVotes[targetId] || 0) + 1;
     setVotes(newVotes);
 
     if (voterIndex === activePlayers.length - 1) {
-      let maxVotes = -1;
-      let expelledId = '';
-      Object.entries(newVotes).forEach(([id, count]) => {
-        const voteCount = count as number;
-        if (voteCount > maxVotes) {
-          maxVotes = voteCount;
-          expelledId = id;
-        }
-      });
-      onVoteFinished(expelledId);
-    } else {
-      setVoterIndex(voterIndex + 1);
-      setIsPrivate(true);
+      finishWithMostVoted(newVotes);
+      return;
     }
+
+    setVoterIndex((prev) => prev + 1);
+    setIsPrivate(true);
   };
+
+  if (activePlayers.length === 0 || (!isGroupVote && !currentVoter)) return null;
 
   return (
     <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300">
@@ -46,16 +57,30 @@ const VoteScreen: React.FC<Props> = ({ players, onVoteFinished, onBack }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h2 className="text-3xl font-black italic ml-4 uppercase tracking-tighter">Votación</h2>
+        <h2 className="text-3xl font-black italic ml-4 uppercase tracking-tighter">Votacion</h2>
       </div>
 
-      {isPrivate ? (
+      {isGroupVote ? (
+        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+          <p className="text-center text-slate-400 mb-6 font-medium uppercase tracking-widest text-[10px]">Votacion en grupo: seleccionad a quien expulsar</p>
+          {activePlayers.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => onVoteFinished(p.id)}
+              className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 p-5 rounded-2xl flex justify-between items-center group active:scale-[0.98] transition-all"
+            >
+              <span className="font-bold text-lg text-slate-300">{p.name}</span>
+              <div className="px-3 py-1 rounded-full border border-indigo-500/60 text-[10px] font-black uppercase tracking-wider text-indigo-400">Expulsar</div>
+            </button>
+          ))}
+        </div>
+      ) : isPrivate ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-8 text-center">
           <div className="space-y-2">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Turno de Voto Privado</h3>
             <h4 className="text-4xl font-black text-indigo-400 italic tracking-tighter">{currentVoter.name}</h4>
           </div>
-          <button 
+          <button
             onClick={() => setIsPrivate(false)}
             className="bg-indigo-600 p-8 rounded-full border-4 border-indigo-500/50 shadow-2xl shadow-indigo-600/30 font-bold text-lg active:scale-90 transition-all flex items-center justify-center w-24 h-24 mx-auto"
           >
@@ -64,15 +89,17 @@ const VoteScreen: React.FC<Props> = ({ players, onVoteFinished, onBack }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
           </button>
-          <p className="text-slate-600 text-sm px-10">Pulsa el botón solo cuando tengas el dispositivo en tus manos.</p>
+          <p className="text-slate-600 text-sm px-10">Pulsa el boton solo cuando tengas el dispositivo en tus manos.</p>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-          <p className="text-center text-slate-400 mb-6 font-medium uppercase tracking-widest text-[10px]">¿Quién es el impostor, <span className="text-white font-bold">{currentVoter.name}</span>?</p>
-          {activePlayers.map(p => (
-            <button 
+          <p className="text-center text-slate-400 mb-6 font-medium uppercase tracking-widest text-[10px]">
+            Quien es el impostor, <span className="text-white font-bold">{currentVoter.name}</span>?
+          </p>
+          {activePlayers.map((p) => (
+            <button
               key={p.id}
-              onClick={() => handleVote(p.id)}
+              onClick={() => handleIndividualVote(p.id)}
               className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 p-5 rounded-2xl flex justify-between items-center group active:scale-[0.98] transition-all"
             >
               <span className="font-bold text-lg text-slate-300">{p.name}</span>

@@ -37,6 +37,7 @@ export interface GameConfig {
   impostorCount: number;
   difficulty: Difficulty;
   categories: string[];
+  voteMode: 'INDIVIDUAL' | 'GROUP';
   aiWordGenerationEnabled: boolean;
   timerEnabled: boolean;
   timerSeconds: number;
