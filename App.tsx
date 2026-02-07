@@ -78,7 +78,10 @@ const App: React.FC = () => {
         votesReceived: 0,
       }));
 
-      setPlayers(initialPlayers);
+      const revealStartIndex = Math.floor(Math.random() * initialPlayers.length);
+      const tableOrderedPlayers = [...initialPlayers.slice(revealStartIndex), ...initialPlayers.slice(0, revealStartIndex)];
+      setPlayers(tableOrderedPlayers);
+      setLastExpelled(null);
 
       const localFallbackWord = getRandomLocalWord(newConfig.difficulty);
       let word = '';

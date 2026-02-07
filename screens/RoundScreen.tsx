@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Player } from '../types';
 
 interface Props {
@@ -11,24 +10,14 @@ interface Props {
   onBack: () => void;
 }
 
-const RoundScreen: React.FC<Props> = ({ players, roundNumber, secretWord, onCluesFinished, onChangeWord, onBack }) => {
+const RoundScreen: React.FC<Props> = ({ players, roundNumber, onCluesFinished, onChangeWord, onBack }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Generamos el orden de la mesa al azar pero manteniendo la circularidad física
-  const orderedTurnList = useMemo(() => {
-    if (players.length === 0) return [];
-    const startIndex = Math.floor(Math.random() * players.length);
-    return [
-      ...players.slice(startIndex),
-      ...players.slice(0, startIndex)
-    ];
-  }, [players]);
-
+  const orderedTurnList = players;
   const activePlayer = orderedTurnList[currentIndex];
 
   const handleNextPlayer = () => {
     if (currentIndex === orderedTurnList.length - 1) {
-      onCluesFinished([]); 
+      onCluesFinished([]);
     } else {
       setCurrentIndex(currentIndex + 1);
     }
@@ -49,13 +38,10 @@ const RoundScreen: React.FC<Props> = ({ players, roundNumber, secretWord, onClue
           </svg>
         </button>
         <div className="flex-1">
-          <h2 className="text-xl font-extrabold text-white leading-tight">Misión Pista</h2>
+          <h2 className="text-xl font-extrabold text-white leading-tight">Mision Pista</h2>
           <p className="text-indigo-500 text-[9px] font-black uppercase tracking-widest">Ronda {roundNumber}</p>
         </div>
-        <button 
-          onClick={onChangeWord}
-          className="text-[9px] font-black text-red-500 border border-red-500/20 px-3 py-1.5 rounded-full uppercase"
-        >
+        <button onClick={onChangeWord} className="text-[9px] font-black text-red-500 border border-red-500/20 px-3 py-1.5 rounded-full uppercase">
           Reset
         </button>
       </div>
@@ -63,44 +49,36 @@ const RoundScreen: React.FC<Props> = ({ players, roundNumber, secretWord, onClue
       <div className="flex-1 flex flex-col justify-center space-y-4">
         <div className="bg-slate-900 border-2 border-slate-800 rounded-[2.5rem] p-6 flex flex-col items-center text-center space-y-4 shadow-xl relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
-          
+
           <div className="bg-indigo-500/10 px-3 py-1 rounded-full">
             <span className="text-[9px] font-black text-indigo-400 tracking-[0.2em] uppercase">
               {currentIndex === 0 ? 'EL ELEGIDO PARA EMPEZAR' : `MESA: TURNO ${currentIndex + 1}`}
             </span>
           </div>
 
-          <h3 className="text-4xl font-black text-white tracking-tighter leading-none italic uppercase">
-            {activePlayer.name}
-          </h3>
-          
+          <h3 className="text-4xl font-black text-white tracking-tighter leading-none italic uppercase">{activePlayer.name}</h3>
+
           <div className="pt-1 px-2">
-             <p className="text-white/80 font-bold text-base leading-tight">
-               {currentIndex === 0 ? '¡Rómpelo tú!' : 'Pasa el dispositivo.'} <br/>
-               <span className="text-slate-500 text-xs italic font-normal">Da una pista rápida.</span>
-             </p>
+            <p className="text-white/80 font-bold text-base leading-tight">
+              {currentIndex === 0 ? '¡Rompe tu!' : 'Pasa el dispositivo.'} <br />
+              <span className="text-slate-500 text-xs italic font-normal">Da una pista rapida.</span>
+            </p>
           </div>
 
           <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${currentIndex === 0 ? 'bg-indigo-500 shadow-[0_0_20px_rgba(79,70,229,0.4)] animate-pulse' : 'bg-slate-800'}`}>
-             <svg xmlns="http://www.w3.org/2000/svg" className={`h-7 w-7 ${currentIndex === 0 ? 'text-white' : 'text-slate-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-             </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className={`h-7 w-7 ${currentIndex === 0 ? 'text-white' : 'text-slate-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
           </div>
         </div>
 
         <div className="space-y-3">
-          <button 
-            onClick={handleNextPlayer}
-            className="w-full bg-white text-slate-950 p-4 rounded-[1.8rem] font-black text-lg active:scale-95 transition-all shadow-lg"
-          >
+          <button onClick={handleNextPlayer} className="w-full bg-white text-slate-950 p-4 rounded-[1.8rem] font-black text-lg active:scale-95 transition-all shadow-lg">
             {currentIndex === orderedTurnList.length - 1 ? 'Finalizar Rondas' : 'Siguiente en la Mesa'}
           </button>
 
-          <button 
-            onClick={skipAllTurns}
-            className="w-full bg-slate-950/50 text-slate-600 p-2.5 rounded-[1.2rem] font-black text-[8px] uppercase tracking-widest transition-all"
-          >
-            ⏭️ Saltar todo
+          <button onClick={skipAllTurns} className="w-full bg-slate-950/50 text-slate-600 p-2.5 rounded-[1.2rem] font-black text-[8px] uppercase tracking-widest transition-all">
+            Saltar todo
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
 import { Player, Role } from '../types';
 import FitSingleLineText from '../components/FitSingleLineText';
 
@@ -19,17 +19,7 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
   const startY = useRef(0);
   const currentY = useRef(0);
 
-  // Calculamos el orden circular una sola vez al montar el componente
-  const orderedList = useMemo(() => {
-    if (players.length === 0) return [];
-    const startIndex = Math.floor(Math.random() * players.length);
-    return [
-      ...players.slice(startIndex),
-      ...players.slice(0, startIndex)
-    ];
-  }, [players]);
-
-  const currentPlayer = orderedList[currentIndex];
+  const currentPlayer = players[currentIndex];
 
   const handleStart = (e: React.TouchEvent | React.MouseEvent) => {
     setIsDragging(true);
@@ -63,7 +53,7 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
   };
 
   const handleNext = () => {
-    if (currentIndex === orderedList.length - 1) {
+    if (currentIndex === players.length - 1) {
       onFinished();
     } else {
       setCurrentIndex(currentIndex + 1);
