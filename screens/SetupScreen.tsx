@@ -3,11 +3,12 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { DndContext, DragEndEvent, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { CATEGORIES } from '../constants';
+import { CATEGORIES, INITIAL_WORDS } from '../constants';
 import { Difficulty, GameConfig } from '../types';
 
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 20;
+const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
 
 interface PlayerDraft {
   id: string;
@@ -105,6 +106,49 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   );
 
   const playerIds = useMemo(() => playerDrafts.map((draft) => draft.id), [playerDrafts]);
+  const exhaustedDifficulties = useMemo(() => {
+    const totalByDifficulty: Record<Difficulty, number> = {
+      [Difficulty.EASY]: 0,
+      [Difficulty.MEDIUM]: 0,
+      [Difficulty.HARD]: 0,
+      [Difficulty.EXTREME]: 0,
+    };
+
+    INITIAL_WORDS.forEach((word) => {
+      totalByDifficulty[word.difficulty] += 1;
+    });
+
+    const usedByDifficulty: Record<Difficulty, Set<string>> = {
+      [Difficulty.EASY]: new Set<string>(),
+      [Difficulty.MEDIUM]: new Set<string>(),
+      [Difficulty.HARD]: new Set<string>(),
+      [Difficulty.EXTREME]: new Set<string>(),
+    };
+
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = window.sessionStorage.getItem(USED_WORDS_SESSION_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as Partial<Record<Difficulty, string[]>>;
+          (Object.values(Difficulty) as Difficulty[]).forEach((d) => {
+            usedByDifficulty[d] = new Set(parsed[d] || []);
+          });
+        }
+      } catch {
+        // Ignore malformed session payload and keep defaults.
+      }
+    }
+
+    return (Object.values(Difficulty) as Difficulty[]).reduce<Record<Difficulty, boolean>>((acc, d) => {
+      acc[d] = usedByDifficulty[d].size >= totalByDifficulty[d];
+      return acc;
+    }, {
+      [Difficulty.EASY]: false,
+      [Difficulty.MEDIUM]: false,
+      [Difficulty.HARD]: false,
+      [Difficulty.EXTREME]: false,
+    });
+  }, []);
 
   const getDefaultName = (index: number) => requestedNames[index] || `Agente ${index + 1}`;
 
@@ -143,6 +187,14 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
     setDifficulty(initialConfig.difficulty || Difficulty.MEDIUM);
     setAiWordGenerationEnabled(initialConfig.aiWordGenerationEnabled || false);
   }, [initialConfig.playerCount, initialConfig.impostorCount, initialConfig.difficulty, initialConfig.aiWordGenerationEnabled]);
+
+  useEffect(() => {
+    if (!exhaustedDifficulties[difficulty]) return;
+    const firstAvailable = (Object.values(Difficulty) as Difficulty[]).find((d) => !exhaustedDifficulties[d]);
+    if (firstAvailable) {
+      setDifficulty(firstAvailable);
+    }
+  }, [difficulty, exhaustedDifficulties]);
 
   const startListening = () => {
     if (!recognitionRef.current) return;
@@ -342,10 +394,16 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
               {Object.values(Difficulty).map((d) => (
                 <button
                   key={d}
+                  disabled={exhaustedDifficulties[d]}
                   onClick={() => setDifficulty(d)}
                   className={`p-4 rounded-2xl font-bold border-2 transition-all ${
-                    difficulty === d ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-500'
+                    exhaustedDifficulties[d]
+                      ? 'bg-slate-900 border-slate-800 text-slate-600 line-through decoration-2 cursor-not-allowed opacity-60'
+                      : difficulty === d
+                        ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg'
+                        : 'bg-slate-900 border-slate-800 text-slate-500'
                   }`}
+                  title={exhaustedDifficulties[d] ? 'Sin palabras disponibles en esta sesion' : undefined}
                 >
                   {d}
                 </button>

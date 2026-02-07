@@ -724,15 +724,4 @@ const FULL_INITIAL_WORDS: Word[] = [
   ...buildWords('e', Difficulty.EXTREME, EXTREME_SEEDS),
 ];
 
-// TEMPORAL: pool reducido para validar agotamiento de palabras por sesion.
-// Cambiar a false cuando terminen las pruebas.
-const USE_TEMP_WORD_POOL_FOR_TESTING = true;
-
-const TEMP_INITIAL_WORDS: Word[] = [
-  { id: 'temp-f1', text: 'Pizza', category: 'Comida', difficulty: Difficulty.EASY },
-  { id: 'temp-m1', text: 'Sushi', category: 'Comida', difficulty: Difficulty.MEDIUM },
-  { id: 'temp-h1', text: 'Azafran', category: 'Comida', difficulty: Difficulty.HARD },
-  { id: 'temp-e1', text: 'Entropia', category: 'Naturaleza', difficulty: Difficulty.EXTREME },
-];
-
-export const INITIAL_WORDS: Word[] = USE_TEMP_WORD_POOL_FOR_TESTING ? TEMP_INITIAL_WORDS : FULL_INITIAL_WORDS;
+export const INITIAL_WORDS: Word[] = FULL_INITIAL_WORDS;

@@ -6,34 +6,83 @@ const REVEAL_THRESHOLD = 40;
 const SNAP_CLOSE_THRESHOLD = 18;
 const SNAP_OPEN_THRESHOLD = 82;
 const CLOSE_BEFORE_NEXT_MS = 240;
+const IVAN_CHEAT_LONG_PRESS_MS = 900;
+const IVAN_CHEAT_VISIBLE_MS = 2400;
+const normalizePlayerName = (name: string): string => {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+};
 
 interface Props {
   players: Player[];
   secretWord: string;
+  impostorNames: string[];
+  ivanCheatAvailable: boolean;
+  onIvanCheatUsed: () => void;
   onFinished: () => void;
   onBack: () => void;
 }
 
-const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack }) => {
+const RevealScreen: React.FC<Props> = ({ players, secretWord, impostorNames, ivanCheatAvailable, onIvanCheatUsed, onFinished, onBack }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shutterPos, setShutterPos] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isTransitioningNext, setIsTransitioningNext] = useState(false);
+  const [showIvanHint, setShowIvanHint] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef(0);
   const currentY = useRef(0);
   const nextTimerRef = useRef<number | null>(null);
+  const ivanCheatPressTimerRef = useRef<number | null>(null);
+  const hideIvanHintTimerRef = useRef<number | null>(null);
 
   const currentPlayer = players[currentIndex];
+  const normalizedName = currentPlayer ? normalizePlayerName(currentPlayer.name) : '';
+  const isIvanTurn = normalizedName === 'ivan';
   const canProceed = shutterPos >= REVEAL_THRESHOLD && !isTransitioningNext;
+  const canUseIvanCheat =
+    isIvanTurn && ivanCheatAvailable && impostorNames.length > 0 && shutterPos >= REVEAL_THRESHOLD && !isTransitioningNext;
 
   useEffect(() => {
     return () => {
       if (nextTimerRef.current !== null) {
         window.clearTimeout(nextTimerRef.current);
       }
+      if (ivanCheatPressTimerRef.current !== null) {
+        window.clearTimeout(ivanCheatPressTimerRef.current);
+      }
+      if (hideIvanHintTimerRef.current !== null) {
+        window.clearTimeout(hideIvanHintTimerRef.current);
+      }
     };
   }, []);
+
+  const clearIvanCheatPressTimer = () => {
+    if (ivanCheatPressTimerRef.current !== null) {
+      window.clearTimeout(ivanCheatPressTimerRef.current);
+      ivanCheatPressTimerRef.current = null;
+    }
+  };
+
+  const armIvanCheat = () => {
+    if (!canUseIvanCheat) return;
+    clearIvanCheatPressTimer();
+
+    ivanCheatPressTimerRef.current = window.setTimeout(() => {
+      setShowIvanHint(true);
+      onIvanCheatUsed();
+
+      if (hideIvanHintTimerRef.current !== null) {
+        window.clearTimeout(hideIvanHintTimerRef.current);
+      }
+      hideIvanHintTimerRef.current = window.setTimeout(() => {
+        setShowIvanHint(false);
+      }, IVAN_CHEAT_VISIBLE_MS);
+    }, IVAN_CHEAT_LONG_PRESS_MS);
+  };
 
   const handleStart = (e: React.TouchEvent | React.MouseEvent) => {
     if (isTransitioningNext) return;
@@ -76,6 +125,8 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
       return;
     }
 
+    clearIvanCheatPressTimer();
+    setShowIvanHint(false);
     setIsDragging(false);
     setIsTransitioningNext(true);
     setShutterPos(0);
@@ -100,7 +151,17 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
 
       <div className="flex flex-col items-center justify-center space-y-4 flex-1">
         <div className="text-center">
-          <h3 className="text-indigo-500 uppercase tracking-[0.4em] text-[10px] font-black mb-1">REVELAR ROL</h3>
+          <h3
+            className="text-indigo-500 uppercase tracking-[0.4em] text-[10px] font-black mb-1"
+            onMouseDown={armIvanCheat}
+            onMouseUp={clearIvanCheatPressTimer}
+            onMouseLeave={clearIvanCheatPressTimer}
+            onTouchStart={armIvanCheat}
+            onTouchEnd={clearIvanCheatPressTimer}
+            onTouchCancel={clearIvanCheatPressTimer}
+          >
+            REVELAR ROL
+          </h3>
           <h2 className="text-4xl font-black text-white italic tracking-tighter">{currentPlayer.name}</h2>
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2">Mesa Redonda: Turno {currentIndex + 1}</p>
         </div>
@@ -140,6 +201,15 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
                 <p className="text-[10px] font-black text-red-500 uppercase leading-tight italic tracking-widest">
                   Miente y engana <br />
                   para ganar
+                </p>
+              </div>
+            )}
+
+            {showIvanHint && (
+              <div className="mt-3 w-full bg-amber-500/15 border border-amber-400/40 rounded-2xl p-3 shadow-lg animate-in fade-in duration-150">
+                <p className="text-[8px] font-black text-amber-300 uppercase tracking-[0.2em] mb-1">Canal privado</p>
+                <p className="text-sm font-black text-amber-100 uppercase tracking-wide">
+                  {impostorNames.length > 1 ? `Impostores: ${impostorNames.join(', ')}` : `Impostor: ${impostorNames[0]}`}
                 </p>
               </div>
             )}

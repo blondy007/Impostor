@@ -92,6 +92,7 @@ const App: React.FC = () => {
   });
   const [players, setPlayers] = useState<Player[]>([]);
   const [secretWord, setSecretWord] = useState('');
+  const [ivanCheatUsedForCurrentWord, setIvanCheatUsedForCurrentWord] = useState(false);
   const [roundNumber, setRoundNumber] = useState(1);
   const [lastExpelled, setLastExpelled] = useState<Player | null>(null);
   const [gameId, setGameId] = useState(Math.random().toString());
@@ -255,6 +256,7 @@ const App: React.FC = () => {
       setPlayers(tableOrderedPlayers);
       setLastExpelled(null);
       setSecretWord(word);
+      setIvanCheatUsedForCurrentWord(false);
       setRoundNumber(1);
       setGameState(GameState.ROLE_REVEAL);
     } catch (error: any) {
@@ -289,6 +291,8 @@ const App: React.FC = () => {
     }
   };
 
+  const impostorNames = players.filter((p) => p.role === Role.IMPOSTOR).map((p) => p.name);
+
   return (
     <div className={`app-shell theme-${themeMode} min-h-screen w-full flex flex-col items-center overflow-hidden`}>
       <div
@@ -312,7 +316,16 @@ const App: React.FC = () => {
           {gameState === GameState.HOME && <HomeScreen onNewGame={() => setGameState(GameState.SETUP)} onLibrary={() => setGameState(GameState.LIBRARY)} />}
           {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} initialConfig={config} />}
           {gameState === GameState.ROLE_REVEAL && (
-            <RevealScreen key={`reveal-${gameId}`} players={players} secretWord={secretWord} onFinished={() => setGameState(GameState.ROUND_CLUES)} onBack={resetToHome} />
+            <RevealScreen
+              key={`reveal-${gameId}`}
+              players={players}
+              secretWord={secretWord}
+              impostorNames={impostorNames}
+              ivanCheatAvailable={!ivanCheatUsedForCurrentWord}
+              onIvanCheatUsed={() => setIvanCheatUsedForCurrentWord(true)}
+              onFinished={() => setGameState(GameState.ROUND_CLUES)}
+              onBack={resetToHome}
+            />
           )}
           {gameState === GameState.ROUND_CLUES && (
             <RoundScreen
@@ -326,6 +339,7 @@ const App: React.FC = () => {
                   const { word, effectiveConfig } = await resolveSecretWord(config);
                   setConfig(effectiveConfig);
                   setSecretWord(word);
+                  setIvanCheatUsedForCurrentWord(false);
                 } catch (error: any) {
                   if (error?.message !== WORD_SELECTION_CANCELLED) {
                     console.error('No se pudo cambiar palabra:', error);

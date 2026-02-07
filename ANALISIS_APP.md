@@ -36,6 +36,8 @@ Estados validos:
 | A-019 | Baja | CORREGIDO | Boton "Saltar todo" demasiado pequeno en ronda de pistas | `screens/RoundScreen.tsx` | Incrementar area tactil y tamano visual del boton |
 | A-020 | Alta | CORREGIDO | Riesgo de fuga visual de rol/palabra al pasar rapido de agente | `screens/RevealScreen.tsx` | Forzar cierre de persiana antes de avanzar y bloquear interaccion durante la transicion |
 | A-021 | Media | CORREGIDO | Solo existia un tema visual | `App.tsx`, `index.css` | Agregar selector global con 3 temas (actual, claro y loco) y cambio en caliente |
+| A-022 | Baja | CORREGIDO | Falta de modo fiesta para revelar impostor a Ivan de forma temporal | `App.tsx`, `screens/RevealScreen.tsx` | Activacion secreta por pulsacion larga solo en turno de Ivan y una sola vez por palabra |
+| A-023 | Media | CORREGIDO | Dificultades agotadas no se distinguian ni se bloqueaban en configuracion | `screens/SetupScreen.tsx` | Marcar dificultad agotada con texto tachado y deshabilitar su boton de seleccion |
 
 ## Bitacora de correcciones
 
@@ -67,10 +69,13 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-016 | CORREGIDO | Se agrego registro de palabras usadas por dificultad (sessionStorage) y seleccion sin repeticion hasta agotar pool | `npm run build` OK |
 | 2026-02-07 | A-017 | CORREGIDO | Al agotar palabras locales se muestra decision: activar IA (persistente) o cambiar dificultad; inicio cancelado vuelve a configuracion | `npm run build` OK |
 | 2026-02-07 | A-017 | CORREGIDO | Modo temporal de prueba activado: `INITIAL_WORDS` reducido a 1 palabra por dificultad para validar agotamiento y mensajes | `npm run build` OK |
+| 2026-02-07 | A-017 | CORREGIDO | Modo temporal de prueba retirado: `INITIAL_WORDS` vuelve al pool completo (150 por dificultad) | `npm run build` OK |
 | 2026-02-07 | A-018 | CORREGIDO | Reemplazo de `window.confirm/alert` por modal estilizada en `App` para flujo de palabras agotadas/IA | `npm run build` OK |
 | 2026-02-07 | A-019 | CORREGIDO | Boton "Saltar todo" ampliado (padding, tipografia y borde) para mejor uso tactil | `npm run build` OK |
 | 2026-02-07 | A-020 | CORREGIDO | Al pulsar "Siguiente agente" ahora se baja primero la persiana y luego cambia de jugador tras 240ms | `npm run build` OK |
 | 2026-02-07 | A-021 | CORREGIDO | Selector de temas agregado con persistencia local y 3 modos: `Actual`, `Claro`, `Loco` | `npm run build` OK |
+| 2026-02-07 | A-022 | CORREGIDO | Easter egg: en `RevealScreen`, pulsacion larga sobre "REVELAR ROL" muestra impostor(es) solo para `Ivan/Ivan`, y se consume por palabra actual | `npm run build` OK |
+| 2026-02-07 | A-023 | CORREGIDO | Setup ahora detecta dificultades agotadas en sesion y las muestra tachadas + bloqueadas para seleccion | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 
