@@ -17,6 +17,14 @@ const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
 const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
 
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
+type WordFlowModalAction = 'primary' | 'secondary';
+
+interface WordFlowModalState {
+  title: string;
+  message: string;
+  primaryLabel: string;
+  secondaryLabel?: string;
+}
 
 const createEmptyUsedWords = (): UsedWordsByDifficulty => ({
   [Difficulty.EASY]: new Set<string>(),
@@ -72,10 +80,35 @@ const App: React.FC = () => {
   const [roundNumber, setRoundNumber] = useState(1);
   const [lastExpelled, setLastExpelled] = useState<Player | null>(null);
   const [gameId, setGameId] = useState(Math.random().toString());
+  const [wordFlowModal, setWordFlowModal] = useState<WordFlowModalState | null>(null);
+
   const usedWordsRef = useRef<UsedWordsByDifficulty>(loadUsedWordsFromSession());
+  const wordFlowModalResolverRef = useRef<((action: WordFlowModalAction) => void) | null>(null);
 
   const resetToHome = () => {
     setGameState(GameState.HOME);
+  };
+
+  const resolveWordFlowModal = (action: WordFlowModalAction) => {
+    const resolver = wordFlowModalResolverRef.current;
+    wordFlowModalResolverRef.current = null;
+    setWordFlowModal(null);
+    if (resolver) resolver(action);
+  };
+
+  const showWordFlowDecisionModal = async (modalState: WordFlowModalState): Promise<WordFlowModalAction> => {
+    return await new Promise<WordFlowModalAction>((resolve) => {
+      wordFlowModalResolverRef.current = resolve;
+      setWordFlowModal(modalState);
+    });
+  };
+
+  const showWordFlowInfoModal = async (title: string, message: string, buttonLabel = 'Entendido'): Promise<void> => {
+    await showWordFlowDecisionModal({
+      title,
+      message,
+      primaryLabel: buttonLabel,
+    });
   };
 
   const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> => {
@@ -106,17 +139,18 @@ const App: React.FC = () => {
     }
   };
 
-  const askUserWhenLocalWordsExhausted = (activeConfig: GameConfig): GameConfig | null => {
-    const shouldEnableAI = window.confirm(
-      `No quedan palabras locales en dificultad "${activeConfig.difficulty}" para esta sesion.\n\n` +
-        `Opciones:\n` +
-        `- Cambiar dificultad\n` +
-        `- Activar busqueda por IA\n\n` +
-        `¿Quieres activar "Palabra por IA" ahora?`
-    );
+  const askUserWhenLocalWordsExhausted = async (activeConfig: GameConfig): Promise<GameConfig | null> => {
+    const decision = await showWordFlowDecisionModal({
+      title: 'Sin palabras locales',
+      message:
+        `No quedan palabras locales para "${activeConfig.difficulty}" en esta sesion.\n\n` +
+        `Puedes cambiar la dificultad o activar busqueda por IA.`,
+      primaryLabel: 'Activar IA',
+      secondaryLabel: 'Cambiar dificultad',
+    });
 
-    if (!shouldEnableAI) {
-      window.alert('Mantienes IA desactivada. Cambia la dificultad en configuracion para continuar.');
+    if (decision !== 'primary') {
+      await showWordFlowInfoModal('Cambio requerido', 'Mantienes IA desactivada. Cambia la dificultad para continuar.');
       return null;
     }
 
@@ -135,7 +169,7 @@ const App: React.FC = () => {
         return { word: localWord.text, effectiveConfig: baseConfig };
       }
 
-      const updatedConfig = askUserWhenLocalWordsExhausted(baseConfig);
+      const updatedConfig = await askUserWhenLocalWordsExhausted(baseConfig);
       if (!updatedConfig) {
         throw new Error(WORD_SELECTION_CANCELLED);
       }
@@ -145,7 +179,7 @@ const App: React.FC = () => {
         return { word: aiWord.trim(), effectiveConfig: updatedConfig };
       }
 
-      window.alert('No se pudo obtener palabra por IA. Cambia dificultad o reintenta.');
+      await showWordFlowInfoModal('IA sin respuesta', 'No se pudo obtener palabra por IA. Cambia dificultad o reintenta.');
       throw new Error(WORD_SELECTION_CANCELLED);
     }
 
@@ -159,7 +193,10 @@ const App: React.FC = () => {
       return { word: fallbackLocalWord.text, effectiveConfig: baseConfig };
     }
 
-    window.alert(`No quedan palabras locales para "${baseConfig.difficulty}" y la IA no respondio a tiempo.\nCambia dificultad o reintenta la IA.`);
+    await showWordFlowInfoModal(
+      'Sin palabras disponibles',
+      `No quedan palabras locales para "${baseConfig.difficulty}" y la IA no respondio a tiempo.\nCambia dificultad o reintenta la IA.`
+    );
     throw new Error(WORD_SELECTION_CANCELLED);
   };
 
@@ -304,6 +341,36 @@ const App: React.FC = () => {
           )}
           {gameState === GameState.LIBRARY && <LibraryScreen onBack={() => setGameState(GameState.HOME)} />}
         </main>
+
+        {wordFlowModal && (
+          <div className="absolute inset-0 z-[120] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6">
+            <div className="w-full max-w-sm bg-slate-900 border-2 border-slate-700 rounded-[2rem] p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+              <div className="text-center space-y-3">
+                <p className="text-[9px] font-black uppercase tracking-[0.28em] text-indigo-400">Gestion de palabras</p>
+                <h3 className="text-2xl font-black italic tracking-tight text-white">{wordFlowModal.title}</h3>
+                <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line">{wordFlowModal.message}</p>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                <button
+                  onClick={() => resolveWordFlowModal('primary')}
+                  className="w-full bg-white text-slate-950 p-4 rounded-[1.4rem] font-black text-sm uppercase tracking-widest active:scale-95 transition-all"
+                >
+                  {wordFlowModal.primaryLabel}
+                </button>
+
+                {wordFlowModal.secondaryLabel && (
+                  <button
+                    onClick={() => resolveWordFlowModal('secondary')}
+                    className="w-full bg-slate-800 text-slate-200 p-4 rounded-[1.4rem] font-black text-sm uppercase tracking-widest border border-slate-700 active:scale-95 transition-all"
+                  >
+                    {wordFlowModal.secondaryLabel}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         <footer className="h-14 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-4 shrink-0">
           <span className="text-slate-500 text-[10px] tracking-widest uppercase font-black italic">El Impostor - Social Deduction</span>

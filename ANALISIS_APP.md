@@ -32,6 +32,7 @@ Estados validos:
 | A-015 | Media | CORREGIDO | Cortina de revelar exigia apertura excesiva y se percibia estatica | `screens/RevealScreen.tsx` | Mostrar CTA desde ~40% de apertura y redisenar cortina estilo persiana metalica |
 | A-016 | Alta | CORREGIDO | Repeticion posible de palabra entre partidas por seleccion aleatoria sin historial | `App.tsx` | Registrar palabras usadas por dificultad y excluirlas en toda la sesion |
 | A-017 | Alta | CORREGIDO | Sin manejo al agotar palabras locales por dificultad | `App.tsx`, `screens/SetupScreen.tsx` | Mostrar mensaje, permitir activar IA o cambiar dificultad, y persistir decision en sesion |
+| A-018 | Media | CORREGIDO | Flujo de agotamiento usaba dialogs nativos de navegador | `App.tsx` | Sustituir `confirm/alert` por modal propia con estetica del juego y decisiones asincronas |
 
 ## Bitacora de correcciones
 
@@ -62,6 +63,8 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-015 | CORREGIDO | CTA de revelar ajustado para mostrarse tambien durante arrastre (sin requerir soltar la persiana) | `npm run build` OK |
 | 2026-02-07 | A-016 | CORREGIDO | Se agrego registro de palabras usadas por dificultad (sessionStorage) y seleccion sin repeticion hasta agotar pool | `npm run build` OK |
 | 2026-02-07 | A-017 | CORREGIDO | Al agotar palabras locales se muestra decision: activar IA (persistente) o cambiar dificultad; inicio cancelado vuelve a configuracion | `npm run build` OK |
+| 2026-02-07 | A-017 | CORREGIDO | Modo temporal de prueba activado: `INITIAL_WORDS` reducido a 1 palabra por dificultad para validar agotamiento y mensajes | `npm run build` OK |
+| 2026-02-07 | A-018 | CORREGIDO | Reemplazo de `window.confirm/alert` por modal estilizada en `App` para flujo de palabras agotadas/IA | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 
