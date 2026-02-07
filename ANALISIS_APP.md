@@ -57,6 +57,9 @@ Estados validos:
 | A-040 | Baja | CORREGIDO | Faltaba guia clara de despliegue Android + hosting gratis sin codificar cambios aun | `DESPLIEGUE_ANDROID_GITHUB.md` | Documentar opciones sin cambios, cambios minimos PWA y pasos para GitHub Pages |
 | A-041 | Media | CORREGIDO | Faltaba automatizar publicacion en GitHub Pages y preparar Vite para subpath de repo | `vite.config.ts`, `.github/workflows/deploy-pages.yml`, `README.md` | Configurar `BASE_PATH`, workflow de Pages con Actions y guia de publicacion |
 | A-042 | Media | CORREGIDO | Banners no cargaban en GitHub Pages por rutas absolutas desde raiz y nombre con acento | `App.tsx`, `screens/HomeScreen.tsx`, `public/nuevos/fantasia.png` | Usar `import.meta.env.BASE_URL` para rutas de banners y alias ASCII para tema fantasia |
+| A-043 | Media | CORREGIDO | El selector de temas permanecia abierto al clicar fuera | `App.tsx` | Detectar click/pointer fuera del contenedor y cerrar automaticamente el menu |
+| A-044 | Alta | CORREGIDO | Con 2 jugadores vivos la partida no cerraba con scoring especial de final impostor | `App.tsx`, `types.ts` | Finalizar partida al quedar 2, asignar bonus alto al impostor y penalizacion progresiva a civiles segun ronda de eliminacion |
+| A-045 | Baja | CORREGIDO | En clasificacion aparecian nombres tachados | `screens/ScoreboardScreen.tsx` | Quitar `line-through` del ranking y mantener solo atenuacion de color |
 
 ## Bitacora de correcciones
 
@@ -125,6 +128,9 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-040 | CORREGIDO | Creado documento de decision de despliegue (`Android`/`PWA`/`GitHub Pages`) con esfuerzo estimado y enlaces oficiales | Validacion manual del contenido en fichero |
 | 2026-02-07 | A-041 | CORREGIDO | Se configuro despliegue automatico a GitHub Pages (workflow Actions), soporte de `BASE_PATH` en Vite y README con pasos de publicacion | `npm run build` OK |
 | 2026-02-07 | A-042 | CORREGIDO | Corregidas rutas de banners para GitHub Pages usando `BASE_URL` + fallback en Home y alias `fantasia.png` sin acentos para evitar 404 | `npm run build` OK |
+| 2026-02-07 | A-043 | CORREGIDO | Selector de temas ahora se cierra al clicar/tocar fuera del panel (listener `pointerdown` con `ref`) | `npm run build` OK |
+| 2026-02-07 | A-044 | CORREGIDO | Regla de cierre ajustada: con 2 jugadores vivos termina partida; scoring especial de cierre (+10 impostor vivo y penalizacion civil progresiva por ronda de eliminacion) | `npm run build` OK |
+| 2026-02-07 | A-045 | CORREGIDO | Clasificacion sin textos tachados; eliminados se muestran atenuados pero legibles | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

@@ -28,6 +28,7 @@ export interface Player {
   name: string;
   role: Role;
   isEliminated: boolean;
+  eliminationRound?: number;
   clue?: string;
   votesReceived: number;
 }

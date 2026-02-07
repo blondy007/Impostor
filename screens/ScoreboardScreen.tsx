@@ -48,7 +48,7 @@ const ScoreboardScreen: React.FC<Props> = ({ players, scoreTotals, scoreHistory,
               <div key={player.id} className="flex items-center justify-between bg-slate-950/70 border border-slate-800 rounded-2xl px-3 py-2">
                 <div className="flex items-center gap-3">
                   <div className="w-6 text-center text-[10px] font-black text-indigo-400">#{index + 1}</div>
-                  <span className={`font-black tracking-tight ${player.isEliminated ? 'text-slate-500 line-through' : 'text-white'}`}>{player.name}</span>
+                  <span className={`font-black tracking-tight ${player.isEliminated ? 'text-slate-400' : 'text-white'}`}>{player.name}</span>
                 </div>
                 <div className="text-sm font-black text-white">{player.total} pts</div>
               </div>

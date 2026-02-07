@@ -24,6 +24,7 @@ type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
 type ThemeMode = 'default' | 'light' | 'wild' | 'cute' | 'fantasy' | 'scifi' | 'puzzle' | 'cosmos' | 'handdrawn';
 type StartGameOptions = { preserveScores?: boolean; previousPlayers?: Player[] };
+type EndReason = 'NONE' | 'NO_IMPOSTORS' | 'NO_CIVILIANS' | 'TWO_LEFT';
 
 interface WordFlowModalState {
   title: string;
@@ -143,6 +144,7 @@ const App: React.FC = () => {
 
   const usedWordsRef = useRef<UsedWordsByDifficulty>(loadUsedWordsFromSession());
   const wordFlowModalResolverRef = useRef<((action: WordFlowModalAction) => void) | null>(null);
+  const themeMenuRef = useRef<HTMLDivElement | null>(null);
   const currentTheme = THEME_OPTIONS.find((theme) => theme.id === themeMode) || THEME_OPTIONS[0];
 
   useEffect(() => {
@@ -159,6 +161,23 @@ const App: React.FC = () => {
     if (typeof window === 'undefined') return;
     window.sessionStorage.setItem(VOTE_MODE_SESSION_KEY, config.voteMode);
   }, [config.voteMode]);
+
+  useEffect(() => {
+    if (!isThemeMenuOpen) return;
+
+    const handleOutsidePress = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target || !themeMenuRef.current) return;
+      if (!themeMenuRef.current.contains(target)) {
+        setIsThemeMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('pointerdown', handleOutsidePress);
+    return () => {
+      window.removeEventListener('pointerdown', handleOutsidePress);
+    };
+  }, [isThemeMenuOpen]);
 
   const resetToHome = () => {
     setGameState(GameState.HOME);
@@ -183,13 +202,19 @@ const App: React.FC = () => {
     return 8;
   };
 
+  const getCivilLateEliminationPenalty = (eliminationRound: number) => {
+    const safeRound = Math.max(1, eliminationRound);
+    return -(6 + (safeRound - 1) * 2);
+  };
+
   const applyRoundScoring = (
     updatedPlayers: Player[],
     roundParticipantIds: string[],
     expelled: Player,
     voteResolution: VoteResolution,
     gameHasEnded: boolean,
-    winningRole: Role | null
+    winningRole: Role | null,
+    endReason: EndReason
   ) => {
     const deltas: Record<string, number> = {};
     const notes: Record<string, string[]> = {};
@@ -246,6 +271,19 @@ const App: React.FC = () => {
           .filter((p) => p.role === Role.IMPOSTOR && !p.isEliminated)
           .forEach((player) => addDelta(player.id, 2, 'impostor gana sin ser expulsado'));
       }
+    }
+
+    if (gameHasEnded && winningRole === Role.IMPOSTOR && endReason === 'TWO_LEFT') {
+      updatedPlayers
+        .filter((p) => p.role === Role.IMPOSTOR && !p.isEliminated)
+        .forEach((player) => addDelta(player.id, 10, 'cierre con 2 jugadores'));
+
+      updatedPlayers
+        .filter((p) => p.role === Role.CIVIL)
+        .forEach((player) => {
+          const eliminationRound = player.isEliminated ? player.eliminationRound || roundNumber : roundNumber + 1;
+          addDelta(player.id, getCivilLateEliminationPenalty(eliminationRound), `civil eliminado tarde (ronda ${eliminationRound})`);
+        });
     }
 
     setScoreTotals((prev) => {
@@ -453,16 +491,34 @@ const App: React.FC = () => {
     if (!player) return;
     const roundParticipantIds = players.filter((p) => !p.isEliminated).map((p) => p.id);
 
-    const updatedPlayers = players.map((p) => (p.id === voteResolution.expelledId ? { ...p, isEliminated: true } : p));
+    const updatedPlayers = players.map((p) =>
+      p.id === voteResolution.expelledId ? { ...p, isEliminated: true, eliminationRound: roundNumber } : p
+    );
     setPlayers(updatedPlayers);
     setLastExpelled(player);
 
     const activeCivilians = updatedPlayers.filter((p) => !p.isEliminated && p.role === Role.CIVIL);
     const activeImpostors = updatedPlayers.filter((p) => !p.isEliminated && p.role === Role.IMPOSTOR);
-    const gameHasEnded = activeImpostors.length === 0 || activeCivilians.length === 0;
-    const winningRole = activeImpostors.length === 0 ? Role.CIVIL : activeCivilians.length === 0 ? Role.IMPOSTOR : null;
+    const activePlayers = updatedPlayers.filter((p) => !p.isEliminated);
+    const noImpostorsLeft = activeImpostors.length === 0;
+    const noCiviliansLeft = activeCivilians.length === 0;
+    const twoPlayersLeft = activePlayers.length <= 2;
+    const gameHasEnded = noImpostorsLeft || noCiviliansLeft || twoPlayersLeft;
 
-    applyRoundScoring(updatedPlayers, roundParticipantIds, player, voteResolution, gameHasEnded, winningRole);
+    let winningRole: Role | null = null;
+    let endReason: EndReason = 'NONE';
+    if (noImpostorsLeft) {
+      winningRole = Role.CIVIL;
+      endReason = 'NO_IMPOSTORS';
+    } else if (noCiviliansLeft) {
+      winningRole = Role.IMPOSTOR;
+      endReason = 'NO_CIVILIANS';
+    } else if (twoPlayersLeft) {
+      winningRole = Role.IMPOSTOR;
+      endReason = 'TWO_LEFT';
+    }
+
+    applyRoundScoring(updatedPlayers, roundParticipantIds, player, voteResolution, gameHasEnded, winningRole, endReason);
 
     if (gameHasEnded) {
       setGameState(GameState.GAME_OVER);
@@ -623,7 +679,7 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        <div className="absolute top-4 right-4 z-[130]">
+        <div ref={themeMenuRef} className="absolute top-4 right-4 z-[130]">
           <button onClick={() => setIsThemeMenuOpen((prev) => !prev)} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">
             <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Tema</p>
             <p className="text-[11px] text-white font-black uppercase tracking-wide">{randomThemeEnabled ? 'Aleatorio' : currentTheme.label}</p>
