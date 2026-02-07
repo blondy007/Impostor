@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CATEGORIES, INITIAL_WORDS } from './constants';
 import { fetchSecretWord } from './services/geminiService';
-import { Difficulty, GameConfig, GameState, Player, Role, Word } from './types';
+import { Difficulty, GameConfig, GameState, Player, Role, ScoreRoundLog, VoteResolution, Word } from './types';
 import DebateScreen from './screens/DebateScreen';
 import GameOverScreen from './screens/GameOverScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -9,6 +9,7 @@ import LibraryScreen from './screens/LibraryScreen';
 import ResultScreen from './screens/ResultScreen';
 import RevealScreen from './screens/RevealScreen';
 import RoundScreen from './screens/RoundScreen';
+import ScoreboardScreen from './screens/ScoreboardScreen';
 import SetupScreen from './screens/SetupScreen';
 import VoteScreen from './screens/VoteScreen';
 
@@ -22,6 +23,7 @@ const VOTE_MODE_SESSION_KEY = 'impostor_vote_mode_v2';
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
 type ThemeMode = 'default' | 'light' | 'wild' | 'cute' | 'fantasy' | 'scifi' | 'puzzle' | 'cosmos' | 'handdrawn';
+type StartGameOptions = { preserveScores?: boolean; previousPlayers?: Player[] };
 
 interface WordFlowModalState {
   title: string;
@@ -128,6 +130,10 @@ const App: React.FC = () => {
   const [roundNumber, setRoundNumber] = useState(1);
   const [lastExpelled, setLastExpelled] = useState<Player | null>(null);
   const [gameId, setGameId] = useState(Math.random().toString());
+  const [scoreTotals, setScoreTotals] = useState<Record<string, number>>({});
+  const [scoreHistory, setScoreHistory] = useState<ScoreRoundLog[]>([]);
+  const [sessionRoundCounter, setSessionRoundCounter] = useState(1);
+  const [isScoreboardOpen, setIsScoreboardOpen] = useState(false);
   const [wordFlowModal, setWordFlowModal] = useState<WordFlowModalState | null>(null);
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode());
   const [randomThemeEnabled, setRandomThemeEnabled] = useState<boolean>(getInitialRandomThemeEnabled());
@@ -166,6 +172,103 @@ const App: React.FC = () => {
   const applyRandomThemeForNewWord = () => {
     if (!randomThemeEnabled) return;
     setThemeMode((prev) => getRandomTheme(prev));
+  };
+
+  const getImpostorRoundSurvivalBonus = (round: number) => {
+    if (round <= 1) return 2;
+    if (round === 2) return 4;
+    if (round === 3) return 6;
+    return 8;
+  };
+
+  const applyRoundScoring = (
+    updatedPlayers: Player[],
+    roundParticipantIds: string[],
+    expelled: Player,
+    voteResolution: VoteResolution,
+    gameHasEnded: boolean,
+    winningRole: Role | null
+  ) => {
+    const deltas: Record<string, number> = {};
+    const notes: Record<string, string[]> = {};
+
+    const addDelta = (playerId: string, points: number, reason: string) => {
+      if (!points) return;
+      deltas[playerId] = (deltas[playerId] || 0) + points;
+      if (!notes[playerId]) notes[playerId] = [];
+      notes[playerId].push(`${points > 0 ? '+' : ''}${points} ${reason}`);
+    };
+
+    if (voteResolution.mode === 'INDIVIDUAL') {
+      Object.entries(voteResolution.votesByVoter).forEach(([voterId, votedId]) => {
+        if (votedId !== voteResolution.expelledId) return;
+        if (expelled.role === Role.IMPOSTOR) {
+          addDelta(voterId, 2, 'voto certero');
+        } else {
+          addDelta(voterId, -1, 'voto a civil');
+        }
+      });
+    } else {
+      roundParticipantIds.forEach((participantId) => {
+        if (expelled.role === Role.IMPOSTOR) {
+          addDelta(participantId, 1, 'acierto grupal');
+        } else {
+          addDelta(participantId, -1, 'fallo grupal');
+        }
+      });
+    }
+
+    const survivingImpostors = updatedPlayers.filter((p) => !p.isEliminated && p.role === Role.IMPOSTOR);
+    const impostorSurvivalBonus = getImpostorRoundSurvivalBonus(roundNumber);
+    survivingImpostors.forEach((player) => {
+      addDelta(player.id, impostorSurvivalBonus, `impostor sobrevive ronda ${roundNumber}`);
+    });
+
+    if (expelled.role === Role.IMPOSTOR) {
+      updatedPlayers
+        .filter((p) => !p.isEliminated && p.role === Role.CIVIL)
+        .forEach((player) => addDelta(player.id, 1, 'expulsion de impostor'));
+    }
+
+    if (gameHasEnded && winningRole) {
+      updatedPlayers
+        .filter((p) => p.role === winningRole)
+        .forEach((player) => addDelta(player.id, 5, 'gana con su faccion'));
+
+      updatedPlayers
+        .filter((p) => !p.isEliminated)
+        .forEach((player) => addDelta(player.id, 2, 'sobrevive al final'));
+
+      if (winningRole === Role.IMPOSTOR) {
+        updatedPlayers
+          .filter((p) => p.role === Role.IMPOSTOR && !p.isEliminated)
+          .forEach((player) => addDelta(player.id, 2, 'impostor gana sin ser expulsado'));
+      }
+    }
+
+    setScoreTotals((prev) => {
+      const next = { ...prev };
+      updatedPlayers.forEach((player) => {
+        if (typeof next[player.id] !== 'number') next[player.id] = 0;
+      });
+      Object.entries(deltas).forEach(([playerId, delta]) => {
+        next[playerId] = (next[playerId] || 0) + delta;
+      });
+      return next;
+    });
+
+    setScoreHistory((prev) => [
+      ...prev,
+      {
+        sessionRound: sessionRoundCounter,
+        gameRound: roundNumber,
+        expelledName: expelled.name,
+        expelledRole: expelled.role,
+        deltas,
+        notes,
+      },
+    ]);
+    setSessionRoundCounter((prev) => prev + 1);
   };
 
   const resolveWordFlowModal = (action: WordFlowModalAction) => {
@@ -279,7 +382,7 @@ const App: React.FC = () => {
     throw new Error(WORD_SELECTION_CANCELLED);
   };
 
-  const startGame = async (newConfig: GameConfig, playerNames: string[]) => {
+  const startGame = async (newConfig: GameConfig, playerNames: string[], options?: StartGameOptions) => {
     try {
       const totalPlayers = playerNames.length;
       const safeImpostorCount = Math.max(1, Math.min(newConfig.impostorCount, totalPlayers - 1));
@@ -295,7 +398,7 @@ const App: React.FC = () => {
       }
 
       const initialPlayers: Player[] = playerNames.map((name, i) => ({
-        id: `p-${i}-${Math.random().toString(36).slice(2, 11)}`,
+        id: options?.preserveScores && options.previousPlayers?.[i]?.id ? options.previousPlayers[i].id : `p-${i}-${Math.random().toString(36).slice(2, 11)}`,
         name,
         role: roles[i],
         isEliminated: false,
@@ -305,6 +408,24 @@ const App: React.FC = () => {
       const revealStartIndex = Math.floor(Math.random() * initialPlayers.length);
       const tableOrderedPlayers = [...initialPlayers.slice(revealStartIndex), ...initialPlayers.slice(0, revealStartIndex)];
       const { word, effectiveConfig } = await resolveSecretWord(newConfig);
+
+      if (!options?.preserveScores) {
+        const freshScores: Record<string, number> = {};
+        initialPlayers.forEach((player) => {
+          freshScores[player.id] = 0;
+        });
+        setScoreTotals(freshScores);
+        setScoreHistory([]);
+        setSessionRoundCounter(1);
+      } else {
+        setScoreTotals((prev) => {
+          const next = { ...prev };
+          initialPlayers.forEach((player) => {
+            if (typeof next[player.id] !== 'number') next[player.id] = 0;
+          });
+          return next;
+        });
+      }
 
       setConfig(effectiveConfig);
       setGameId(Math.random().toString());
@@ -325,20 +446,23 @@ const App: React.FC = () => {
     }
   };
 
-  const handleExpulsion = (playerId: string) => {
-    const player = players.find((p) => p.id === playerId);
+  const handleExpulsion = (voteResolution: VoteResolution) => {
+    const player = players.find((p) => p.id === voteResolution.expelledId);
     if (!player) return;
+    const roundParticipantIds = players.filter((p) => !p.isEliminated).map((p) => p.id);
 
-    const updatedPlayers = players.map((p) => (p.id === playerId ? { ...p, isEliminated: true } : p));
+    const updatedPlayers = players.map((p) => (p.id === voteResolution.expelledId ? { ...p, isEliminated: true } : p));
     setPlayers(updatedPlayers);
     setLastExpelled(player);
 
     const activeCivilians = updatedPlayers.filter((p) => !p.isEliminated && p.role === Role.CIVIL);
     const activeImpostors = updatedPlayers.filter((p) => !p.isEliminated && p.role === Role.IMPOSTOR);
+    const gameHasEnded = activeImpostors.length === 0 || activeCivilians.length === 0;
+    const winningRole = activeImpostors.length === 0 ? Role.CIVIL : activeCivilians.length === 0 ? Role.IMPOSTOR : null;
 
-    if (activeImpostors.length === 0) {
-      setGameState(GameState.GAME_OVER);
-    } else if (activeCivilians.length === 0) {
+    applyRoundScoring(updatedPlayers, roundParticipantIds, player, voteResolution, gameHasEnded, winningRole);
+
+    if (gameHasEnded) {
       setGameState(GameState.GAME_OVER);
     } else {
       setGameState(GameState.ROUND_RESULT);
@@ -352,7 +476,7 @@ const App: React.FC = () => {
     }
 
     try {
-      await startGame(config, players.map((p) => p.name));
+      await startGame(config, players.map((p) => p.name), { preserveScores: true, previousPlayers: players });
     } catch (error: any) {
       if (error?.message !== WORD_SELECTION_CANCELLED) {
         console.error('No se pudo iniciar nueva partida con misma mesa:', error);
@@ -483,6 +607,19 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
+
+        {isScoreboardOpen && (
+          <ScoreboardScreen players={players} scoreTotals={scoreTotals} scoreHistory={scoreHistory} onClose={() => setIsScoreboardOpen(false)} />
+        )}
+
+        <div className="absolute bottom-16 left-4 z-[130]">
+          <button onClick={() => setIsScoreboardOpen(true)} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Puntos</p>
+            <p className="text-[11px] text-white font-black uppercase tracking-wide">
+              {players.length > 0 ? 'Ver marcador' : 'Sin partida'}
+            </p>
+          </button>
+        </div>
 
         <div className="absolute top-4 right-4 z-[130]">
           <button onClick={() => setIsThemeMenuOpen((prev) => !prev)} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">

@@ -1,24 +1,51 @@
 import React, { useMemo, useState } from 'react';
-import { Player } from '../types';
+import { Player, VoteResolution } from '../types';
 
 interface Props {
   players: Player[];
   voteMode: 'INDIVIDUAL' | 'GROUP';
-  onVoteFinished: (expelledId: string) => void;
+  onVoteFinished: (resolution: VoteResolution) => void;
   onBack: () => void;
 }
 
 const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack }) => {
   const activePlayers = useMemo(() => players.filter((p) => !p.isEliminated), [players]);
   const isGroupVote = voteMode === 'GROUP';
+  const [groupResolutionMode, setGroupResolutionMode] = useState<'UNANIMOUS' | 'INDIVIDUALIZED' | null>(isGroupVote ? null : 'INDIVIDUALIZED');
 
   const [voterIndex, setVoterIndex] = useState(0);
   const [isPrivate, setIsPrivate] = useState(true);
   const [votes, setVotes] = useState<Record<string, number>>({});
+  const [votesByVoter, setVotesByVoter] = useState<Record<string, string>>({});
 
+  const useIndividualFlow = !isGroupVote || groupResolutionMode === 'INDIVIDUALIZED';
+  const useUnanimousGroupFlow = isGroupVote && groupResolutionMode === 'UNANIMOUS';
+  const showGroupChoice = isGroupVote && groupResolutionMode === null;
   const currentVoter = activePlayers[voterIndex];
 
-  const finishWithMostVoted = (nextVotes: Record<string, number>) => {
+  const resetIndividualState = () => {
+    setVoterIndex(0);
+    setIsPrivate(true);
+    setVotes({});
+    setVotesByVoter({});
+  };
+
+  const enableIndividualizedVotes = () => {
+    setGroupResolutionMode('INDIVIDUALIZED');
+    resetIndividualState();
+  };
+
+  const enableUnanimousGroupVote = () => {
+    setGroupResolutionMode('UNANIMOUS');
+    resetIndividualState();
+  };
+
+  const backToGroupChoice = () => {
+    setGroupResolutionMode(null);
+    resetIndividualState();
+  };
+
+  const finishWithMostVoted = (nextVotes: Record<string, number>, votesByVoter: Record<string, string>) => {
     let maxVotes = -1;
     let expelledId = '';
 
@@ -30,16 +57,26 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
       }
     });
 
-    if (expelledId) onVoteFinished(expelledId);
+    if (expelledId) {
+      onVoteFinished({
+        expelledId,
+        mode: 'INDIVIDUAL',
+        votesByVoter,
+      });
+    }
   };
 
   const handleIndividualVote = (targetId: string) => {
     const newVotes = { ...votes };
     newVotes[targetId] = (newVotes[targetId] || 0) + 1;
     setVotes(newVotes);
+    const currentVoterId = currentVoter?.id;
+    const nextVotesByVoter = { ...votesByVoter };
+    if (currentVoterId) nextVotesByVoter[currentVoterId] = targetId;
+    setVotesByVoter(nextVotesByVoter);
 
     if (voterIndex === activePlayers.length - 1) {
-      finishWithMostVoted(newVotes);
+      finishWithMostVoted(newVotes, nextVotesByVoter);
       return;
     }
 
@@ -47,7 +84,8 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
     setIsPrivate(true);
   };
 
-  if (activePlayers.length === 0 || (!isGroupVote && !currentVoter)) return null;
+  if (activePlayers.length === 0) return null;
+  if (useIndividualFlow && !currentVoter) return null;
 
   return (
     <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300">
@@ -60,13 +98,47 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
         <h2 className="text-3xl font-black italic ml-4 uppercase tracking-tighter">Votacion</h2>
       </div>
 
-      {isGroupVote ? (
+      {showGroupChoice ? (
+        <div className="flex-1 flex flex-col justify-center gap-4">
+          <p className="text-center text-slate-400 mb-2 font-medium uppercase tracking-widest text-[10px]">
+            Votacion de grupo: hubo unanimidad?
+          </p>
+
+          <button
+            onClick={enableUnanimousGroupVote}
+            className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 p-5 rounded-2xl text-left transition-all active:scale-[0.98]"
+          >
+            <p className="font-black text-white uppercase tracking-wide">Si, consenso total</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Un solo resultado de grupo</p>
+          </button>
+
+          <button
+            onClick={enableIndividualizedVotes}
+            className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 p-5 rounded-2xl text-left transition-all active:scale-[0.98]"
+          >
+            <p className="font-black text-white uppercase tracking-wide">No, registrar votos individuales</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Permite sumar/restar puntos por persona</p>
+          </button>
+        </div>
+      ) : useUnanimousGroupFlow ? (
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           <p className="text-center text-slate-400 mb-6 font-medium uppercase tracking-widest text-[10px]">Votacion en grupo: seleccionad a quien expulsar</p>
+          <button
+            onClick={enableIndividualizedVotes}
+            className="w-full mb-2 bg-slate-950 border border-slate-800 p-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-indigo-400"
+          >
+            Sin consenso? pasar a votos individuales
+          </button>
           {activePlayers.map((p) => (
             <button
               key={p.id}
-              onClick={() => onVoteFinished(p.id)}
+              onClick={() =>
+                onVoteFinished({
+                  expelledId: p.id,
+                  mode: 'GROUP',
+                  votesByVoter: {},
+                })
+              }
               className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 p-5 rounded-2xl flex justify-between items-center group active:scale-[0.98] transition-all"
             >
               <span className="font-bold text-lg text-slate-300">{p.name}</span>
@@ -77,7 +149,9 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
       ) : isPrivate ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-8 text-center">
           <div className="space-y-2">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Turno de Voto Privado</h3>
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+              {isGroupVote ? 'Voto Individualizado' : 'Turno de Voto Privado'}
+            </h3>
             <h4 className="text-4xl font-black text-indigo-400 italic tracking-tighter">{currentVoter.name}</h4>
           </div>
           <button
@@ -90,6 +164,14 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
             </svg>
           </button>
           <p className="text-slate-600 text-sm px-10">Pulsa el boton solo cuando tengas el dispositivo en tus manos.</p>
+          {isGroupVote && (
+            <button
+              onClick={backToGroupChoice}
+              className="text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-800 px-4 py-2 rounded-full"
+            >
+              Cambiar tipo de voto
+            </button>
+          )}
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">

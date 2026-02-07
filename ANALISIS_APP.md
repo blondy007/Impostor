@@ -49,6 +49,11 @@ Estados validos:
 | A-032 | Baja | CORREGIDO | No habia matriz objetiva de prioridad para decidir produccion de assets por tema | `PROMPTS_IMAGENES_APP.txt` | Incluir tabla impacto vs coste y orden recomendado de temas/fases de produccion |
 | A-033 | Baja | CORREGIDO | Faltaba plan operativo para ejecutar generacion por lotes | `PROMPTS_IMAGENES_APP.txt` | Anadir checklist de produccion por sprint (objetivo, temas y entregables) |
 | A-034 | Alta | CORREGIDO | Fin de partida prematuro al expulsar un civil | `App.tsx` | Tras expulsar un no impostor, continuar a nueva ronda con jugadores activos; solo terminar cuando una faccion queda sin miembros |
+| A-035 | Baja | CORREGIDO | Faltaba backlog de ideas de producto para aumentar diversion | `SUGERENCIAS_MEJORA_JUEGO.md` | Documentar mejoras priorizadas por impacto/esfuerzo y roadmap sugerido |
+| A-036 | Alta | CORREGIDO | No existia sistema de puntuacion por ronda/final ni persistencia durante la sesion activa | `App.tsx`, `types.ts`, `screens/VoteScreen.tsx` | Aplicar puntuacion por votos, supervivencia progresiva del impostor, bonus de faccion y conservar puntajes al reiniciar con misma mesa |
+| A-037 | Media | CORREGIDO | No habia pantalla de marcador consultable en cualquier momento | `App.tsx`, `screens/ScoreboardScreen.tsx` | Agregar acceso persistente a marcador y vista de clasificacion + historial de rondas |
+| A-038 | Alta | CORREGIDO | En modo de voto de grupo faltaba alternativa individual cuando no hay unanimidad | `screens/VoteScreen.tsx` | Permitir elegir en pantalla entre consenso grupal o registro individualizado para puntuar por votante |
+| A-039 | Media | CORREGIDO | El voto grupal no tenia puntuacion y dejaba huecos en el conteo | `App.tsx` | Asignar puntos simples a todos los participantes del voto grupal (+1 acierto / -1 fallo) |
 
 ## Bitacora de correcciones
 
@@ -109,6 +114,11 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-032 | CORREGIDO | Anadida matriz de prioridad en prompts (activos globales, orden de temas y plan por fases MVP/Plus) para priorizar generacion | Validacion manual del contenido en fichero |
 | 2026-02-07 | A-033 | CORREGIDO | Anadida tabla de checklist por sprint en prompts (sprint 1/2/3 con objetivos, temas y entregables) | Validacion manual del contenido en fichero |
 | 2026-02-07 | A-034 | CORREGIDO | Lógica de cierre ajustada: expulsar civil ya no cierra partida; se sigue con ronda nueva y solo termina con victoria civil (sin impostores) o impostora (sin civiles) | `npm run build` OK |
+| 2026-02-07 | A-035 | CORREGIDO | Creado fichero de sugerencias de mejora del juego con matriz impacto/esfuerzo y roadmap de 3 sprints | Validacion manual del contenido en fichero |
+| 2026-02-07 | A-036 | CORREGIDO | Implementado sistema de puntuacion: votos individuales (+2/-1), supervivencia progresiva impostor por ronda (2/4/6/8), bonus de expulsion de impostor (+1 civiles activos), victoria de faccion (+5), supervivencia final (+2) y bonus impostor ganador (+2) | `npm run build` OK |
+| 2026-02-07 | A-037 | CORREGIDO | Integrada pantalla de marcador consultable en cualquier momento con clasificacion total e historial de deltas por ronda | `npm run build` OK |
+| 2026-02-07 | A-038 | CORREGIDO | En votacion de grupo se anadio selector de unanimidad: consenso grupal o paso a votos individuales (con puntuacion por persona cuando no hay consenso) | `npm run build` OK |
+| 2026-02-07 | A-039 | CORREGIDO | Puntuacion simple para voto grupal integrada en scoring: todos los participantes de la ronda suman +1 si expulsan impostor o restan -1 si expulsan civil | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

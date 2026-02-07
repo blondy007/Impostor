@@ -32,6 +32,21 @@ export interface Player {
   votesReceived: number;
 }
 
+export interface VoteResolution {
+  expelledId: string;
+  mode: 'INDIVIDUAL' | 'GROUP';
+  votesByVoter: Record<string, string>;
+}
+
+export interface ScoreRoundLog {
+  sessionRound: number;
+  gameRound: number;
+  expelledName: string;
+  expelledRole: Role;
+  deltas: Record<string, number>;
+  notes: Record<string, string[]>;
+}
+
 export interface GameConfig {
   playerCount: number;
   impostorCount: number;
