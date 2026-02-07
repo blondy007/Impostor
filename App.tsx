@@ -17,7 +17,7 @@ const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
 const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
 const THEME_STORAGE_KEY = 'impostor_theme_mode_v1';
 const THEME_RANDOM_STORAGE_KEY = 'impostor_theme_random_v1';
-const VOTE_MODE_SESSION_KEY = 'impostor_vote_mode_v1';
+const VOTE_MODE_SESSION_KEY = 'impostor_vote_mode_v2';
 
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
@@ -347,6 +347,21 @@ const App: React.FC = () => {
     }
   };
 
+  const restartGameWithSameSetup = async () => {
+    if (players.length === 0) {
+      setGameState(GameState.SETUP);
+      return;
+    }
+
+    try {
+      await startGame(config, players.map((p) => p.name));
+    } catch (error: any) {
+      if (error?.message !== WORD_SELECTION_CANCELLED) {
+        console.error('No se pudo iniciar nueva partida con misma mesa:', error);
+      }
+    }
+  };
+
   const impostorNames = players.filter((p) => p.role === Role.IMPOSTOR).map((p) => p.name);
 
   return (
@@ -434,7 +449,7 @@ const App: React.FC = () => {
               key={`gameover-${gameId}`}
               players={players}
               secretWord={secretWord}
-              onHome={() => setGameState(GameState.SETUP)}
+              onHome={restartGameWithSameSetup}
               onBack={() => setGameState(GameState.HOME)}
             />
           )}
