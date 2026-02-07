@@ -1,0 +1,7 @@
+{
+  "name": "El Impostor - Social Deduction",
+  "description": "A high-stakes social deduction game where civilians must find the impostor among them using secret words and subtle clues. Mobile-first design for local pass-and-play.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
