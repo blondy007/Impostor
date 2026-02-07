@@ -33,6 +33,8 @@ Estados validos:
 | A-016 | Alta | CORREGIDO | Repeticion posible de palabra entre partidas por seleccion aleatoria sin historial | `App.tsx` | Registrar palabras usadas por dificultad y excluirlas en toda la sesion |
 | A-017 | Alta | CORREGIDO | Sin manejo al agotar palabras locales por dificultad | `App.tsx`, `screens/SetupScreen.tsx` | Mostrar mensaje, permitir activar IA o cambiar dificultad, y persistir decision en sesion |
 | A-018 | Media | CORREGIDO | Flujo de agotamiento usaba dialogs nativos de navegador | `App.tsx` | Sustituir `confirm/alert` por modal propia con estetica del juego y decisiones asincronas |
+| A-019 | Baja | CORREGIDO | Boton "Saltar todo" demasiado pequeno en ronda de pistas | `screens/RoundScreen.tsx` | Incrementar area tactil y tamano visual del boton |
+| A-020 | Alta | CORREGIDO | Riesgo de fuga visual de rol/palabra al pasar rapido de agente | `screens/RevealScreen.tsx` | Forzar cierre de persiana antes de avanzar y bloquear interaccion durante la transicion |
 
 ## Bitacora de correcciones
 
@@ -65,6 +67,8 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-017 | CORREGIDO | Al agotar palabras locales se muestra decision: activar IA (persistente) o cambiar dificultad; inicio cancelado vuelve a configuracion | `npm run build` OK |
 | 2026-02-07 | A-017 | CORREGIDO | Modo temporal de prueba activado: `INITIAL_WORDS` reducido a 1 palabra por dificultad para validar agotamiento y mensajes | `npm run build` OK |
 | 2026-02-07 | A-018 | CORREGIDO | Reemplazo de `window.confirm/alert` por modal estilizada en `App` para flujo de palabras agotadas/IA | `npm run build` OK |
+| 2026-02-07 | A-019 | CORREGIDO | Boton "Saltar todo" ampliado (padding, tipografia y borde) para mejor uso tactil | `npm run build` OK |
+| 2026-02-07 | A-020 | CORREGIDO | Al pulsar "Siguiente agente" ahora se baja primero la persiana y luego cambia de jugador tras 240ms | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

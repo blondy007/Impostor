@@ -77,7 +77,7 @@ const RoundScreen: React.FC<Props> = ({ players, roundNumber, onCluesFinished, o
             {currentIndex === orderedTurnList.length - 1 ? 'Finalizar Rondas' : 'Siguiente en la Mesa'}
           </button>
 
-          <button onClick={skipAllTurns} className="w-full bg-slate-950/50 text-slate-600 p-2.5 rounded-[1.2rem] font-black text-[8px] uppercase tracking-widest transition-all">
+          <button onClick={skipAllTurns} className="w-full bg-slate-950/50 text-slate-500 p-4 rounded-[1.6rem] font-black text-xs uppercase tracking-[0.2em] transition-all border border-slate-800/80">
             Saltar todo
           </button>
         </div>

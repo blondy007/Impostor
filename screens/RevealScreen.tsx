@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import FitSingleLineText from '../components/FitSingleLineText';
 import { Player, Role } from '../types';
 
 const REVEAL_THRESHOLD = 40;
 const SNAP_CLOSE_THRESHOLD = 18;
 const SNAP_OPEN_THRESHOLD = 82;
+const CLOSE_BEFORE_NEXT_MS = 240;
 
 interface Props {
   players: Player[];
@@ -17,21 +18,32 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shutterPos, setShutterPos] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isTransitioningNext, setIsTransitioningNext] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef(0);
   const currentY = useRef(0);
+  const nextTimerRef = useRef<number | null>(null);
 
   const currentPlayer = players[currentIndex];
-  const canProceed = shutterPos >= REVEAL_THRESHOLD;
+  const canProceed = shutterPos >= REVEAL_THRESHOLD && !isTransitioningNext;
+
+  useEffect(() => {
+    return () => {
+      if (nextTimerRef.current !== null) {
+        window.clearTimeout(nextTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (isTransitioningNext) return;
     setIsDragging(true);
     startY.current = 'touches' in e ? e.touches[0].clientY : e.clientY;
     currentY.current = shutterPos;
   };
 
   const handleMove = (e: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
+    if (!isDragging || !containerRef.current || isTransitioningNext) return;
 
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const deltaY = startY.current - clientY;
@@ -43,6 +55,7 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
   };
 
   const handleEnd = () => {
+    if (isTransitioningNext) return;
     setIsDragging(false);
 
     if (shutterPos <= SNAP_CLOSE_THRESHOLD) {
@@ -56,13 +69,21 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, onFinished, onBack
   };
 
   const handleNext = () => {
+    if (isTransitioningNext) return;
+
     if (currentIndex === players.length - 1) {
       onFinished();
       return;
     }
 
-    setCurrentIndex(currentIndex + 1);
+    setIsDragging(false);
+    setIsTransitioningNext(true);
     setShutterPos(0);
+
+    nextTimerRef.current = window.setTimeout(() => {
+      setCurrentIndex((prev) => prev + 1);
+      setIsTransitioningNext(false);
+    }, CLOSE_BEFORE_NEXT_MS);
   };
 
   if (!currentPlayer) return null;
