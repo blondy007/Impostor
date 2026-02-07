@@ -1,0 +1,26 @@
+<svg width="360" height="360" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="360" fill="transparent"/>
+  <g fill="#FFFFFF" fill-opacity="0.5">
+    <circle cx="34" cy="44" r="2"/>
+    <circle cx="92" cy="76" r="1.8"/>
+    <circle cx="144" cy="36" r="1.6"/>
+    <circle cx="212" cy="62" r="2"/>
+    <circle cx="286" cy="46" r="1.8"/>
+    <circle cx="328" cy="90" r="2"/>
+    <circle cx="42" cy="188" r="1.8"/>
+    <circle cx="116" cy="164" r="1.6"/>
+    <circle cx="184" cy="194" r="2"/>
+    <circle cx="264" cy="170" r="1.8"/>
+    <circle cx="314" cy="226" r="2"/>
+    <circle cx="96" cy="302" r="2"/>
+    <circle cx="198" cy="290" r="1.8"/>
+    <circle cx="286" cy="318" r="2"/>
+  </g>
+  <g stroke="#93C5FD" stroke-opacity="0.32" stroke-width="3" fill="none">
+    <circle cx="90" cy="244" r="32"/>
+    <path d="M42 244H138"/>
+    <ellipse cx="250" cy="106" rx="42" ry="20"/>
+    <path d="M250 64V148"/>
+  </g>
+  <path d="M164 236L170 252H186L172 262L178 278L164 268L150 278L156 262L142 252H158L164 236Z" fill="#C4B5FD" fill-opacity="0.35"/>
+</svg>

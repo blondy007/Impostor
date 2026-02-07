@@ -1,0 +1,19 @@
+<svg width="360" height="360" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="360" fill="transparent"/>
+  <g stroke="#64748B" stroke-opacity="0.25" fill="none">
+    <path d="M0 40H360"/>
+    <path d="M0 120H360"/>
+    <path d="M0 200H360"/>
+    <path d="M0 280H360"/>
+    <path d="M40 0V360"/>
+    <path d="M120 0V360"/>
+    <path d="M200 0V360"/>
+    <path d="M280 0V360"/>
+  </g>
+  <g fill="#CBD5E1" fill-opacity="0.15">
+    <circle cx="48" cy="48" r="4"/>
+    <circle cx="168" cy="128" r="3"/>
+    <circle cx="288" cy="208" r="4"/>
+    <circle cx="248" cy="328" r="3"/>
+  </g>
+</svg>

@@ -1,0 +1,233 @@
+# PROMPTS DE IMAGENES - EL IMPOSTOR
+# Uso recomendado: Gemini (Nano Banana)
+# Nota: todos los prompts incluyen la regla de alpha + fallback solicitado.
+
+================================================================
+GRUPO: BANNERS (LOGO WORDMARK "IMPOSTOR")
+================================================================
+
+[BANNER 01 - TEMA DEFAULT / NOIR]
+Genera un logo-banner horizontal para el juego "IMPOSTOR". El foco absoluto debe ser la palabra IMPOSTOR (80-90% del protagonismo), estilo noir moderno, tipografia fuerte, dramatica y elegante, con cortes de luz sutiles y tension visual. Anade detalles minimos de deduccion (lineas de investigacion muy discretas y 1-2 fichas). No crear escena completa, no personajes, no texto adicional.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin mockup.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 02 - TEMA ARENA]
+Genera un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe dominar la imagen (80-90%), con estilo calido/desierto elegante, textura arenosa fina y acentos cobre/ambar. Decoracion minima: dunas abstractas suaves y 1-2 simbolos de voto discretos. Sin personajes, sin escena narrativa.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 03 - TEMA FIESTA]
+Genera un logo-banner horizontal para "IMPOSTOR". Prioriza la palabra IMPOSTOR (80-90%) con estilo festivo de videojuego: energia, color pop, brillo moderado y legibilidad alta. Decoracion minima: serpentinas, confeti y una ficha, todo sutil para no tapar el titulo. Sin personajes ni fondo de escena.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 04 - TEMA CARTOON / CUTE]
+Genera un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe ser protagonista total (80-90%), estilo cartoon cute/kawaii, bordes redondeados, brillo suave, colorido amigable y legible. Decoracion minima: stickers simples (interrogacion, estrellita, ficha). Sin personajes completos.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 05 - TEMA FANTASIA RPG]
+Genera un logo-banner horizontal para "IMPOSTOR". Texto IMPOSTOR dominante (80-90%), estilo RPG fantasia con tipografia runica/medieval muy legible, metal envejecido y brillo magico sutil. Decoracion minima: runas y trazos arcanos discretos. Sin personajes ni escena completa.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 06 - TEMA SCI-FI]
+Genera un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe dominar (80-90%), tipografia futurista geometrica, cortes tecnicos, HUD minimal y glow controlado. Decoracion minima: lineas de circuito y reticulas discretas. Sin personajes ni escenario.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 07 - TEMA PUZZLE MINIMAL]
+Genera un logo-banner horizontal para "IMPOSTOR". Texto protagonista (80-90%), estilo minimal divertido, geometrico, limpio y muy legible. Decoracion minima: formas simples y piezas de puzzle sutiles, sin recargar.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 08 - TEMA COSMOS]
+Genera un logo-banner horizontal para "IMPOSTOR". Texto IMPOSTOR dominante (80-90%), estilo espacial/cosmico elegante, brillo estelar suave y contraste claro. Decoracion minima: constelaciones y glifos orbitales discretos. Sin personajes ni paisaje espacial completo.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+[BANNER 09 - TEMA HAND-DRAWN]
+Genera un logo-banner horizontal para "IMPOSTOR". Texto IMPOSTOR como foco principal (80-90%), estilo dibujado a mano con trazo rotulador/lapiz, imperfeccion controlada y legibilidad alta. Decoracion minima: garabatos, flechas y signos de sospecha discretos.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin marco, sin texto adicional.
+Formato: PNG, 2400x800, bordes limpios.
+
+================================================================
+GRUPO: BOTONES (CTA, SECUNDARIO, BACK, TOGGLE)
+================================================================
+
+[BOTONES PACK BASE - TEMA VARIABLE]
+Genera un pack de botones UI para juego movil "El Impostor" en [TEMA]. Incluir en un sprite sheet horizontal o en archivos separados:
+1) Boton CTA grande (estado normal, hover, pressed, disabled)
+2) Boton secundario (normal, hover, pressed, disabled)
+3) Boton circular icon-only (normal, active, disabled)
+4) Boton back (normal, pressed)
+5) Toggle on/off para "Palabra por IA"
+Estilo: muy legible, tactil, areas grandes, coherente con [TEMA].
+No incluir texto quemado salvo placeholders minimos (sin branding extra).
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin mockup de telefono, sin marco.
+Formato: PNG RGBA, resolucion alta (minimo 2048 px lado mayor).
+
+[BOTON ESPECIAL - "A JUGAR"]
+Genera un unico boton super destacado para la accion "A JUGAR", estilo [TEMA], con borde, profundidad y respuesta tactil clara. Debe leerse perfecto en movil y soportar escalado.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 1200x400.
+
+================================================================
+GRUPO: TARJETAS DE FASE (PANTALLAS DE JUEGO)
+================================================================
+
+[PACK TARJETAS DE FASE - TEMA VARIABLE]
+Genera 8 tarjetas de fase para UI del juego "El Impostor" en [TEMA], consistentes entre si:
+1) Reclutamiento
+2) Revelar Rol
+3) Ronda de Pistas
+4) Debate
+5) Votacion
+6) Resultado de Ronda
+7) Fin de Partida
+8) Biblioteca de Palabras
+Cada tarjeta debe tener encabezado visual, icono principal y area de contenido limpia.
+No anadir personajes completos ni escenas complejas.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin watermark, sin texto excesivo.
+Formato: PNG RGBA, cada tarjeta 1200x1600 (o proporcion vertical similar).
+
+[TARJETA MODAL - SIN PALABRAS DISPONIBLES]
+Genera una tarjeta modal para mensaje de sistema "Sin palabras disponibles" en estilo [TEMA], con look de alerta elegante y dos zonas de accion visual (primaria/secundaria) sin texto incrustado.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 1400x1600.
+
+================================================================
+GRUPO: ICONOS FUNCIONALES
+================================================================
+
+[ICONOS UI PACK - TEMA VARIABLE]
+Genera un pack de iconos para UI de juego en [TEMA], trazo consistente, grosor uniforme, legibles a 20-32 px:
+- microfono
+- volver (flecha)
+- arrastrar/reordenar (6 puntos)
+- eliminar (papelera)
+- votar
+- reloj/temporizador
+- siguiente agente
+- biblioteca
+- dificultad
+- impostor
+- civil
+- alerta
+- configuracion
+Entregar estilo unificado y con version normal + activa.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA (sprite sheet 2048x2048 o individuales 512x512).
+
+[ICONOS DE ESTADO - VOTACION]
+Genera iconos de estado para votacion privada: "pendiente", "votado", "eliminado", "empate", "impostor detectado", estilo [TEMA], claros y distintos entre si.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 512x512 cada icono.
+
+================================================================
+GRUPO: ROLES, BADGES Y ETIQUETAS
+================================================================
+
+[PACK BADGES - DIFICULTAD]
+Genera badges de dificultad para juego movil: Facil, Media, Dificil, Extrema, estilo [TEMA], con forma consistente y legibilidad perfecta.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 1000x400 cada badge.
+
+[PACK BADGES - CATEGORIAS]
+Genera badges de categoria: Comida, Objetos, Animales, Profesiones, Lugares, Deportes, Tecnologia, Cultura, Naturaleza, estilo [TEMA].
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 1000x400 cada badge.
+
+[ROLE CHIPS]
+Genera chips visuales de rol: CIVIL e IMPOSTOR, con version normal, resaltada y eliminada (tachado/atenuado), estilo [TEMA], sin texto adicional.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 900x300 cada variante.
+
+================================================================
+GRUPO: OVERLAYS Y EFECTOS DE PANTALLA
+================================================================
+
+[OVERLAY - REVELAR ROL / CORTINA]
+Genera una textura/overlay para la cortina de "Revelar Rol" en estilo [TEMA]. Debe verse con volumen y permitir animacion vertical sin artefactos. No incluir texto ni personajes.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 1200x2200.
+
+[OVERLAY - TIMER DE DEBATE]
+Genera un aro de temporizador (ring) con estados: normal, warning, critico, estilo [TEMA], legible sobre fondos oscuros y claros.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 1200x1200 cada estado.
+
+[OVERLAY - RESPLANDORES Y SOMBRAS]
+Genera 10 overlays abstractos de glow/sombra para UI de juego en [TEMA], para usar como capas decorativas detras de botones y tarjetas.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 1600x900 cada overlay.
+
+================================================================
+GRUPO: FONDOS/TEXTURAS POR TEMA (DECORACION GLOBAL)
+================================================================
+
+[TEXTURA GLOBAL - TEMA VARIABLE]
+Genera una textura global para fondo de app en [TEMA], repetible (tileable), con detalles sutiles que no molesten la legibilidad del contenido.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 2048x2048, seamless tile.
+
+[ORNAMENTO CABECERA - TEMA VARIABLE]
+Genera un ornamento horizontal para cabeceras de pantalla (Setup, Debate, Vote, etc.) en [TEMA], fino y elegante, sin texto.
+Reglas obligatorias de salida:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Formato: PNG RGBA, 2400x500.
+
+================================================================
+GRUPO: PROMPTS RAPIDOS LISTOS (COPIAR/PEGAR)
+================================================================
+
+[PROMPT RAPIDO - BANNER SOLO TEXTO]
+Crea un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe ocupar 80-90% de la composicion, estilo [TEMA], muy legible en movil, con 2-3 elementos decorativos maximo. No personajes, no escena completa, no texto extra.
+Reglas obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Salida: PNG RGBA, 2400x800.
+
+[PROMPT RAPIDO - ICONO UNICO]
+Genera un icono de [NOMBRE_ICONO] para juego de deduccion social, estilo [TEMA], limpio, legible a 24px y 32px.
+Reglas obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Salida: PNG RGBA, 512x512.
+
+[PROMPT RAPIDO - BOTON CTA]
+Genera un boton CTA premium para app movil con estilo [TEMA], alto contraste y gran legibilidad tactil.
+Reglas obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+Salida: PNG RGBA, 1200x400.

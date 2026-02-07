@@ -38,6 +38,9 @@ Estados validos:
 | A-021 | Media | CORREGIDO | Solo existia un tema visual | `App.tsx`, `index.css` | Agregar selector global con 3 temas (actual, claro y loco) y cambio en caliente |
 | A-022 | Baja | CORREGIDO | Falta de modo fiesta para revelar impostor a Ivan de forma temporal | `App.tsx`, `screens/RevealScreen.tsx` | Activacion secreta por pulsacion larga solo en turno de Ivan y una sola vez por palabra |
 | A-023 | Media | CORREGIDO | Dificultades agotadas no se distinguian ni se bloqueaban en configuracion | `screens/SetupScreen.tsx` | Marcar dificultad agotada con texto tachado y deshabilitar su boton de seleccion |
+| A-024 | Baja | CORREGIDO | Banners de temas en `public/nuevos` no estaban conectados automaticamente a cada tema | `App.tsx`, `screens/HomeScreen.tsx`, `public/nuevos/*` | Mapear banner por tema y priorizar siempre archivo base sin sufijo numerico |
+| A-025 | Baja | CORREGIDO | Falta de guia unificada de prompts por grupos de imagen para generacion con fallback sin alpha real | `PROMPTS_IMAGENES_APP.txt` | Consolidar prompts por tipo (banners, botones, tarjetas, iconos, etc.) incluyendo regla de alpha o color solido de alto contraste |
+| A-026 | Baja | CORREGIDO | Faltaba fichero exclusivo de prompts de banners por tema para copy/paste rapido | `PROMPTS_BANNERS_TEMAS.txt` | Consolidar los 9 prompts iniciales de banner (incluyendo Arena, Fiesta y Cartoon) en un archivo dedicado |
 
 ## Bitacora de correcciones
 
@@ -74,8 +77,20 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-019 | CORREGIDO | Boton "Saltar todo" ampliado (padding, tipografia y borde) para mejor uso tactil | `npm run build` OK |
 | 2026-02-07 | A-020 | CORREGIDO | Al pulsar "Siguiente agente" ahora se baja primero la persiana y luego cambia de jugador tras 240ms | `npm run build` OK |
 | 2026-02-07 | A-021 | CORREGIDO | Selector de temas agregado con persistencia local y 3 modos: `Actual`, `Claro`, `Loco` | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Refinados temas globales: claro menos blanco y loco mas agresivo (tipografia + overlays + imagen festiva + animaciones) aplicado desde contenedor global en todas las pantallas | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Tema claro ajustado a fondo liso arena muy claro (sin degradado) y menor blanqueado interno para evitar aspecto blanco puro | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Tema claro oscurecido a arena medio y tema loco aclarado (luminoso sin blanco) manteniendo estetica festiva y cobertura global | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Tema loco reequilibrado a paleta pastel clara (sin fondo oscuro) e inversion parcial del viewport para eliminar sensacion de oscuridad | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Tema loco actualizado a paleta marron clara y eliminacion de acentos fosforitos (gradientes/overlays neon removidos) | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Selector ampliado con temas de guia: Cartoon, Fantasia RPG, Sci-Fi Neon, Puzzle Minimal, Cosmos y Dibujo a mano; aplicados globalmente en todas las pantallas | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Theming reforzado dentro de la app (no solo marco): mapeo de utilidades `bg/border/text` a tokens por tema para recolorear tarjetas, botones y textos en todas las pantallas | `npm run build` OK |
+| 2026-02-07 | A-021 | CORREGIDO | Temas diferenciados visualmente (Arena/Fiesta/Fantasia/Dibujo) y textura/ilustracion propia por tema con SVG local en `public/themes` | `npm run build` OK |
 | 2026-02-07 | A-022 | CORREGIDO | Easter egg: en `RevealScreen`, pulsacion larga sobre "REVELAR ROL" muestra impostor(es) solo para `Ivan/Ivan`, y se consume por palabra actual | `npm run build` OK |
 | 2026-02-07 | A-023 | CORREGIDO | Setup ahora detecta dificultades agotadas en sesion y las muestra tachadas + bloqueadas para seleccion | `npm run build` OK |
+| 2026-02-07 | A-024 | CORREGIDO | Integrado banner noir (`/nuevos/noir.png`) en `HomeScreen` como cabecera principal con fallback accesible por `h1` | `npm run build` OK |
+| 2026-02-07 | A-024 | CORREGIDO | Banner de Home ligado al tema activo (`default/noir`, `arena`, `fiesta`, `cartoon`, `Fantasía`, `sci-fi`, `puzzle`, `cosmos`, `hand_made`) usando siempre versiones sin numero | `npm run build` OK |
+| 2026-02-07 | A-025 | CORREGIDO | Creado `PROMPTS_IMAGENES_APP.txt` con prompts agrupados y regla de exportacion (alpha real o fallback de color solido no usado) para Gemini | Validacion manual del contenido en fichero |
+| 2026-02-07 | A-026 | CORREGIDO | Creado `PROMPTS_BANNERS_TEMAS.txt` con los 9 prompts de banner iniciales en un solo archivo (incluye Arena, Fiesta y Cartoon) | Validacion manual del contenido en fichero |
 
 ## Regla de actualizacion durante ejecucion
 

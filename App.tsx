@@ -16,10 +16,11 @@ const START_WORD_TIMEOUT_MS = 5000;
 const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
 const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
 const THEME_STORAGE_KEY = 'impostor_theme_mode_v1';
+const VOTE_MODE_SESSION_KEY = 'impostor_vote_mode_v1';
 
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
-type ThemeMode = 'default' | 'light' | 'wild';
+type ThemeMode = 'default' | 'light' | 'wild' | 'cute' | 'fantasy' | 'scifi' | 'puzzle' | 'cosmos' | 'handdrawn';
 
 interface WordFlowModalState {
   title: string;
@@ -30,9 +31,27 @@ interface WordFlowModalState {
 
 const THEME_OPTIONS: { id: ThemeMode; label: string; subtitle: string }[] = [
   { id: 'default', label: 'Actual', subtitle: 'Noir clasico' },
-  { id: 'light', label: 'Claro', subtitle: 'Mas luminoso' },
-  { id: 'wild', label: 'Loco', subtitle: 'Neon extremo' },
+  { id: 'light', label: 'Arena', subtitle: 'Calido y claro' },
+  { id: 'wild', label: 'Fiesta', subtitle: 'Marron divertido' },
+  { id: 'cute', label: 'Cartoon', subtitle: 'Cute y redondo' },
+  { id: 'fantasy', label: 'Fantasia', subtitle: 'RPG medieval' },
+  { id: 'scifi', label: 'Sci-Fi', subtitle: 'Neon futurista' },
+  { id: 'puzzle', label: 'Puzzle', subtitle: 'Minimal pop' },
+  { id: 'cosmos', label: 'Cosmos', subtitle: 'Espacial flotante' },
+  { id: 'handdrawn', label: 'Dibujo', subtitle: 'Hecho a mano' },
 ];
+
+const HOME_BANNER_BY_THEME: Record<ThemeMode, string> = {
+  default: '/nuevos/noir.png',
+  light: '/nuevos/arena.png',
+  wild: '/nuevos/fiesta.png',
+  cute: '/nuevos/cartoon.png',
+  fantasy: '/nuevos/Fantasía.png',
+  scifi: '/nuevos/sci-fi.png',
+  puzzle: '/nuevos/puzzle.png',
+  cosmos: '/nuevos/cosmos.png',
+  handdrawn: '/nuevos/hand_made.png',
+};
 
 const createEmptyUsedWords = (): UsedWordsByDifficulty => ({
   [Difficulty.EASY]: new Set<string>(),
@@ -74,8 +93,14 @@ const persistUsedWordsInSession = (usedWords: UsedWordsByDifficulty) => {
 const getInitialThemeMode = (): ThemeMode => {
   if (typeof window === 'undefined') return 'default';
   const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-  if (stored === 'default' || stored === 'light' || stored === 'wild') return stored;
+  if (THEME_OPTIONS.some((theme) => theme.id === stored)) return stored as ThemeMode;
   return 'default';
+};
+
+const getInitialVoteMode = (): 'INDIVIDUAL' | 'GROUP' => {
+  if (typeof window === 'undefined') return 'INDIVIDUAL';
+  const stored = window.sessionStorage.getItem(VOTE_MODE_SESSION_KEY);
+  return stored === 'GROUP' ? 'GROUP' : 'INDIVIDUAL';
 };
 
 const App: React.FC = () => {
@@ -85,6 +110,7 @@ const App: React.FC = () => {
     impostorCount: 1,
     difficulty: Difficulty.MEDIUM,
     categories: [...CATEGORIES],
+    voteMode: getInitialVoteMode(),
     aiWordGenerationEnabled: false,
     timerEnabled: false,
     timerSeconds: 30,
@@ -108,6 +134,11 @@ const App: React.FC = () => {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem(THEME_STORAGE_KEY, themeMode);
   }, [themeMode]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.sessionStorage.setItem(VOTE_MODE_SESSION_KEY, config.voteMode);
+  }, [config.voteMode]);
 
   const resetToHome = () => {
     setGameState(GameState.HOME);
@@ -313,7 +344,13 @@ const App: React.FC = () => {
         )}
 
         <main className="flex-1 flex flex-col p-6 pb-20 overflow-y-auto custom-scrollbar">
-          {gameState === GameState.HOME && <HomeScreen onNewGame={() => setGameState(GameState.SETUP)} onLibrary={() => setGameState(GameState.LIBRARY)} />}
+          {gameState === GameState.HOME && (
+            <HomeScreen
+              bannerSrc={HOME_BANNER_BY_THEME[themeMode] || HOME_BANNER_BY_THEME.default}
+              onNewGame={() => setGameState(GameState.SETUP)}
+              onLibrary={() => setGameState(GameState.LIBRARY)}
+            />
+          )}
           {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} initialConfig={config} />}
           {gameState === GameState.ROLE_REVEAL && (
             <RevealScreen
@@ -353,7 +390,7 @@ const App: React.FC = () => {
             <DebateScreen key={`debate-${roundNumber}-${gameId}`} clues={[]} config={config} onVote={() => setGameState(GameState.ROUND_VOTE)} onBack={resetToHome} />
           )}
           {gameState === GameState.ROUND_VOTE && (
-            <VoteScreen key={`vote-${roundNumber}-${gameId}`} players={players} onVoteFinished={handleExpulsion} onBack={resetToHome} />
+            <VoteScreen key={`vote-${roundNumber}-${gameId}`} players={players} voteMode={config.voteMode} onVoteFinished={handleExpulsion} onBack={resetToHome} />
           )}
           {gameState === GameState.ROUND_RESULT && (
             <ResultScreen
@@ -410,7 +447,7 @@ const App: React.FC = () => {
 
         <div className="absolute bottom-16 left-4 z-[130]">
           {isThemeMenuOpen && (
-            <div className="mb-3 bg-slate-900/95 border border-slate-700 rounded-2xl p-2 w-44 shadow-2xl backdrop-blur">
+            <div className="mb-3 bg-slate-900/95 border border-slate-700 rounded-2xl p-2 w-56 max-h-[22rem] overflow-y-auto custom-scrollbar shadow-2xl backdrop-blur">
               {THEME_OPTIONS.map((theme) => (
                 <button
                   key={theme.id}

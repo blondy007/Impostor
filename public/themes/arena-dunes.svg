@@ -1,0 +1,11 @@
+<svg width="360" height="360" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="360" fill="transparent"/>
+  <path d="M0 120C70 80 140 80 210 120C270 155 320 154 360 132V360H0V120Z" fill="#C9A87E" fill-opacity="0.28"/>
+  <path d="M0 170C80 145 140 148 220 178C280 200 320 198 360 184V360H0V170Z" fill="#B88F63" fill-opacity="0.26"/>
+  <path d="M0 230C70 205 140 204 220 234C280 255 330 254 360 246V360H0V230Z" fill="#9F744C" fill-opacity="0.24"/>
+  <g stroke="#7F5B3A" stroke-opacity="0.25" stroke-linecap="round">
+    <path d="M28 86C78 64 128 64 176 86"/>
+    <path d="M188 62C220 48 252 48 284 62"/>
+    <path d="M78 38C102 28 126 28 148 38"/>
+  </g>
+</svg>

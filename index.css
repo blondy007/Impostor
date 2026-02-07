@@ -20,54 +20,333 @@
 
 .app-shell {
   position: relative;
+  isolation: isolate;
   background: radial-gradient(1200px 600px at 50% -10%, #1e293b 0%, #020617 65%);
   transition: background 400ms ease;
 }
 
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .app-viewport {
   position: relative;
-  transition: filter 350ms ease, box-shadow 350ms ease;
+  z-index: 1;
+  transition: filter 350ms ease, box-shadow 350ms ease, transform 350ms ease;
+  --ui-bg-950: #020617;
+  --ui-bg-900: #0f172a;
+  --ui-bg-800: #1e293b;
+  --ui-bg-700: #334155;
+  --ui-border-900: #0f172a;
+  --ui-border-800: #1f2937;
+  --ui-border-700: #334155;
+  --ui-border-500: #64748b;
+  --ui-text-950: #020617;
+  --ui-text-600: #475569;
+  --ui-text-500: #64748b;
+  --ui-text-400: #94a3b8;
+  --ui-text-300: #cbd5e1;
+  --ui-text-200: #e2e8f0;
+  --ui-text-100: #f1f5f9;
+  --ui-white: #ffffff;
+  --ui-accent-600: #4f46e5;
+  --ui-accent-500: #6366f1;
+  --ui-accent-400: #818cf8;
+  --ui-accent-300: #a5b4fc;
+  --ui-danger-600: #dc2626;
+  --ui-danger-500: #ef4444;
+  --ui-danger-400: #f87171;
 }
 
 .theme-default .app-viewport {
   filter: none;
 }
 
-.theme-light .app-shell {
-  background: radial-gradient(1000px 600px at 50% -10%, #c7d2fe 0%, #e2e8f0 35%, #cbd5e1 100%);
+/* Theme tokens applied to in-app utility classes so skins are visible inside the game UI. */
+.app-viewport [class~='bg-slate-950'] {
+  background-color: var(--ui-bg-950) !important;
+}
+
+.app-viewport [class~='bg-slate-950/80'] {
+  background-color: color-mix(in srgb, var(--ui-bg-950) 80%, transparent) !important;
+}
+
+.app-viewport [class~='bg-slate-950/50'] {
+  background-color: color-mix(in srgb, var(--ui-bg-950) 50%, transparent) !important;
+}
+
+.app-viewport [class~='bg-slate-900'] {
+  background-color: var(--ui-bg-900) !important;
+}
+
+.app-viewport [class~='bg-slate-900/95'] {
+  background-color: color-mix(in srgb, var(--ui-bg-900) 95%, transparent) !important;
+}
+
+.app-viewport [class~='bg-slate-900/90'] {
+  background-color: color-mix(in srgb, var(--ui-bg-900) 90%, transparent) !important;
+}
+
+.app-viewport [class~='bg-slate-900/80'] {
+  background-color: color-mix(in srgb, var(--ui-bg-900) 80%, transparent) !important;
+}
+
+.app-viewport [class~='bg-slate-900/50'] {
+  background-color: color-mix(in srgb, var(--ui-bg-900) 50%, transparent) !important;
+}
+
+.app-viewport [class~='bg-slate-800'] {
+  background-color: var(--ui-bg-800) !important;
+}
+
+.app-viewport [class~='bg-slate-700'] {
+  background-color: var(--ui-bg-700) !important;
+}
+
+.app-viewport [class~='border-slate-900'] {
+  border-color: var(--ui-border-900) !important;
+}
+
+.app-viewport [class~='border-slate-800'] {
+  border-color: var(--ui-border-800) !important;
+}
+
+.app-viewport [class~='border-slate-700'] {
+  border-color: var(--ui-border-700) !important;
+}
+
+.app-viewport [class~='border-slate-700/40'] {
+  border-color: color-mix(in srgb, var(--ui-border-700) 40%, transparent) !important;
+}
+
+.app-viewport [class~='border-slate-500'] {
+  border-color: var(--ui-border-500) !important;
+}
+
+.app-viewport [class~='border-slate-500/40'] {
+  border-color: color-mix(in srgb, var(--ui-border-500) 40%, transparent) !important;
+}
+
+.app-viewport [class~='text-slate-600'] {
+  color: var(--ui-text-600) !important;
+}
+
+.app-viewport [class~='text-slate-500'] {
+  color: var(--ui-text-500) !important;
+}
+
+.app-viewport [class~='text-slate-400'] {
+  color: var(--ui-text-400) !important;
+}
+
+.app-viewport [class~='text-slate-300'] {
+  color: var(--ui-text-300) !important;
+}
+
+.app-viewport [class~='text-slate-200'] {
+  color: var(--ui-text-200) !important;
+}
+
+.app-viewport [class~='text-white'] {
+  color: var(--ui-white) !important;
+}
+
+.app-viewport [class~='text-slate-950'] {
+  color: var(--ui-text-950) !important;
+}
+
+.app-viewport [class~='bg-indigo-600'] {
+  background-color: var(--ui-accent-600) !important;
+}
+
+.app-viewport [class~='bg-indigo-500'] {
+  background-color: var(--ui-accent-500) !important;
+}
+
+.app-viewport [class~='bg-indigo-500/25'] {
+  background-color: color-mix(in srgb, var(--ui-accent-500) 25%, transparent) !important;
+}
+
+.app-viewport [class~='bg-indigo-500/10'] {
+  background-color: color-mix(in srgb, var(--ui-accent-500) 10%, transparent) !important;
+}
+
+.app-viewport [class~='border-indigo-500'] {
+  border-color: var(--ui-accent-500) !important;
+}
+
+.app-viewport [class~='border-indigo-400'] {
+  border-color: var(--ui-accent-400) !important;
+}
+
+.app-viewport [class~='text-indigo-500'] {
+  color: var(--ui-accent-500) !important;
+}
+
+.app-viewport [class~='text-indigo-400'] {
+  color: var(--ui-accent-400) !important;
+}
+
+.app-viewport [class~='text-indigo-300'] {
+  color: var(--ui-accent-300) !important;
+}
+
+.app-viewport [class~='bg-red-600'] {
+  background-color: var(--ui-danger-600) !important;
+}
+
+.app-viewport [class~='bg-red-600/10'] {
+  background-color: color-mix(in srgb, var(--ui-danger-600) 10%, transparent) !important;
+}
+
+.app-viewport [class~='bg-red-900/10'] {
+  background-color: color-mix(in srgb, var(--ui-danger-600) 12%, transparent) !important;
+}
+
+.app-viewport [class~='bg-red-950/30'] {
+  background-color: color-mix(in srgb, var(--ui-danger-600) 30%, transparent) !important;
+}
+
+.app-viewport [class~='border-red-500'] {
+  border-color: var(--ui-danger-500) !important;
+}
+
+.app-viewport [class~='border-red-500/30'] {
+  border-color: color-mix(in srgb, var(--ui-danger-500) 30%, transparent) !important;
+}
+
+.app-viewport [class~='text-red-500'] {
+  color: var(--ui-danger-500) !important;
+}
+
+.app-shell.theme-default::after {
+  opacity: 0.12;
+  background: url('/themes/default-noir.svg');
+  background-size: 240px 240px;
+  mix-blend-mode: screen;
+}
+
+.app-shell.theme-light {
+  background: linear-gradient(160deg, #e8d8c1 0%, #d8c0a1 52%, #c7ab87 100%);
+}
+
+.app-shell.theme-light::before {
+  inset: 0;
+  opacity: 0.52;
+  background: radial-gradient(760px 280px at 30% 12%, rgba(255, 243, 223, 0.44), transparent 72%);
+}
+
+.app-shell.theme-light::after {
+  inset: 0;
+  opacity: 0.22;
+  background: url('/themes/arena-dunes.svg');
+  background-size: 320px 320px;
+  mix-blend-mode: multiply;
+  animation: arena_drift 18s linear infinite;
 }
 
 .theme-light .app-viewport {
-  filter: invert(0.95) hue-rotate(180deg) saturate(0.75) contrast(0.94) brightness(1.04);
-  box-shadow: 0 35px 80px -25px rgba(30, 41, 59, 0.4);
+  filter: none;
+  box-shadow: 0 35px 90px -24px rgba(97, 66, 28, 0.34);
+  font-family: 'Trebuchet MS', 'Avenir Next', 'Segoe UI', sans-serif;
+  --ui-bg-950: #5f472f;
+  --ui-bg-900: #745739;
+  --ui-bg-800: #8b6a45;
+  --ui-bg-700: #a68259;
+  --ui-border-900: #5f472f;
+  --ui-border-800: #745739;
+  --ui-border-700: #906a44;
+  --ui-border-500: #b38d63;
+  --ui-text-950: #2a1b0f;
+  --ui-text-600: #d8b892;
+  --ui-text-500: #e6c9a6;
+  --ui-text-400: #f0d8ba;
+  --ui-text-300: #f6e4cc;
+  --ui-text-200: #fbefdd;
+  --ui-white: #fff8ed;
+  --ui-accent-600: #99612f;
+  --ui-accent-500: #b0753f;
+  --ui-accent-400: #c58e58;
+  --ui-accent-300: #d6ab7d;
+  --ui-danger-600: #963c2d;
+  --ui-danger-500: #b24f3d;
+  --ui-danger-400: #cf7467;
 }
 
-.theme-wild .app-shell {
-  background: radial-gradient(1100px 650px at 10% 5%, #f97316 0%, #7c3aed 35%, #0f172a 80%);
-}
-
-.theme-wild::before {
-  content: '';
-  position: absolute;
-  inset: -35%;
-  pointer-events: none;
-  background: conic-gradient(from 45deg, rgba(34, 211, 238, 0.25), rgba(236, 72, 153, 0.25), rgba(250, 204, 21, 0.25), rgba(34, 211, 238, 0.25));
-  animation: wild_spin 14s linear infinite;
-}
-
-.theme-wild::after {
+.theme-light .app-viewport::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(600px 220px at 15% 85%, rgba(236, 72, 153, 0.2), transparent 70%),
-    radial-gradient(700px 280px at 85% 20%, rgba(34, 211, 238, 0.18), transparent 70%);
-  animation: wild_breathe 4.5s ease-in-out infinite alternate;
+  background: linear-gradient(160deg, rgba(104, 70, 30, 0.15) 0%, rgba(149, 105, 59, 0.07) 45%, rgba(90, 58, 28, 0.12) 100%);
+  mix-blend-mode: multiply;
+  opacity: 0.52;
+}
+
+.theme-light .app-viewport button {
+  box-shadow: 0 10px 20px -12px rgba(90, 58, 28, 0.45);
+}
+
+.app-shell.theme-wild {
+  background: radial-gradient(1200px 720px at 14% 8%, #f8d26b 0%, #f59d4e 30%, #da5f8f 62%, #7654b0 100%);
+}
+
+.app-shell.theme-wild::before {
+  inset: 0;
+  opacity: 0.28;
+  background: linear-gradient(140deg, rgba(255, 242, 201, 0.35) 0%, rgba(255, 193, 123, 0.08) 42%, rgba(115, 78, 170, 0.2) 100%);
+}
+
+.app-shell.theme-wild::after {
+  inset: 0;
+  opacity: 0.28;
+  background: url('/themes/fiesta-streamers.svg');
+  background-size: 320px 320px;
+  mix-blend-mode: screen;
+  animation: fiesta_drift 16s linear infinite;
 }
 
 .theme-wild .app-viewport {
-  filter: hue-rotate(28deg) saturate(1.45) contrast(1.08);
-  box-shadow: 0 0 70px rgba(244, 114, 182, 0.22), 0 0 120px rgba(34, 211, 238, 0.18);
+  filter: none;
+  box-shadow: 0 0 90px rgba(162, 66, 128, 0.22), 0 0 140px rgba(71, 118, 198, 0.18);
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Segoe UI', sans-serif;
+  --ui-bg-950: #3a1f4f;
+  --ui-bg-900: #4e2b6a;
+  --ui-bg-800: #68408a;
+  --ui-bg-700: #8660ab;
+  --ui-border-900: #3a1f4f;
+  --ui-border-800: #563170;
+  --ui-border-700: #6e4a90;
+  --ui-border-500: #9875bc;
+  --ui-text-950: #21122d;
+  --ui-text-600: #e3c8ff;
+  --ui-text-500: #ebd7ff;
+  --ui-text-400: #f0e2ff;
+  --ui-text-300: #f5ecff;
+  --ui-text-200: #faf5ff;
+  --ui-white: #fffbff;
+  --ui-accent-600: #d5722f;
+  --ui-accent-500: #e78940;
+  --ui-accent-400: #f0a15f;
+  --ui-accent-300: #f5bc86;
+  --ui-danger-600: #be4a78;
+  --ui-danger-500: #d35f8c;
+  --ui-danger-400: #e38db0;
+}
+
+.theme-wild .app-viewport h1,
+.theme-wild .app-viewport h2,
+.theme-wild .app-viewport h3,
+.theme-wild .app-viewport h4,
+.theme-wild .app-viewport button,
+.theme-wild .app-viewport .font-black {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  letter-spacing: 0.03em;
 }
 
 .theme-wild .app-viewport::after {
@@ -75,10 +354,357 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.16;
-  background: repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.2) 0 2px, transparent 2px 12px);
+  opacity: 0.14;
+  background: radial-gradient(520px 170px at 8% 14%, rgba(255, 231, 185, 0.24), transparent 72%),
+    radial-gradient(520px 190px at 92% 84%, rgba(214, 95, 143, 0.18), transparent 72%);
   mix-blend-mode: screen;
-  animation: wild_scan 9s linear infinite;
+}
+
+.theme-wild .app-viewport button {
+  border-radius: 1.15rem;
+  box-shadow: 0 12px 26px -18px rgba(88, 37, 84, 0.5);
+}
+
+.app-shell.theme-cute {
+  background: radial-gradient(1200px 700px at 20% 8%, #ffd8e7 0%, #ffdcb8 35%, #d5f3da 68%, #a2d7ba 100%);
+}
+
+.app-shell.theme-cute::before {
+  inset: 0;
+  opacity: 0.52;
+  background-image: radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.55) 0 16px, transparent 17px),
+    radial-gradient(circle at 84% 22%, rgba(255, 255, 255, 0.45) 0 12px, transparent 13px),
+    radial-gradient(circle at 20% 78%, rgba(255, 255, 255, 0.42) 0 10px, transparent 11px);
+}
+
+.app-shell.theme-cute::after {
+  inset: 0;
+  opacity: 0.25;
+  background: url('/themes/cute-stickers.svg');
+  background-size: 300px 300px;
+  mix-blend-mode: soft-light;
+  animation: cute_float 16s linear infinite;
+}
+
+.theme-cute .app-viewport {
+  filter: none;
+  box-shadow: 0 34px 86px -26px rgba(111, 67, 97, 0.42);
+  font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+  --ui-bg-950: #5a3f62;
+  --ui-bg-900: #714f79;
+  --ui-bg-800: #8d6795;
+  --ui-bg-700: #aa86b0;
+  --ui-border-900: #5a3f62;
+  --ui-border-800: #714f79;
+  --ui-border-700: #8d6795;
+  --ui-border-500: #bf9bc6;
+  --ui-text-950: #311f37;
+  --ui-text-600: #d9bddf;
+  --ui-text-500: #e7d1eb;
+  --ui-text-400: #f0dff3;
+  --ui-text-300: #f7ecf9;
+  --ui-text-200: #fbf5fc;
+  --ui-white: #fff9ff;
+  --ui-accent-600: #b35f9e;
+  --ui-accent-500: #c877b1;
+  --ui-accent-400: #d793c2;
+  --ui-accent-300: #e5b4d3;
+  --ui-danger-600: #ab4d74;
+  --ui-danger-500: #c06288;
+  --ui-danger-400: #d48aa8;
+}
+
+.theme-cute .app-viewport::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(165deg, rgba(255, 233, 244, 0.2) 0%, rgba(194, 255, 216, 0.08) 50%, rgba(250, 219, 255, 0.14) 100%);
+  mix-blend-mode: screen;
+}
+
+.theme-cute .app-viewport button {
+  border-radius: 1.25rem;
+  box-shadow: 0 13px 26px -16px rgba(130, 78, 110, 0.45);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.theme-cute .app-viewport button:active {
+  transform: scale(0.97) rotate(-1deg);
+}
+
+.app-shell.theme-fantasy {
+  background: radial-gradient(1200px 700px at 20% 0%, #243726 0%, #1d2c3d 45%, #181225 100%);
+}
+
+.app-shell.theme-fantasy::before {
+  inset: 0;
+  opacity: 0.38;
+  background: radial-gradient(760px 300px at 50% 0%, rgba(255, 232, 190, 0.14), transparent 72%);
+}
+
+.app-shell.theme-fantasy::after {
+  inset: 0;
+  opacity: 0.26;
+  background: url('/themes/fantasy-runes.svg');
+  background-size: 320px 320px;
+  mix-blend-mode: screen;
+  animation: fantasy_pulse 6.5s ease-in-out infinite alternate;
+}
+
+.theme-fantasy .app-viewport {
+  filter: none;
+  box-shadow: 0 0 80px rgba(72, 105, 80, 0.24);
+  font-family: Georgia, 'Times New Roman', serif;
+  --ui-bg-950: #17261a;
+  --ui-bg-900: #213624;
+  --ui-bg-800: #2e4a33;
+  --ui-bg-700: #44634b;
+  --ui-border-900: #1a2a1c;
+  --ui-border-800: #2a4230;
+  --ui-border-700: #3d5c45;
+  --ui-border-500: #5d7e67;
+  --ui-text-950: #0d170f;
+  --ui-text-600: #c9dcc8;
+  --ui-text-500: #d5e4d4;
+  --ui-text-400: #e1ecdf;
+  --ui-text-300: #ebf2e9;
+  --ui-text-200: #f3f8f2;
+  --ui-white: #fbfffb;
+  --ui-accent-600: #8d6b2d;
+  --ui-accent-500: #a27e39;
+  --ui-accent-400: #ba9751;
+  --ui-accent-300: #cfb071;
+  --ui-danger-600: #734053;
+  --ui-danger-500: #8b5066;
+  --ui-danger-400: #a8778b;
+}
+
+.theme-fantasy .app-viewport button {
+  border-radius: 0.9rem;
+  border-color: rgba(165, 137, 88, 0.65) !important;
+  box-shadow: inset 0 1px 0 rgba(224, 214, 180, 0.3), 0 10px 20px -14px rgba(0, 0, 0, 0.72);
+}
+
+.app-shell.theme-scifi {
+  background: radial-gradient(1200px 700px at 50% 4%, #0d1d35 0%, #071227 52%, #04070f 100%);
+}
+
+.app-shell.theme-scifi::before {
+  inset: 0;
+  opacity: 0.3;
+  background-image: linear-gradient(rgba(34, 211, 238, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.11) 1px, transparent 1px);
+  background-size: 28px 28px;
+  animation: scifi_grid 14s linear infinite;
+}
+
+.app-shell.theme-scifi::after {
+  inset: 0;
+  opacity: 0.26;
+  background: url('/themes/scifi-circuit.svg');
+  background-size: 320px 320px;
+  mix-blend-mode: screen;
+}
+
+.theme-scifi .app-viewport {
+  filter: none;
+  box-shadow: 0 0 90px rgba(14, 165, 233, 0.3), 0 0 130px rgba(45, 212, 191, 0.18);
+  font-family: Consolas, 'Lucida Console', 'Segoe UI', monospace;
+  --ui-bg-950: #06152b;
+  --ui-bg-900: #0b2343;
+  --ui-bg-800: #12335f;
+  --ui-bg-700: #1d4a82;
+  --ui-border-900: #0a1b34;
+  --ui-border-800: #12325b;
+  --ui-border-700: #1d4a82;
+  --ui-border-500: #3870a9;
+  --ui-text-950: #02101e;
+  --ui-text-600: #83b8da;
+  --ui-text-500: #9ccae6;
+  --ui-text-400: #b7dbf0;
+  --ui-text-300: #d3ebf8;
+  --ui-text-200: #e8f5fc;
+  --ui-white: #f5fcff;
+  --ui-accent-600: #0d8aa8;
+  --ui-accent-500: #12a6c8;
+  --ui-accent-400: #37bdd8;
+  --ui-accent-300: #77d4e6;
+  --ui-danger-600: #a6415e;
+  --ui-danger-500: #c25576;
+  --ui-danger-400: #d67f98;
+}
+
+.theme-scifi .app-viewport button {
+  border-radius: 0.85rem;
+  border-color: rgba(45, 212, 191, 0.55) !important;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.35), 0 0 18px rgba(56, 189, 248, 0.28);
+}
+
+.app-shell.theme-puzzle {
+  background: linear-gradient(145deg, #c1f0ff 0%, #ffe5a9 46%, #ffc8da 100%);
+}
+
+.app-shell.theme-puzzle::before {
+  inset: 0;
+  opacity: 0.26;
+  background-image: radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.34) 0 42px, transparent 44px),
+    radial-gradient(circle at 84% 76%, rgba(255, 255, 255, 0.26) 0 36px, transparent 38px);
+}
+
+.app-shell.theme-puzzle::after {
+  inset: 0;
+  opacity: 0.2;
+  background: url('/themes/puzzle-pieces.svg');
+  background-size: 320px 320px;
+  mix-blend-mode: multiply;
+}
+
+.theme-puzzle .app-viewport {
+  filter: none;
+  box-shadow: 0 26px 72px -24px rgba(62, 101, 129, 0.42);
+  font-family: 'Avenir Next', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --ui-bg-950: #25586b;
+  --ui-bg-900: #2f7188;
+  --ui-bg-800: #3f8ca5;
+  --ui-bg-700: #5aa8c2;
+  --ui-border-900: #25586b;
+  --ui-border-800: #2f7188;
+  --ui-border-700: #3f8ca5;
+  --ui-border-500: #69a9ba;
+  --ui-text-950: #133541;
+  --ui-text-600: #d6edf4;
+  --ui-text-500: #e2f3f8;
+  --ui-text-400: #ebf8fb;
+  --ui-text-300: #f3fbfd;
+  --ui-text-200: #f8fdfe;
+  --ui-white: #ffffff;
+  --ui-accent-600: #ce7a3c;
+  --ui-accent-500: #e08d4d;
+  --ui-accent-400: #eda76e;
+  --ui-accent-300: #f4c092;
+  --ui-danger-600: #ac4d3f;
+  --ui-danger-500: #c26454;
+  --ui-danger-400: #d98b7e;
+}
+
+.theme-puzzle .app-viewport button {
+  border-radius: 0.95rem;
+  box-shadow: none;
+}
+
+.app-shell.theme-cosmos {
+  background: radial-gradient(1200px 700px at 50% -5%, #3852b8 0%, #24245f 44%, #110b2a 100%);
+}
+
+.app-shell.theme-cosmos::before {
+  inset: 0;
+  opacity: 0.35;
+  background-image: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.7) 0 1px, transparent 2px),
+    radial-gradient(circle at 30% 65%, rgba(255, 255, 255, 0.5) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 25%, rgba(255, 255, 255, 0.55) 0 1px, transparent 2px),
+    radial-gradient(circle at 86% 72%, rgba(255, 255, 255, 0.65) 0 1px, transparent 2px);
+  animation: cosmos_drift 18s linear infinite;
+}
+
+.app-shell.theme-cosmos::after {
+  inset: 0;
+  opacity: 0.24;
+  background: url('/themes/cosmos-glyphs.svg');
+  background-size: 320px 320px;
+  mix-blend-mode: screen;
+}
+
+.theme-cosmos .app-viewport {
+  filter: none;
+  box-shadow: 0 0 95px rgba(96, 165, 250, 0.24), 0 0 135px rgba(147, 51, 234, 0.2);
+  font-family: 'Gill Sans', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --ui-bg-950: #151b4a;
+  --ui-bg-900: #1e2b66;
+  --ui-bg-800: #2f3f87;
+  --ui-bg-700: #4f60b1;
+  --ui-border-900: #1a2360;
+  --ui-border-800: #26367d;
+  --ui-border-700: #4354a3;
+  --ui-border-500: #7386cc;
+  --ui-text-950: #0f1438;
+  --ui-text-600: #b0bce8;
+  --ui-text-500: #c2cdf0;
+  --ui-text-400: #d3dcf5;
+  --ui-text-300: #e5eaf9;
+  --ui-text-200: #f1f4fd;
+  --ui-white: #fafbff;
+  --ui-accent-600: #5666cf;
+  --ui-accent-500: #7080e0;
+  --ui-accent-400: #8f9dea;
+  --ui-accent-300: #b0bbf2;
+  --ui-danger-600: #9a4a70;
+  --ui-danger-500: #b26086;
+  --ui-danger-400: #cc89a4;
+}
+
+.theme-cosmos .app-viewport button {
+  box-shadow: 0 0 16px rgba(147, 197, 253, 0.28);
+}
+
+.app-shell.theme-handdrawn {
+  background: linear-gradient(170deg, #efe2d0 0%, #e1ceb4 54%, #d5bd9f 100%);
+}
+
+.app-shell.theme-handdrawn::before {
+  inset: 0;
+  opacity: 0.34;
+  background: repeating-linear-gradient(0deg, rgba(117, 90, 60, 0.08) 0 2px, rgba(255, 246, 232, 0.06) 2px 10px);
+}
+
+.app-shell.theme-handdrawn::after {
+  inset: 0;
+  opacity: 0.24;
+  background: url('/themes/handdrawn-doodles.svg');
+  background-size: 320px 320px;
+  mix-blend-mode: multiply;
+}
+
+.theme-handdrawn .app-viewport {
+  filter: none;
+  box-shadow: 0 28px 72px -24px rgba(106, 75, 47, 0.42);
+  font-family: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+  --ui-bg-950: #433429;
+  --ui-bg-900: #574536;
+  --ui-bg-800: #705844;
+  --ui-bg-700: #8c7159;
+  --ui-border-900: #433429;
+  --ui-border-800: #5a4838;
+  --ui-border-700: #725a46;
+  --ui-border-500: #92755d;
+  --ui-text-950: #23180f;
+  --ui-text-600: #dac7b0;
+  --ui-text-500: #e5d6c3;
+  --ui-text-400: #ede2d2;
+  --ui-text-300: #f5eee3;
+  --ui-text-200: #faf6ef;
+  --ui-white: #fffdf8;
+  --ui-accent-600: #7a5ca8;
+  --ui-accent-500: #8f70bf;
+  --ui-accent-400: #a690d0;
+  --ui-accent-300: #c0b0de;
+  --ui-danger-600: #964734;
+  --ui-danger-500: #b05a44;
+  --ui-danger-400: #cb806f;
+}
+
+.theme-handdrawn .app-viewport button {
+  border-radius: 0.95rem;
+  border-style: dashed !important;
+  border-width: 2px !important;
+  transform: rotate(-0.6deg);
+  animation: handdrawn_jitter 3.6s ease-in-out infinite;
+}
+
+.theme-handdrawn .app-viewport h1,
+.theme-handdrawn .app-viewport h2,
+.theme-handdrawn .app-viewport h3,
+.theme-handdrawn .app-viewport h4 {
+  letter-spacing: 0.02em;
 }
 
 @keyframes wild_spin {
@@ -92,12 +718,12 @@
 
 @keyframes wild_breathe {
   from {
-    opacity: 0.6;
-    transform: scale(1);
+    opacity: 0.5;
+    transform: translateY(0px) scale(1);
   }
   to {
     opacity: 1;
-    transform: scale(1.08);
+    transform: translateY(-6px) scale(1.04);
   }
 }
 
@@ -107,5 +733,73 @@
   }
   to {
     transform: translateX(25%);
+  }
+}
+
+@keyframes arena_drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 320px 0;
+  }
+}
+
+@keyframes fiesta_drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 320px 320px;
+  }
+}
+
+@keyframes fantasy_pulse {
+  from {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.32;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes cute_float {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 220px 220px;
+  }
+}
+
+@keyframes scifi_grid {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(28px);
+  }
+}
+
+@keyframes cosmos_drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(10px);
+  }
+}
+
+@keyframes handdrawn_jitter {
+  0% {
+    transform: rotate(-0.6deg);
+  }
+  50% {
+    transform: rotate(0.6deg);
+  }
+  100% {
+    transform: rotate(-0.6deg);
   }
 }

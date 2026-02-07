@@ -1,0 +1,138 @@
+# PROMPTS DE BANNERS POR TEMA - EL IMPOSTOR
+# Uso: Gemini (Nano Banana)
+# Formato objetivo recomendado: PNG RGBA 2400x800
+
+================================================================
+BANNER 01 - TEMA DEFAULT / NOIR CLASICO
+================================================================
+Disena un logo-banner horizontal para el juego "IMPOSTOR". El foco absoluto debe ser la palabra IMPOSTOR (80-90% del protagonismo), estilo noir moderno, tipografia fuerte, cinematografica y elegante, con tension visual. Anade solo detalles minimos de deduccion (lineas de investigacion discretas, 1-2 fichas, micro sutil). No crear escena completa, no personajes, no poster.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco, sin mockup
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 02 - TEMA ARENA
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe dominar la imagen (80-90%), estilo arena/desierto elegante, textura arenosa fina, acentos cobre y ambar. Decoracion minima detras del texto: dunas abstractas suaves y 1-2 iconos de voto discretos. No personajes, no escena narrativa.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 03 - TEMA FIESTA
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". Prioriza la palabra IMPOSTOR (80-90%) con estilo fiesta de videojuego: energia, color pop, glow controlado y legibilidad alta. Decoracion minima: serpentinas, confeti, una ficha o micro, todo sutil para no tapar el titulo. Sin personajes ni fondo de escena completa.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 04 - TEMA CARTOON / CUTE / KAWAII
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe ser el protagonista total (80-90%), estilo cartoon cute/kawaii, tipografia redondeada, limpia, divertida y muy legible. Decoracion minima: stickers simples (interrogacion, estrellita, ficha), sin recargar. Sin personajes completos ni escena.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 05 - TEMA FANTASIA RPG
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". Texto IMPOSTOR dominante (80-90%), estilo RPG fantasia con tipografia runica/medieval legible, metal envejecido y brillo magico sutil. Decoracion minima: runas y trazos arcanos discretos detras. Sin personajes ni escena completa.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 06 - TEMA SCI-FI / NEON FUTURISTA
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". El texto IMPOSTOR debe dominar (80-90%), tipografia futurista geometrica, cortes tecnologicos, HUD minimal y glow neon controlado. Decoracion minima: lineas de circuito y reticulas discretas. Sin personajes ni escenario completo.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 07 - TEMA PUZZLE MINIMAL
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". Texto protagonista (80-90%), estilo minimal divertido, geometrico, limpio y muy legible. Decoracion minima: formas simples y piezas de puzzle sutiles, sin recargar.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 08 - TEMA COSMOS / ESPACIAL
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". Texto IMPOSTOR dominante (80-90%), estilo espacial/cosmico elegante, brillo estelar suave y contraste claro. Decoracion minima: constelaciones y glifos orbitales discretos. Sin personajes ni paisaje espacial completo.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios
+
+================================================================
+BANNER 09 - TEMA HAND-DRAWN / HECHO A MANO
+================================================================
+Disena un logo-banner horizontal para "IMPOSTOR". Texto IMPOSTOR como foco principal (80-90%), estilo dibujado a mano con trazo rotulador/lapiz, imperfeccion controlada y legibilidad alta. Decoracion minima: garabatos, flechas y signos de sospecha discretos.
+
+Restricciones obligatorias:
+- fondo totalmente transparente (alpha real). En caso de que sea imposible, fondo solido de alto contraste con un color que no se utilice en la imagen creada, por ejemplo #00FF66, sin usar ese color en ningun otro elemento.
+- sin texto adicional (solo "IMPOSTOR")
+- sin watermark, sin marco
+
+Salida:
+- PNG
+- 2400x800
+- bordes recortados limpios

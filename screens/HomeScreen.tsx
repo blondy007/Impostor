@@ -2,19 +2,23 @@
 import React from 'react';
 
 interface Props {
+  bannerSrc?: string;
   onNewGame: () => void;
   onLibrary: () => void;
 }
 
-const HomeScreen: React.FC<Props> = ({ onNewGame, onLibrary }) => {
+const HomeScreen: React.FC<Props> = ({ bannerSrc, onNewGame, onLibrary }) => {
   return (
     <div className="flex-1 flex flex-col items-center justify-center space-y-12 animate-in fade-in zoom-in duration-500">
       <div className="relative">
         <div className="absolute -inset-4 bg-indigo-600 opacity-20 blur-2xl rounded-full"></div>
-        <div className="text-center space-y-1 relative">
-          <h1 className="text-7xl font-black tracking-tighter text-white italic leading-none">
-            EL<br/>IMPOSTOR
-          </h1>
+        <div className="text-center space-y-1 relative flex flex-col items-center">
+          <img
+            src={bannerSrc || '/nuevos/noir.png'}
+            alt="El Impostor"
+            className="w-full max-w-[300px] h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)]"
+          />
+          <h1 className="sr-only">EL IMPOSTOR</h1>
           <div className="h-1.5 w-24 bg-red-600 mx-auto rounded-full mt-4"></div>
           <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.4em] pt-4">Infiltración & Engaño</p>
         </div>
