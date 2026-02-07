@@ -12,7 +12,7 @@ import GameOverScreen from './screens/GameOverScreen';
 import LibraryScreen from './screens/LibraryScreen';
 import { fetchSecretWord } from './services/geminiService';
 
-const START_WORD_TIMEOUT_MS = 1500;
+const START_WORD_TIMEOUT_MS = 5000;
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.HOME);
@@ -195,7 +195,7 @@ const App: React.FC = () => {
             />
           )}
           {gameState === GameState.GAME_OVER && (
-            <GameOverScreen key={`gameover-${gameId}`} players={players} secretWord={secretWord} onHome={() => setGameState(GameState.HOME)} onBack={() => setGameState(GameState.HOME)} />
+            <GameOverScreen key={`gameover-${gameId}`} players={players} secretWord={secretWord} onHome={() => setGameState(GameState.SETUP)} onBack={() => setGameState(GameState.HOME)} />
           )}
           {gameState === GameState.LIBRARY && <LibraryScreen onBack={() => setGameState(GameState.HOME)} />}
         </main>

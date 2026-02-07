@@ -28,6 +28,7 @@ Estados validos:
 | A-011 | Alta | CORREGIDO | Catalogo insuficiente de palabras por dificultad | `constants.ts` | Tener 150 palabras por cada dificultad manteniendo nivel |
 | A-012 | Baja | CORREGIDO | Switch "Palabra por IA" desalineado (thumb fuera del track) | `screens/SetupScreen.tsx` | Ajustar posicionamiento y desplazamiento del thumb para mantenerlo dentro del track |
 | A-013 | Alta | CORREGIDO | Orden inconsistente entre revelar rol, pistas y votacion | `App.tsx`, `screens/RevealScreen.tsx`, `screens/RoundScreen.tsx`, `screens/VoteScreen.tsx` | Aleatorizar solo el primer jugador al revelar y mantener ese orden para el resto de fases |
+| A-014 | Baja | CORREGIDO | CTA final redirigia a menu principal en vez de nueva partida | `screens/GameOverScreen.tsx`, `App.tsx` | Cambiar texto a "Nueva Partida" y redirigir a pantalla de setup |
 
 ## Bitacora de correcciones
 
@@ -52,6 +53,8 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-011 | CORREGIDO | `INITIAL_WORDS` ampliado y validado a 150 terminos por dificultad (600 total) | `npm run build` OK |
 | 2026-02-07 | A-012 | CORREGIDO | Se corrigio layout del switch de IA usando posicion absoluta estable (`left-1`) y desplazamiento `translate-x-0/6` | `npm run build` OK |
 | 2026-02-07 | A-013 | CORREGIDO | Orden de mesa fijado al iniciar partida y reutilizado en revelar, pistas y votacion (sin random adicional) | `npm run build` OK |
+| 2026-02-07 | A-009 | CORREGIDO | Timeout de palabra IA ajustado de 1500 ms a 5000 ms para redes reales y menor fallback prematuro | `npm run build` OK |
+| 2026-02-07 | A-014 | CORREGIDO | Boton final actualizado a "Nueva Partida" y cambio de destino a `SETUP` | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

@@ -61,7 +61,7 @@ const GameOverScreen: React.FC<Props> = ({ players, secretWord, onHome, onBack }
           onClick={onHome}
           className="w-full bg-white text-slate-950 p-6 rounded-[2rem] font-black text-xl shadow-2xl active:scale-95 transition-all"
         >
-          Menu Principal
+          Nueva Partida
         </button>
       </div>
     </div>
