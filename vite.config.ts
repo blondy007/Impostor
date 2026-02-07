@@ -8,6 +8,16 @@ export default defineConfig(({ mode }) => {
     const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
     return {
       base,
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              dnd_vendor: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+              ai_vendor: ['@google/genai'],
+            },
+          },
+        },
+      },
       server: {
         port: 3000,
         host: '0.0.0.0',

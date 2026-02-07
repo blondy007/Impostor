@@ -60,6 +60,10 @@ Estados validos:
 | A-043 | Media | CORREGIDO | El selector de temas permanecia abierto al clicar fuera | `App.tsx` | Detectar click/pointer fuera del contenedor y cerrar automaticamente el menu |
 | A-044 | Alta | CORREGIDO | Con 2 jugadores vivos la partida no cerraba con scoring especial de final impostor | `App.tsx`, `types.ts` | Finalizar partida al quedar 2, asignar bonus alto al impostor y penalizacion progresiva a civiles segun ronda de eliminacion |
 | A-045 | Baja | CORREGIDO | En clasificacion aparecian nombres tachados | `screens/ScoreboardScreen.tsx` | Quitar `line-through` del ranking y mantener solo atenuacion de color |
+| A-046 | Media | CORREGIDO | Temporizador de debate no respetaba configuracion de partida | `screens/DebateScreen.tsx`, `screens/SetupScreen.tsx`, `App.tsx` | Usar `config.timerEnabled` y `config.timerSeconds` en debate, con ajuste desde setup |
+| A-047 | Media | CORREGIDO | `winCondition` no se aplicaba en la logica real de final de ronda | `App.tsx`, `screens/SetupScreen.tsx`, `types.ts` | Evaluar fin de partida segun `winCondition` (`TWO_LEFT`/`PARITY`) en `handleExpulsion` |
+| A-048 | Baja | CORREGIDO | Bundle principal era demasiado grande para movil y red inestable | `vite.config.ts`, `App.tsx`, `services/geminiService.ts` | Reducir chunk principal mediante lazy loading de pantallas, carga dinamica de IA y chunking manual en build |
+| A-049 | Media | CORREGIDO | Voto individual no permitia abstencion | `screens/VoteScreen.tsx` | Permitir abstenerse por votante sin bloquear la ronda (requiriendo al menos un voto emitido para cerrar) |
 
 ## Bitacora de correcciones
 
@@ -131,6 +135,13 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-043 | CORREGIDO | Selector de temas ahora se cierra al clicar/tocar fuera del panel (listener `pointerdown` con `ref`) | `npm run build` OK |
 | 2026-02-07 | A-044 | CORREGIDO | Regla de cierre ajustada: con 2 jugadores vivos termina partida; scoring especial de cierre (+10 impostor vivo y penalizacion civil progresiva por ronda de eliminacion) | `npm run build` OK |
 | 2026-02-07 | A-045 | CORREGIDO | Clasificacion sin textos tachados; eliminados se muestran atenuados pero legibles | `npm run build` OK |
+| 2026-02-07 | A-046 | PENDIENTE | Reanalisis: `DebateScreen` mantiene `timeLeft=60` fijo y no consume `config.timerEnabled/timerSeconds` | `npm run build` OK |
+| 2026-02-07 | A-047 | PENDIENTE | Reanalisis: `handleExpulsion` decide cierre por regla fija; `winCondition` en config queda sin efecto practico | `npm run build` OK |
+| 2026-02-07 | A-048 | PENDIENTE | Reanalisis: build reporta chunk JS principal de 567.69 kB con warning de Vite | `npm run build` OK |
+| 2026-02-07 | A-046 | CORREGIDO | Setup ahora permite configurar temporizador (`timerEnabled` + `timerSeconds`) y Debate usa esa config con autoavance al votar cuando llega a 0 | `npm run build` OK |
+| 2026-02-07 | A-047 | CORREGIDO | Logica de final de partida conectada a `winCondition`: `TWO_LEFT` o `PARITY` (ademas de victorias por eliminacion total de faccion) | `npm run build` OK |
+| 2026-02-07 | A-048 | CORREGIDO | Bundle dividido: pantallas en lazy chunks, servicio IA en import dinamico y `manualChunks` para vendors (`dnd`, `ai`) | `npm run build` OK (`index` 208.59 kB) |
+| 2026-02-07 | A-049 | CORREGIDO | Voto individual con opcion de abstencion por jugador; si todos intentan abstenerse, se exige al menos un voto para cerrar ronda | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

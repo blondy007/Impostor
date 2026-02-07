@@ -1,17 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { CATEGORIES, INITIAL_WORDS } from './constants';
-import { fetchSecretWord } from './services/geminiService';
 import { Difficulty, GameConfig, GameState, Player, Role, ScoreRoundLog, VoteResolution, Word } from './types';
-import DebateScreen from './screens/DebateScreen';
-import GameOverScreen from './screens/GameOverScreen';
-import HomeScreen from './screens/HomeScreen';
-import LibraryScreen from './screens/LibraryScreen';
-import ResultScreen from './screens/ResultScreen';
-import RevealScreen from './screens/RevealScreen';
-import RoundScreen from './screens/RoundScreen';
-import ScoreboardScreen from './screens/ScoreboardScreen';
-import SetupScreen from './screens/SetupScreen';
-import VoteScreen from './screens/VoteScreen';
 
 const START_WORD_TIMEOUT_MS = 5000;
 const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
@@ -24,7 +13,18 @@ type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
 type ThemeMode = 'default' | 'light' | 'wild' | 'cute' | 'fantasy' | 'scifi' | 'puzzle' | 'cosmos' | 'handdrawn';
 type StartGameOptions = { preserveScores?: boolean; previousPlayers?: Player[] };
-type EndReason = 'NONE' | 'NO_IMPOSTORS' | 'NO_CIVILIANS' | 'TWO_LEFT';
+type EndReason = 'NONE' | 'NO_IMPOSTORS' | 'NO_CIVILIANS' | 'TWO_LEFT' | 'PARITY';
+
+const DebateScreen = lazy(() => import('./screens/DebateScreen'));
+const GameOverScreen = lazy(() => import('./screens/GameOverScreen'));
+const HomeScreen = lazy(() => import('./screens/HomeScreen'));
+const LibraryScreen = lazy(() => import('./screens/LibraryScreen'));
+const ResultScreen = lazy(() => import('./screens/ResultScreen'));
+const RevealScreen = lazy(() => import('./screens/RevealScreen'));
+const RoundScreen = lazy(() => import('./screens/RoundScreen'));
+const ScoreboardScreen = lazy(() => import('./screens/ScoreboardScreen'));
+const SetupScreen = lazy(() => import('./screens/SetupScreen'));
+const VoteScreen = lazy(() => import('./screens/VoteScreen'));
 
 interface WordFlowModalState {
   title: string;
@@ -355,6 +355,7 @@ const App: React.FC = () => {
 
   const tryFetchAiWord = async (activeConfig: GameConfig): Promise<string> => {
     try {
+      const { fetchSecretWord } = await import('./services/geminiService');
       return await withTimeout(fetchSecretWord(activeConfig.difficulty, activeConfig.categories), START_WORD_TIMEOUT_MS, '');
     } catch {
       return '';
@@ -502,8 +503,9 @@ const App: React.FC = () => {
     const activePlayers = updatedPlayers.filter((p) => !p.isEliminated);
     const noImpostorsLeft = activeImpostors.length === 0;
     const noCiviliansLeft = activeCivilians.length === 0;
-    const twoPlayersLeft = activePlayers.length <= 2;
-    const gameHasEnded = noImpostorsLeft || noCiviliansLeft || twoPlayersLeft;
+    const twoPlayersLeft = config.winCondition === 'TWO_LEFT' && activePlayers.length <= 2;
+    const parityReached = config.winCondition === 'PARITY' && activeImpostors.length > 0 && activeCivilians.length > 0 && activeImpostors.length >= activeCivilians.length;
+    const gameHasEnded = noImpostorsLeft || noCiviliansLeft || twoPlayersLeft || parityReached;
 
     let winningRole: Role | null = null;
     let endReason: EndReason = 'NONE';
@@ -513,6 +515,9 @@ const App: React.FC = () => {
     } else if (noCiviliansLeft) {
       winningRole = Role.IMPOSTOR;
       endReason = 'NO_CIVILIANS';
+    } else if (parityReached) {
+      winningRole = Role.IMPOSTOR;
+      endReason = 'PARITY';
     } else if (twoPlayersLeft) {
       winningRole = Role.IMPOSTOR;
       endReason = 'TWO_LEFT';
@@ -564,76 +569,84 @@ const App: React.FC = () => {
         )}
 
         <main className="flex-1 flex flex-col p-6 pb-20 overflow-y-auto custom-scrollbar">
-          {gameState === GameState.HOME && (
-            <HomeScreen
-              bannerSrc={HOME_BANNER_BY_THEME[themeMode] || HOME_BANNER_BY_THEME.default}
-              onNewGame={() => setGameState(GameState.SETUP)}
-              onLibrary={() => setGameState(GameState.LIBRARY)}
-            />
-          )}
-          {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} initialConfig={config} />}
-          {gameState === GameState.ROLE_REVEAL && (
-            <RevealScreen
-              key={`reveal-${gameId}`}
-              players={players}
-              secretWord={secretWord}
-              impostorNames={impostorNames}
-              ivanCheatAvailable={!ivanCheatUsedForCurrentWord}
-              onIvanCheatUsed={() => setIvanCheatUsedForCurrentWord(true)}
-              onFinished={() => setGameState(GameState.ROUND_CLUES)}
-              onBack={resetToHome}
-            />
-          )}
-          {gameState === GameState.ROUND_CLUES && (
-            <RoundScreen
-              key={`round-${roundNumber}-${gameId}`}
-              players={players.filter((p) => !p.isEliminated)}
-              secretWord={secretWord}
-              roundNumber={roundNumber}
-              onCluesFinished={() => setGameState(GameState.ROUND_DEBATE)}
-              onChangeWord={async () => {
-                try {
-                  const { word, effectiveConfig } = await resolveSecretWord(config);
-                  setConfig(effectiveConfig);
-                  setSecretWord(word);
-                  applyRandomThemeForNewWord();
-                  setIvanCheatUsedForCurrentWord(false);
-                } catch (error: any) {
-                  if (error?.message !== WORD_SELECTION_CANCELLED) {
-                    console.error('No se pudo cambiar palabra:', error);
+          <Suspense
+            fallback={
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-500">Cargando modulo...</p>
+              </div>
+            }
+          >
+            {gameState === GameState.HOME && (
+              <HomeScreen
+                bannerSrc={HOME_BANNER_BY_THEME[themeMode] || HOME_BANNER_BY_THEME.default}
+                onNewGame={() => setGameState(GameState.SETUP)}
+                onLibrary={() => setGameState(GameState.LIBRARY)}
+              />
+            )}
+            {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} initialConfig={config} />}
+            {gameState === GameState.ROLE_REVEAL && (
+              <RevealScreen
+                key={`reveal-${gameId}`}
+                players={players}
+                secretWord={secretWord}
+                impostorNames={impostorNames}
+                ivanCheatAvailable={!ivanCheatUsedForCurrentWord}
+                onIvanCheatUsed={() => setIvanCheatUsedForCurrentWord(true)}
+                onFinished={() => setGameState(GameState.ROUND_CLUES)}
+                onBack={resetToHome}
+              />
+            )}
+            {gameState === GameState.ROUND_CLUES && (
+              <RoundScreen
+                key={`round-${roundNumber}-${gameId}`}
+                players={players.filter((p) => !p.isEliminated)}
+                secretWord={secretWord}
+                roundNumber={roundNumber}
+                onCluesFinished={() => setGameState(GameState.ROUND_DEBATE)}
+                onChangeWord={async () => {
+                  try {
+                    const { word, effectiveConfig } = await resolveSecretWord(config);
+                    setConfig(effectiveConfig);
+                    setSecretWord(word);
+                    applyRandomThemeForNewWord();
+                    setIvanCheatUsedForCurrentWord(false);
+                  } catch (error: any) {
+                    if (error?.message !== WORD_SELECTION_CANCELLED) {
+                      console.error('No se pudo cambiar palabra:', error);
+                    }
                   }
-                }
-              }}
-              onBack={resetToHome}
-            />
-          )}
-          {gameState === GameState.ROUND_DEBATE && (
-            <DebateScreen key={`debate-${roundNumber}-${gameId}`} clues={[]} config={config} onVote={() => setGameState(GameState.ROUND_VOTE)} onBack={resetToHome} />
-          )}
-          {gameState === GameState.ROUND_VOTE && (
-            <VoteScreen key={`vote-${roundNumber}-${gameId}`} players={players} voteMode={config.voteMode} onVoteFinished={handleExpulsion} onBack={resetToHome} />
-          )}
-          {gameState === GameState.ROUND_RESULT && (
-            <ResultScreen
-              key={`result-${roundNumber}-${gameId}`}
-              expelled={lastExpelled}
-              onNextRound={() => {
-                setRoundNumber((prev) => prev + 1);
-                setGameState(GameState.ROUND_CLUES);
-              }}
-              onBack={resetToHome}
-            />
-          )}
-          {gameState === GameState.GAME_OVER && (
-            <GameOverScreen
-              key={`gameover-${gameId}`}
-              players={players}
-              secretWord={secretWord}
-              onHome={restartGameWithSameSetup}
-              onBack={() => setGameState(GameState.HOME)}
-            />
-          )}
-          {gameState === GameState.LIBRARY && <LibraryScreen onBack={() => setGameState(GameState.HOME)} />}
+                }}
+                onBack={resetToHome}
+              />
+            )}
+            {gameState === GameState.ROUND_DEBATE && (
+              <DebateScreen key={`debate-${roundNumber}-${gameId}`} clues={[]} config={config} onVote={() => setGameState(GameState.ROUND_VOTE)} onBack={resetToHome} />
+            )}
+            {gameState === GameState.ROUND_VOTE && (
+              <VoteScreen key={`vote-${roundNumber}-${gameId}`} players={players} voteMode={config.voteMode} onVoteFinished={handleExpulsion} onBack={resetToHome} />
+            )}
+            {gameState === GameState.ROUND_RESULT && (
+              <ResultScreen
+                key={`result-${roundNumber}-${gameId}`}
+                expelled={lastExpelled}
+                onNextRound={() => {
+                  setRoundNumber((prev) => prev + 1);
+                  setGameState(GameState.ROUND_CLUES);
+                }}
+                onBack={resetToHome}
+              />
+            )}
+            {gameState === GameState.GAME_OVER && (
+              <GameOverScreen
+                key={`gameover-${gameId}`}
+                players={players}
+                secretWord={secretWord}
+                onHome={restartGameWithSameSetup}
+                onBack={() => setGameState(GameState.HOME)}
+              />
+            )}
+            {gameState === GameState.LIBRARY && <LibraryScreen onBack={() => setGameState(GameState.HOME)} />}
+          </Suspense>
         </main>
 
         {wordFlowModal && (
@@ -667,7 +680,9 @@ const App: React.FC = () => {
         )}
 
         {isScoreboardOpen && (
-          <ScoreboardScreen players={players} scoreTotals={scoreTotals} scoreHistory={scoreHistory} onClose={() => setIsScoreboardOpen(false)} />
+          <Suspense fallback={null}>
+            <ScoreboardScreen players={players} scoreTotals={scoreTotals} scoreHistory={scoreHistory} onClose={() => setIsScoreboardOpen(false)} />
+          </Suspense>
         )}
 
         <div className="absolute bottom-16 left-4 z-[130]">

@@ -9,6 +9,7 @@ interface Props {
 }
 
 const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack }) => {
+  const ABSTAIN_MARKER = '__ABSTAIN__';
   const activePlayers = useMemo(() => players.filter((p) => !p.isEliminated), [players]);
   const isGroupVote = voteMode === 'GROUP';
   const [groupResolutionMode, setGroupResolutionMode] = useState<'UNANIMOUS' | 'INDIVIDUALIZED' | null>(isGroupVote ? null : 'INDIVIDUALIZED');
@@ -17,6 +18,7 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
   const [isPrivate, setIsPrivate] = useState(true);
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [votesByVoter, setVotesByVoter] = useState<Record<string, string>>({});
+  const [voteWarning, setVoteWarning] = useState<string>('');
 
   const useIndividualFlow = !isGroupVote || groupResolutionMode === 'INDIVIDUALIZED';
   const useUnanimousGroupFlow = isGroupVote && groupResolutionMode === 'UNANIMOUS';
@@ -28,6 +30,7 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
     setIsPrivate(true);
     setVotes({});
     setVotesByVoter({});
+    setVoteWarning('');
   };
 
   const enableIndividualizedVotes = () => {
@@ -66,6 +69,23 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
     }
   };
 
+  const advanceAfterVoterAction = (nextVotes: Record<string, number>, nextVotesByVoter: Record<string, string>) => {
+    const isLastVoter = voterIndex === activePlayers.length - 1;
+
+    if (isLastVoter) {
+      if (Object.keys(nextVotes).length === 0) {
+        setVoteWarning('Hace falta al menos un voto para cerrar la ronda.');
+        return;
+      }
+      finishWithMostVoted(nextVotes, nextVotesByVoter);
+      return;
+    }
+
+    setVoteWarning('');
+    setVoterIndex((prev) => prev + 1);
+    setIsPrivate(true);
+  };
+
   const handleIndividualVote = (targetId: string) => {
     const newVotes = { ...votes };
     newVotes[targetId] = (newVotes[targetId] || 0) + 1;
@@ -74,14 +94,16 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
     const nextVotesByVoter = { ...votesByVoter };
     if (currentVoterId) nextVotesByVoter[currentVoterId] = targetId;
     setVotesByVoter(nextVotesByVoter);
+    setVoteWarning('');
+    advanceAfterVoterAction(newVotes, nextVotesByVoter);
+  };
 
-    if (voterIndex === activePlayers.length - 1) {
-      finishWithMostVoted(newVotes, nextVotesByVoter);
-      return;
-    }
-
-    setVoterIndex((prev) => prev + 1);
-    setIsPrivate(true);
+  const handleAbstain = () => {
+    const currentVoterId = currentVoter?.id;
+    const nextVotesByVoter = { ...votesByVoter };
+    if (currentVoterId) nextVotesByVoter[currentVoterId] = ABSTAIN_MARKER;
+    setVotesByVoter(nextVotesByVoter);
+    advanceAfterVoterAction(votes, nextVotesByVoter);
   };
 
   if (activePlayers.length === 0) return null;
@@ -190,6 +212,14 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
               </div>
             </button>
           ))}
+          <button
+            onClick={handleAbstain}
+            className="w-full bg-slate-950/70 hover:bg-slate-900 border border-slate-700 p-5 rounded-2xl flex justify-between items-center active:scale-[0.98] transition-all"
+          >
+            <span className="font-bold text-lg text-slate-300">Abstenerse</span>
+            <div className="px-3 py-1 rounded-full border border-slate-600 text-[10px] font-black uppercase tracking-wider text-slate-400">Sin voto</div>
+          </button>
+          {voteWarning && <p className="text-center text-[10px] font-black uppercase tracking-widest text-amber-400">{voteWarning}</p>}
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GameConfig } from '../types';
 
 interface Props {
@@ -9,14 +9,30 @@ interface Props {
   onBack: () => void;
 }
 
-const DebateScreen: React.FC<Props> = ({ onVote, onBack }) => {
-  const [timeLeft, setTimeLeft] = useState(60);
+const DebateScreen: React.FC<Props> = ({ config, onVote, onBack }) => {
+  const isTimerEnabled = config.timerEnabled;
+  const debateDuration = Math.max(15, config.timerSeconds || 60);
+  const [timeLeft, setTimeLeft] = useState(debateDuration);
+  const autoVoteTriggeredRef = useRef(false);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    setTimeLeft(debateDuration);
+    autoVoteTriggeredRef.current = false;
+  }, [debateDuration]);
+
+  useEffect(() => {
+    if (!isTimerEnabled || timeLeft <= 0) return;
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [isTimerEnabled, timeLeft]);
+
+  useEffect(() => {
+    if (!isTimerEnabled) return;
+    if (timeLeft !== 0) return;
+    if (autoVoteTriggeredRef.current) return;
+    autoVoteTriggeredRef.current = true;
+    onVote();
+  }, [isTimerEnabled, timeLeft, onVote]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -40,14 +56,20 @@ const DebateScreen: React.FC<Props> = ({ onVote, onBack }) => {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center space-y-12">
-        <div className={`relative w-64 h-64 flex items-center justify-center rounded-full border-[12px] transition-colors duration-1000 ${timeLeft < 10 ? 'border-red-600 animate-pulse' : 'border-indigo-600/20'}`}>
-           <div 
-              className="absolute inset-0 rounded-full border-[12px] border-indigo-500" 
-              style={{ clipPath: `inset(0 0 0 ${100 - (timeLeft/60)*100}%)`, transition: 'clip-path 1s linear' }}
-           ></div>
-           <span className={`text-7xl font-black tracking-tighter ${timeLeft < 10 ? 'text-red-500' : 'text-white'}`}>
-            {formatTime(timeLeft)}
-           </span>
+        <div
+          className={`relative w-64 h-64 flex items-center justify-center rounded-full border-[12px] transition-colors duration-1000 ${
+            isTimerEnabled ? (timeLeft < 10 ? 'border-red-600 animate-pulse' : 'border-indigo-600/20') : 'border-slate-700'
+          }`}
+        >
+          {isTimerEnabled && (
+            <div
+              className="absolute inset-0 rounded-full border-[12px] border-indigo-500"
+              style={{ clipPath: `inset(0 0 0 ${100 - (timeLeft / debateDuration) * 100}%)`, transition: 'clip-path 1s linear' }}
+            ></div>
+          )}
+          <span className={`text-7xl font-black tracking-tighter ${isTimerEnabled && timeLeft < 10 ? 'text-red-500' : 'text-white'}`}>
+            {isTimerEnabled ? formatTime(timeLeft) : '∞'}
+          </span>
         </div>
 
         <div className="bg-slate-900/50 border-2 border-slate-800 p-8 rounded-[2.5rem] text-center max-w-xs">

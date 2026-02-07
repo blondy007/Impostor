@@ -91,6 +91,9 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   const [difficulty, setDifficulty] = useState<Difficulty>(initialConfig.difficulty || Difficulty.MEDIUM);
   const [voteMode, setVoteMode] = useState<'INDIVIDUAL' | 'GROUP'>(initialConfig.voteMode || 'GROUP');
   const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(initialConfig.aiWordGenerationEnabled || false);
+  const [timerEnabled, setTimerEnabled] = useState(initialConfig.timerEnabled ?? true);
+  const [timerSeconds, setTimerSeconds] = useState(initialConfig.timerSeconds || 60);
+  const [winCondition, setWinCondition] = useState<'TWO_LEFT' | 'PARITY'>(initialConfig.winCondition || 'TWO_LEFT');
   const [playerDrafts, setPlayerDrafts] = useState<PlayerDraft[]>([]);
   const [view, setView] = useState<'config' | 'names'>('config');
   const [isListening, setIsListening] = useState(false);
@@ -188,7 +191,19 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
     setDifficulty(initialConfig.difficulty || Difficulty.MEDIUM);
     setVoteMode(initialConfig.voteMode || 'GROUP');
     setAiWordGenerationEnabled(initialConfig.aiWordGenerationEnabled || false);
-  }, [initialConfig.playerCount, initialConfig.impostorCount, initialConfig.difficulty, initialConfig.voteMode, initialConfig.aiWordGenerationEnabled]);
+    setTimerEnabled(initialConfig.timerEnabled ?? true);
+    setTimerSeconds(initialConfig.timerSeconds || 60);
+    setWinCondition(initialConfig.winCondition || 'TWO_LEFT');
+  }, [
+    initialConfig.playerCount,
+    initialConfig.impostorCount,
+    initialConfig.difficulty,
+    initialConfig.voteMode,
+    initialConfig.aiWordGenerationEnabled,
+    initialConfig.timerEnabled,
+    initialConfig.timerSeconds,
+    initialConfig.winCondition,
+  ]);
 
   useEffect(() => {
     if (!exhaustedDifficulties[difficulty]) return;
@@ -326,9 +341,9 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
       categories: [...CATEGORIES],
       voteMode,
       aiWordGenerationEnabled,
-      timerEnabled: true,
-      timerSeconds: 60,
-      winCondition: 'TWO_LEFT',
+      timerEnabled,
+      timerSeconds,
+      winCondition,
     };
 
     try {
@@ -436,6 +451,73 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
                 Grupo
               </button>
             </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Condicion de victoria</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setWinCondition('TWO_LEFT')}
+                className={`p-4 rounded-2xl font-bold border-2 transition-all ${
+                  winCondition === 'TWO_LEFT' ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-500'
+                }`}
+              >
+                2 Restantes
+              </button>
+              <button
+                type="button"
+                onClick={() => setWinCondition('PARITY')}
+                className={`p-4 rounded-2xl font-bold border-2 transition-all ${
+                  winCondition === 'PARITY' ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-500'
+                }`}
+              >
+                Paridad
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-slate-900/50 p-4 rounded-3xl border border-slate-800 space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Temporizador de debate</p>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">
+                  {timerEnabled ? `${timerSeconds}s por ronda` : 'Sin limite'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTimerEnabled((prev) => !prev)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full border p-1 transition-colors ${
+                  timerEnabled ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-800 border-slate-700'
+                }`}
+                aria-label="Activar o desactivar temporizador de debate"
+              >
+                <span
+                  className={`absolute left-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white transition-transform ${
+                    timerEnabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {timerEnabled && (
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Duracion (segundos)</label>
+                <div className="flex items-center gap-4">
+                  <span className="w-14 text-center text-2xl font-black text-white">{timerSeconds}</span>
+                  <input
+                    type="range"
+                    min={15}
+                    max={180}
+                    step={5}
+                    value={timerSeconds}
+                    onChange={(e) => setTimerSeconds(parseInt(e.target.value, 10))}
+                    className="flex-1 h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-slate-900/50 p-4 rounded-3xl border border-slate-800">
