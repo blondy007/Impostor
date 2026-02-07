@@ -64,6 +64,7 @@ Estados validos:
 | A-047 | Media | CORREGIDO | `winCondition` no se aplicaba en la logica real de final de ronda | `App.tsx`, `screens/SetupScreen.tsx`, `types.ts` | Evaluar fin de partida segun `winCondition` (`TWO_LEFT`/`PARITY`) en `handleExpulsion` |
 | A-048 | Baja | CORREGIDO | Bundle principal era demasiado grande para movil y red inestable | `vite.config.ts`, `App.tsx`, `services/geminiService.ts` | Reducir chunk principal mediante lazy loading de pantallas, carga dinamica de IA y chunking manual en build |
 | A-049 | Media | CORREGIDO | Voto individual no permitia abstencion | `screens/VoteScreen.tsx` | Permitir abstenerse por votante sin bloquear la ronda (requiriendo al menos un voto emitido para cerrar) |
+| A-050 | Baja | PENDIENTE | Lista de jugadores por defecto hardcodeada para mesa fija (Charlie como 7º en discordia) | `screens/SetupScreen.tsx` | Reemplazar hardcode de nombres por configuracion editable/persistente sin codificar jugadores concretos |
 
 ## Bitacora de correcciones
 
@@ -142,6 +143,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-047 | CORREGIDO | Logica de final de partida conectada a `winCondition`: `TWO_LEFT` o `PARITY` (ademas de victorias por eliminacion total de faccion) | `npm run build` OK |
 | 2026-02-07 | A-048 | CORREGIDO | Bundle dividido: pantallas en lazy chunks, servicio IA en import dinamico y `manualChunks` para vendors (`dnd`, `ai`) | `npm run build` OK (`index` 208.59 kB) |
 | 2026-02-07 | A-049 | CORREGIDO | Voto individual con opcion de abstencion por jugador; si todos intentan abstenerse, se exige al menos un voto para cerrar ronda | `npm run build` OK |
+| 2026-02-07 | A-050 | PENDIENTE | Ajuste temporal de producto: nombres por defecto hardcodeados para 6 jugadores fijos y Charlie como 7º | Validacion funcional en `SetupScreen` |
 
 ## Regla de actualizacion durante ejecucion
 

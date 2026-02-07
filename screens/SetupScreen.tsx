@@ -100,7 +100,7 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
 
-  const requestedNames = ['Perea', 'Mario', 'Charlie', 'Raquel', 'Lauri', 'May', 'Ivan'];
+  const requestedNames = ['Perea', 'Mario', 'Raquel', 'Lauri', 'May', 'Ivan', 'Charlie'];
   const recognitionRef = useRef<any>(null);
   const maxImpostors = Math.max(1, Math.min(3, playerCount - 2));
 
