@@ -144,6 +144,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-048 | CORREGIDO | Bundle dividido: pantallas en lazy chunks, servicio IA en import dinamico y `manualChunks` para vendors (`dnd`, `ai`) | `npm run build` OK (`index` 208.59 kB) |
 | 2026-02-07 | A-049 | CORREGIDO | Voto individual con opcion de abstencion por jugador; si todos intentan abstenerse, se exige al menos un voto para cerrar ronda | `npm run build` OK |
 | 2026-02-07 | A-050 | PENDIENTE | Ajuste temporal de producto: nombres por defecto hardcodeados para 6 jugadores fijos y Charlie como 7º | Validacion funcional en `SetupScreen` |
+| 2026-02-08 | A-046 | CORREGIDO | Configuracion inicial de App actualizada para temporizador activo por defecto y 60 segundos (timerEnabled=true, timerSeconds=60) | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 
@@ -151,3 +152,5 @@ Cada vez que se corrija un hallazgo:
 1. Cambiar su `Estado` en la tabla principal.
 2. Anadir una fila en `Bitacora de correcciones` con fecha y validacion.
 3. Si la correccion no queda completa, dejar `EN PROGRESO` y documentar el bloqueo.
+
+

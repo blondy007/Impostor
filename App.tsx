@@ -123,8 +123,8 @@ const App: React.FC = () => {
     categories: [...CATEGORIES],
     voteMode: getInitialVoteMode(),
     aiWordGenerationEnabled: false,
-    timerEnabled: false,
-    timerSeconds: 30,
+    timerEnabled: true,
+    timerSeconds: 60,
     winCondition: 'TWO_LEFT',
   });
   const [players, setPlayers] = useState<Player[]>([]);
