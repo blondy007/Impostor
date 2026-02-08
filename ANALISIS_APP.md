@@ -16,11 +16,11 @@ Estados validos:
 | ID | Severidad | Estado | Hallazgo | Evidencia principal | Criterio de correccion |
 |---|---|---|---|---|---|
 | A-001 | Alta | PENDIENTE | API key expuesta en frontend | `vite.config.ts`, `services/geminiService.ts` | Mover llamadas Gemini a backend/edge function y no inyectar clave privada en cliente |
-| A-002 | Alta | EN PROGRESO | Configuracion incoherente entre `App` y `Setup` | `App.tsx`, `screens/SetupScreen.tsx` | Unificar fuente de verdad de `categories`, `timerEnabled`, `timerSeconds`, `winCondition` |
-| A-003 | Alta | PENDIENTE | Pipeline de pistas incompleto (no se capturan ni usan) | `screens/RoundScreen.tsx`, `App.tsx`, `screens/DebateScreen.tsx` | Capturar pistas por jugador, validarlas y pasarlas a debate/votacion |
-| A-004 | Media | PENDIENTE | Votacion sin desempate explicito | `screens/VoteScreen.tsx` | Definir regla de empate (segunda vuelta, azar, no expulsion, etc.) y aplicarla |
-| A-005 | Media | EN PROGRESO | Dependencia de estilos/clases no garantizadas | `index.html`, ausencia de `index.css`, varias pantallas | Crear hoja de estilos base y/o configuracion Tailwind consistente para clases usadas |
-| A-006 | Media-Baja | PENDIENTE | Deuda tecnica por codigo/props no usados | `types.ts`, `screens/LibraryScreen.tsx`, `screens/RoundScreen.tsx`, `services/geminiService.ts` | Eliminar o integrar elementos huerfanos (`GameSession`, `validateClue`, props/estados sin uso) |
+| A-002 | Alta | CORREGIDO | Configuracion incoherente entre `App` y `Setup` | `App.tsx`, `screens/SetupScreen.tsx`, `gameConfig.ts` | Unificar fuente de verdad de `categories`, `timerEnabled`, `timerSeconds`, `winCondition` |
+| A-003 | Alta | CORREGIDO | Pipeline de pistas incompleto (no se capturan ni usan) | `screens/RoundScreen.tsx`, `App.tsx`, `screens/DebateScreen.tsx`, `screens/SetupScreen.tsx`, `types.ts`, `gameConfig.ts` | Capturar pistas por jugador y pasarlas a debate cuando el modo de registro este activo (base para online/votacion futura) |
+| A-004 | Media | CORREGIDO | Votacion sin desempate explicito | `screens/VoteScreen.tsx`, `screens/RulesScreen.tsx` | Definir regla de empate (segunda vuelta, azar, no expulsion, etc.) y aplicarla |
+| A-005 | Media | CORREGIDO | Dependencia de estilos/clases no garantizadas | `index.html`, `index.tsx`, `index.css`, `tailwind.config.cjs`, `postcss.config.cjs` | Crear hoja de estilos base y/o configuracion Tailwind consistente para clases usadas |
+| A-006 | Media-Baja | CORREGIDO | Deuda tecnica por codigo/props no usados | `types.ts`, `screens/LibraryScreen.tsx`, `screens/RoundScreen.tsx`, `services/geminiService.ts` | Eliminar o integrar elementos huerfanos (`GameSession`, `validateClue`, props/estados sin uso) |
 | A-007 | Alta | CORREGIDO | Gestion de jugadores en pantalla de nombres (orden, alta, baja) sin sincronizar con configuracion | `screens/SetupScreen.tsx` | Permitir reordenar por drag and drop, anadir y borrar jugadores, manteniendo `playerCount` sincronizado |
 | A-008 | Media | CORREGIDO | La palabra secreta hacia wrap en recuadros estrechos | `screens/RevealScreen.tsx`, `screens/GameOverScreen.tsx`, `components/FitSingleLineText.tsx` | Autoajustar tamano de fuente a ancho disponible y forzar una sola linea |
 | A-009 | Alta | CORREGIDO | Inicio de partida lento por espera bloqueante de IA | `App.tsx`, `services/geminiService.ts` | Limitar tiempo de espera de palabra IA y usar fallback local rapido |
@@ -154,6 +154,12 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-08 | A-052 | CORREGIDO | Nueva pantalla `Normas y Puntos` integrada con resumen de reglas, condiciones de victoria y sistema de puntuacion (incluye variantes de voto, abstencion, recordatorios y penalizaciones) accesible desde Home | `npm run build` OK |
 | 2026-02-08 | A-036 | CORREGIDO | Recalibrada puntuacion segun reglas actuales: voto a civil -2 (individual), fallo grupal -2 y bonus de faccion ganadora +3; sincronizado en logica y pantalla de normas | `npm run build` OK |
 | 2026-02-08 | A-052 | CORREGIDO | `Normas y Puntos` pasa a estar accesible desde cualquier pantalla por eleccion y vuelve al estado previo al cerrar | `npm run build` OK |
+| 2026-02-08 | A-002 | CORREGIDO | Se centralizo la configuracion en `gameConfig.ts` (`DEFAULT_GAME_CONFIG` + `normalizeGameConfig`) y `Setup` deja de pisar `categories` al iniciar partida | `npm run build` OK |
+| 2026-02-08 | A-004 | CORREGIDO | Regla de empate aplicada: en voto individual, si hay empate al maximo, se abre desempate final entre empatados y el grupo elige expulsado | `npm run build` OK |
+| 2026-02-08 | A-006 | CORREGIDO | Limpieza de huerfanos: eliminado `GameSession`, eliminado `validateClue`, simplificada `LibraryScreen` sin estado muerto y `RoundScreen` sin props/args no usados | `npm run build` OK |
+| 2026-02-08 | A-003 | CORREGIDO | Registro de pistas implementado como opcion configurable (apagada por defecto): captura nominativa por turno en ronda, paso de datos a `Debate` y visualizacion de resumen cuando esta activo | `npm run build` OK |
+| 2026-02-08 | A-005 | CORREGIDO | Migracion de Tailwind CDN a pipeline local (Tailwind + PostCSS + plugin de animaciones), import de `index.css` desde `index.tsx` y limpieza de dependencias de estilos en `index.html` | `npm run build` OK |
+| 2026-02-08 | A-005 | CORREGIDO | Ajuste de compatibilidad: se mantiene fallback `tailwindcss.com` en `index.html` para evitar vistas sin utilidades si el pipeline local de CSS no aplica en algun entorno | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

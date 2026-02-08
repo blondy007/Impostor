@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
-import { CATEGORIES, INITIAL_WORDS } from './constants';
-import { Difficulty, GameConfig, GameState, Player, Role, ScoreRoundLog, VoteResolution, Word } from './types';
+import { INITIAL_WORDS } from './constants';
+import { normalizeGameConfig } from './gameConfig';
+import { Difficulty, GameConfig, GameState, Player, Role, RoundClue, ScoreRoundLog, VoteResolution, Word } from './types';
 
 const START_WORD_TIMEOUT_MS = 5000;
 const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
@@ -119,19 +120,10 @@ const getInitialVoteMode = (): 'INDIVIDUAL' | 'GROUP' => {
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.HOME);
-  const [config, setConfig] = useState<GameConfig>({
-    playerCount: 7,
-    impostorCount: 1,
-    difficulty: Difficulty.MEDIUM,
-    categories: [...CATEGORIES],
-    voteMode: getInitialVoteMode(),
-    aiWordGenerationEnabled: false,
-    timerEnabled: true,
-    timerSeconds: 60,
-    winCondition: 'TWO_LEFT',
-  });
+  const [config, setConfig] = useState<GameConfig>(() => normalizeGameConfig({ voteMode: getInitialVoteMode() }));
   const [players, setPlayers] = useState<Player[]>([]);
   const [secretWord, setSecretWord] = useState('');
+  const [roundClues, setRoundClues] = useState<RoundClue[]>([]);
   const [ivanCheatUsedForCurrentWord, setIvanCheatUsedForCurrentWord] = useState(false);
   const [roundNumber, setRoundNumber] = useState(1);
   const [lastExpelled, setLastExpelled] = useState<Player | null>(null);
@@ -189,6 +181,7 @@ const App: React.FC = () => {
 
   const resetToHome = () => {
     closeForgotWordModal();
+    setRoundClues([]);
     setGameState(GameState.HOME);
   };
 
@@ -518,7 +511,8 @@ const App: React.FC = () => {
   const startGame = async (newConfig: GameConfig, playerNames: string[], options?: StartGameOptions) => {
     try {
       const totalPlayers = playerNames.length;
-      const safeImpostorCount = Math.max(1, Math.min(newConfig.impostorCount, totalPlayers - 1));
+      const normalizedConfig = normalizeGameConfig({ ...newConfig, playerCount: totalPlayers });
+      const safeImpostorCount = normalizedConfig.impostorCount;
       const roles: Role[] = new Array(totalPlayers).fill(Role.CIVIL);
       let assignedImpostors = 0;
 
@@ -535,12 +529,11 @@ const App: React.FC = () => {
         name,
         role: roles[i],
         isEliminated: false,
-        votesReceived: 0,
       }));
 
       const revealStartIndex = Math.floor(Math.random() * initialPlayers.length);
       const tableOrderedPlayers = [...initialPlayers.slice(revealStartIndex), ...initialPlayers.slice(0, revealStartIndex)];
-      const { word, effectiveConfig } = await resolveSecretWord(newConfig);
+      const { word, effectiveConfig } = await resolveSecretWord(normalizedConfig);
 
       if (!options?.preserveScores) {
         const freshScores: Record<string, number> = {};
@@ -565,6 +558,7 @@ const App: React.FC = () => {
       setPlayers(tableOrderedPlayers);
       setLastExpelled(null);
       setSecretWord(word);
+      setRoundClues([]);
       applyRandomThemeForNewWord();
       setIvanCheatUsedForCurrentWord(false);
       closeForgotWordModal();
@@ -617,6 +611,7 @@ const App: React.FC = () => {
     }
 
     applyRoundScoring(updatedPlayers, roundParticipantIds, player, voteResolution, gameHasEnded, winningRole, endReason);
+    setRoundClues([]);
 
     if (gameHasEnded) {
       setGameState(GameState.GAME_OVER);
@@ -701,7 +696,10 @@ const App: React.FC = () => {
                 impostorNames={impostorNames}
                 ivanCheatAvailable={!ivanCheatUsedForCurrentWord}
                 onIvanCheatUsed={() => setIvanCheatUsedForCurrentWord(true)}
-                onFinished={() => setGameState(GameState.ROUND_CLUES)}
+                onFinished={() => {
+                  setRoundClues([]);
+                  setGameState(GameState.ROUND_CLUES);
+                }}
                 onBack={resetToHome}
               />
             )}
@@ -709,14 +707,18 @@ const App: React.FC = () => {
               <RoundScreen
                 key={`round-${roundNumber}-${gameId}`}
                 players={players.filter((p) => !p.isEliminated)}
-                secretWord={secretWord}
                 roundNumber={roundNumber}
-                onCluesFinished={() => setGameState(GameState.ROUND_DEBATE)}
+                clueCaptureEnabled={config.clueCaptureEnabled}
+                onCluesFinished={(clues) => {
+                  setRoundClues(clues);
+                  setGameState(GameState.ROUND_DEBATE);
+                }}
                 onChangeWord={async () => {
                   try {
                     const { word, effectiveConfig } = await resolveSecretWord(config);
                     setConfig(effectiveConfig);
                     setSecretWord(word);
+                    setRoundClues([]);
                     applyRandomThemeForNewWord();
                     setIvanCheatUsedForCurrentWord(false);
                   } catch (error: any) {
@@ -729,7 +731,7 @@ const App: React.FC = () => {
               />
             )}
             {gameState === GameState.ROUND_DEBATE && (
-              <DebateScreen key={`debate-${roundNumber}-${gameId}`} clues={[]} config={config} onVote={() => setGameState(GameState.ROUND_VOTE)} onBack={resetToHome} />
+              <DebateScreen key={`debate-${roundNumber}-${gameId}`} clues={roundClues} config={config} onVote={() => setGameState(GameState.ROUND_VOTE)} onBack={resetToHome} />
             )}
             {gameState === GameState.ROUND_VOTE && (
               <VoteScreen key={`vote-${roundNumber}-${gameId}`} players={players} voteMode={config.voteMode} onVoteFinished={handleExpulsion} onBack={resetToHome} />
@@ -739,6 +741,7 @@ const App: React.FC = () => {
                 key={`result-${roundNumber}-${gameId}`}
                 expelled={lastExpelled}
                 onNextRound={() => {
+                  setRoundClues([]);
                   setRoundNumber((prev) => prev + 1);
                   setGameState(GameState.ROUND_CLUES);
                 }}

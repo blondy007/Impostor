@@ -3,7 +3,8 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { DndContext, DragEndEvent, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { CATEGORIES, INITIAL_WORDS } from '../constants';
+import { INITIAL_WORDS } from '../constants';
+import { normalizeGameConfig } from '../gameConfig';
 import { Difficulty, GameConfig } from '../types';
 
 const MIN_PLAYERS = 3;
@@ -86,14 +87,17 @@ const SortablePlayerRow: React.FC<SortablePlayerRowProps> = ({ draft, index, can
 };
 
 const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
-  const [playerCount, setPlayerCount] = useState(initialConfig.playerCount || 7);
-  const [impostorCount, setImpostorCount] = useState(initialConfig.impostorCount || 1);
-  const [difficulty, setDifficulty] = useState<Difficulty>(initialConfig.difficulty || Difficulty.MEDIUM);
-  const [voteMode, setVoteMode] = useState<'INDIVIDUAL' | 'GROUP'>(initialConfig.voteMode || 'GROUP');
-  const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(initialConfig.aiWordGenerationEnabled || false);
-  const [timerEnabled, setTimerEnabled] = useState(initialConfig.timerEnabled ?? true);
-  const [timerSeconds, setTimerSeconds] = useState(initialConfig.timerSeconds || 60);
-  const [winCondition, setWinCondition] = useState<'TWO_LEFT' | 'PARITY'>(initialConfig.winCondition || 'TWO_LEFT');
+  const normalizedInitialConfig = useMemo(() => normalizeGameConfig(initialConfig), [initialConfig]);
+  const [playerCount, setPlayerCount] = useState(normalizedInitialConfig.playerCount);
+  const [impostorCount, setImpostorCount] = useState(normalizedInitialConfig.impostorCount);
+  const [difficulty, setDifficulty] = useState<Difficulty>(normalizedInitialConfig.difficulty);
+  const [voteMode, setVoteMode] = useState<'INDIVIDUAL' | 'GROUP'>(normalizedInitialConfig.voteMode);
+  const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(normalizedInitialConfig.aiWordGenerationEnabled);
+  const [clueCaptureEnabled, setClueCaptureEnabled] = useState(normalizedInitialConfig.clueCaptureEnabled);
+  const [timerEnabled, setTimerEnabled] = useState(normalizedInitialConfig.timerEnabled);
+  const [timerSeconds, setTimerSeconds] = useState(normalizedInitialConfig.timerSeconds);
+  const [winCondition, setWinCondition] = useState<'TWO_LEFT' | 'PARITY'>(normalizedInitialConfig.winCondition);
+  const [categories, setCategories] = useState<string[]>(normalizedInitialConfig.categories);
   const [playerDrafts, setPlayerDrafts] = useState<PlayerDraft[]>([]);
   const [view, setView] = useState<'config' | 'names'>('config');
   const [isListening, setIsListening] = useState(false);
@@ -186,24 +190,17 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   }, [impostorCount, maxImpostors]);
 
   useEffect(() => {
-    setPlayerCount(initialConfig.playerCount || 7);
-    setImpostorCount(initialConfig.impostorCount || 1);
-    setDifficulty(initialConfig.difficulty || Difficulty.MEDIUM);
-    setVoteMode(initialConfig.voteMode || 'GROUP');
-    setAiWordGenerationEnabled(initialConfig.aiWordGenerationEnabled || false);
-    setTimerEnabled(initialConfig.timerEnabled ?? true);
-    setTimerSeconds(initialConfig.timerSeconds || 60);
-    setWinCondition(initialConfig.winCondition || 'TWO_LEFT');
-  }, [
-    initialConfig.playerCount,
-    initialConfig.impostorCount,
-    initialConfig.difficulty,
-    initialConfig.voteMode,
-    initialConfig.aiWordGenerationEnabled,
-    initialConfig.timerEnabled,
-    initialConfig.timerSeconds,
-    initialConfig.winCondition,
-  ]);
+    setPlayerCount(normalizedInitialConfig.playerCount);
+    setImpostorCount(normalizedInitialConfig.impostorCount);
+    setDifficulty(normalizedInitialConfig.difficulty);
+    setVoteMode(normalizedInitialConfig.voteMode);
+    setAiWordGenerationEnabled(normalizedInitialConfig.aiWordGenerationEnabled);
+    setClueCaptureEnabled(normalizedInitialConfig.clueCaptureEnabled);
+    setTimerEnabled(normalizedInitialConfig.timerEnabled);
+    setTimerSeconds(normalizedInitialConfig.timerSeconds);
+    setWinCondition(normalizedInitialConfig.winCondition);
+    setCategories(normalizedInitialConfig.categories);
+  }, [normalizedInitialConfig]);
 
   useEffect(() => {
     if (!exhaustedDifficulties[difficulty]) return;
@@ -334,17 +331,18 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
 
     const safeImpostorCount = Math.min(impostorCount, Math.max(1, normalizedNames.length - 2));
 
-    const config: GameConfig = {
+    const config = normalizeGameConfig({
       playerCount: normalizedNames.length,
       impostorCount: safeImpostorCount,
       difficulty,
-      categories: [...CATEGORIES],
+      categories: [...categories],
       voteMode,
       aiWordGenerationEnabled,
+      clueCaptureEnabled,
       timerEnabled,
       timerSeconds,
       winCondition,
-    };
+    });
 
     try {
       await onStart(config, normalizedNames);
@@ -537,6 +535,29 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
                 <span
                   className={`absolute left-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white transition-transform ${
                     aiWordGenerationEnabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-slate-900/50 p-4 rounded-3xl border border-slate-800">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Registro de pistas</p>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Opcional (recomendado online)</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setClueCaptureEnabled((prev) => !prev)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full border p-1 transition-colors ${
+                  clueCaptureEnabled ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-800 border-slate-700'
+                }`}
+                aria-label="Activar o desactivar registro de pistas"
+              >
+                <span
+                  className={`absolute left-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white transition-transform ${
+                    clueCaptureEnabled ? 'translate-x-6' : 'translate-x-0'
                   }`}
                 />
               </button>

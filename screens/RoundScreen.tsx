@@ -1,30 +1,73 @@
-import React, { useState } from 'react';
-import { Player } from '../types';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Player, RoundClue } from '../types';
 
 interface Props {
   players: Player[];
   roundNumber: number;
-  secretWord: string;
-  onCluesFinished: (clues: string[]) => void;
+  clueCaptureEnabled: boolean;
+  onCluesFinished: (clues: RoundClue[]) => void;
   onChangeWord: () => void;
   onBack: () => void;
 }
 
-const RoundScreen: React.FC<Props> = ({ players, roundNumber, onCluesFinished, onChangeWord, onBack }) => {
+const RoundScreen: React.FC<Props> = ({ players, roundNumber, clueCaptureEnabled, onCluesFinished, onChangeWord, onBack }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [cluesByPlayerId, setCluesByPlayerId] = useState<Record<string, string>>({});
+  const [clueInput, setClueInput] = useState('');
+  const [clueWarning, setClueWarning] = useState('');
+
   const orderedTurnList = players;
   const activePlayer = orderedTurnList[currentIndex];
 
+  const buildRoundClues = useMemo(() => {
+    return (source: Record<string, string>): RoundClue[] => {
+      return orderedTurnList
+        .map((player, index) => {
+          const text = (source[player.id] || '').trim();
+          if (!text) return null;
+          return {
+            playerId: player.id,
+            playerName: player.name,
+            text,
+            round: roundNumber,
+            turnOrder: index + 1,
+          };
+        })
+        .filter((entry): entry is RoundClue => entry !== null);
+    };
+  }, [orderedTurnList, roundNumber]);
+
+  useEffect(() => {
+    if (!activePlayer) return;
+    setClueInput(cluesByPlayerId[activePlayer.id] || '');
+    setClueWarning('');
+  }, [activePlayer, cluesByPlayerId]);
+
   const handleNextPlayer = () => {
+    const currentPlayerId = activePlayer?.id;
+    if (!currentPlayerId) return;
+
+    const trimmedClue = clueInput.trim();
+    if (clueCaptureEnabled && trimmedClue.length === 0) {
+      setClueWarning('Escribe la pista para continuar (modo registro activo).');
+      return;
+    }
+
+    const nextCluesByPlayerId = {
+      ...cluesByPlayerId,
+      [currentPlayerId]: trimmedClue,
+    };
+    setCluesByPlayerId(nextCluesByPlayerId);
+
     if (currentIndex === orderedTurnList.length - 1) {
-      onCluesFinished([]);
+      onCluesFinished(buildRoundClues(nextCluesByPlayerId));
     } else {
       setCurrentIndex(currentIndex + 1);
     }
   };
 
   const skipAllTurns = () => {
-    onCluesFinished([]);
+    onCluesFinished(buildRoundClues(cluesByPlayerId));
   };
 
   if (!activePlayer) return null;
@@ -60,10 +103,25 @@ const RoundScreen: React.FC<Props> = ({ players, roundNumber, onCluesFinished, o
 
           <div className="pt-1 px-2">
             <p className="text-white/80 font-bold text-base leading-tight">
-              {currentIndex === 0 ? '¡Rompe tu!' : 'Pasa el dispositivo.'} <br />
-              <span className="text-slate-500 text-xs italic font-normal">Da una pista rapida.</span>
+              {currentIndex === 0 ? 'Rompe el hielo.' : 'Pasa el dispositivo.'} <br />
+              <span className="text-slate-500 text-xs italic font-normal">
+                {clueCaptureEnabled ? 'Da y registra una pista breve.' : 'Da una pista rapida.'}
+              </span>
             </p>
           </div>
+
+          {clueCaptureEnabled && (
+            <div className="w-full max-w-xs space-y-2">
+              <input
+                type="text"
+                value={clueInput}
+                onChange={(event) => setClueInput(event.target.value)}
+                placeholder="Escribe la pista de este turno"
+                className="w-full bg-slate-950/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+              />
+              {clueWarning && <p className="text-[10px] font-black uppercase tracking-widest text-amber-400">{clueWarning}</p>}
+            </div>
+          )}
 
           <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${currentIndex === 0 ? 'bg-indigo-500 shadow-[0_0_20px_rgba(79,70,229,0.4)] animate-pulse' : 'bg-slate-800'}`}>
             <svg xmlns="http://www.w3.org/2000/svg" className={`h-7 w-7 ${currentIndex === 0 ? 'text-white' : 'text-slate-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">

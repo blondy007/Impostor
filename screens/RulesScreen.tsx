@@ -27,9 +27,11 @@ const RulesScreen: React.FC<Props> = ({ onBack }) => {
           <ul className="text-sm text-slate-300 space-y-1">
             <li>1. Revelar rol por turnos.</li>
             <li>2. Dar pista (orden de mesa).</li>
-            <li>3. Debate.</li>
-            <li>4. Votacion y expulsion.</li>
-            <li>5. Si no termina la partida, nueva ronda.</li>
+            <li>3. Opcional: si activas "Registro de pistas", cada pista se guarda para revisar en debate.</li>
+            <li>4. Debate.</li>
+            <li>5. Votacion y expulsion.</li>
+            <li>6. Si en voto individual hay empate, se abre desempate de grupo entre empatados.</li>
+            <li>7. Si no termina la partida, nueva ronda.</li>
           </ul>
         </section>
 

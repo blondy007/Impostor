@@ -30,8 +30,6 @@ export interface Player {
   role: Role;
   isEliminated: boolean;
   eliminationRound?: number;
-  clue?: string;
-  votesReceived: number;
 }
 
 export interface VoteResolution {
@@ -58,9 +56,18 @@ export interface GameConfig {
   categories: string[];
   voteMode: 'INDIVIDUAL' | 'GROUP';
   aiWordGenerationEnabled: boolean;
+  clueCaptureEnabled: boolean;
   timerEnabled: boolean;
   timerSeconds: number;
   winCondition: 'TWO_LEFT' | 'PARITY';
+}
+
+export interface RoundClue {
+  playerId: string;
+  playerName: string;
+  text: string;
+  round: number;
+  turnOrder: number;
 }
 
 export interface Word {
@@ -68,16 +75,4 @@ export interface Word {
   text: string;
   category: string;
   difficulty: Difficulty;
-}
-
-export interface GameSession {
-  id: string;
-  state: GameState;
-  config: GameConfig;
-  players: Player[];
-  secretWord: string;
-  currentTurnIndex: number;
-  roundNumber: number;
-  clues: string[];
-  history: any[];
 }

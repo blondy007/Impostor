@@ -1,17 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Difficulty } from '../types';
-import { INITIAL_WORDS, CATEGORIES } from '../constants';
+import { INITIAL_WORDS } from '../constants';
 
 interface Props {
   onBack: () => void;
 }
 
 const LibraryScreen: React.FC<Props> = ({ onBack }) => {
-  const [words, setWords] = useState(INITIAL_WORDS);
   const [filterDifficulty, setFilterDifficulty] = useState<Difficulty | 'TODAS'>('TODAS');
+  const filterOptions: Array<Difficulty | 'TODAS'> = ['TODAS', ...Object.values(Difficulty)];
 
-  const filtered = filterDifficulty === 'TODAS' ? words : words.filter(w => w.difficulty === filterDifficulty);
+  const filtered = useMemo(() => {
+    return filterDifficulty === 'TODAS' ? INITIAL_WORDS : INITIAL_WORDS.filter((word) => word.difficulty === filterDifficulty);
+  }, [filterDifficulty]);
 
   return (
     <div className="flex-1 flex flex-col animate-in slide-in-from-left duration-300">
@@ -25,10 +27,10 @@ const LibraryScreen: React.FC<Props> = ({ onBack }) => {
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-6 no-scrollbar">
-        {['TODAS', ...Object.values(Difficulty)].map(d => (
+        {filterOptions.map((d) => (
           <button 
             key={d}
-            onClick={() => setFilterDifficulty(d as any)}
+            onClick={() => setFilterDifficulty(d)}
             className={`whitespace-nowrap px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
               filterDifficulty === d ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-500'
             }`}

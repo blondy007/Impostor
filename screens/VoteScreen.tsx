@@ -19,11 +19,15 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [votesByVoter, setVotesByVoter] = useState<Record<string, string>>({});
   const [voteWarning, setVoteWarning] = useState<string>('');
+  const [tieBreakCandidateIds, setTieBreakCandidateIds] = useState<string[]>([]);
+  const [tieBreakVoteCount, setTieBreakVoteCount] = useState(0);
 
   const useIndividualFlow = !isGroupVote || groupResolutionMode === 'INDIVIDUALIZED';
   const useUnanimousGroupFlow = isGroupVote && groupResolutionMode === 'UNANIMOUS';
   const showGroupChoice = isGroupVote && groupResolutionMode === null;
+  const isTieBreakStep = tieBreakCandidateIds.length > 1;
   const currentVoter = activePlayers[voterIndex];
+  const tieBreakCandidates = activePlayers.filter((player) => tieBreakCandidateIds.includes(player.id));
 
   const resetIndividualState = () => {
     setVoterIndex(0);
@@ -31,6 +35,8 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
     setVotes({});
     setVotesByVoter({});
     setVoteWarning('');
+    setTieBreakCandidateIds([]);
+    setTieBreakVoteCount(0);
   };
 
   const enableIndividualizedVotes = () => {
@@ -48,25 +54,36 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
     resetIndividualState();
   };
 
-  const finishWithMostVoted = (nextVotes: Record<string, number>, votesByVoter: Record<string, string>) => {
-    let maxVotes = -1;
-    let expelledId = '';
-
-    Object.entries(nextVotes).forEach(([id, count]) => {
-      const voteCount = count as number;
-      if (voteCount > maxVotes) {
-        maxVotes = voteCount;
-        expelledId = id;
-      }
-    });
-
-    if (expelledId) {
-      onVoteFinished({
-        expelledId,
-        mode: 'INDIVIDUAL',
-        votesByVoter,
-      });
+  const finishWithMostVoted = (nextVotes: Record<string, number>, nextVotesByVoter: Record<string, string>) => {
+    const entries = Object.entries(nextVotes);
+    if (entries.length === 0) {
+      setVoteWarning('Hace falta al menos un voto para cerrar la ronda.');
+      return;
     }
+
+    const maxVotes = Math.max(...entries.map(([, count]) => count));
+    const candidateIds = entries.filter(([, count]) => count === maxVotes).map(([id]) => id);
+
+    if (candidateIds.length === 1) {
+      onVoteFinished({
+        expelledId: candidateIds[0],
+        mode: 'INDIVIDUAL',
+        votesByVoter: nextVotesByVoter,
+      });
+      return;
+    }
+
+    setTieBreakCandidateIds(candidateIds);
+    setTieBreakVoteCount(maxVotes);
+    setVoteWarning('');
+  };
+
+  const resolveTieBreak = (expelledId: string) => {
+    onVoteFinished({
+      expelledId,
+      mode: 'INDIVIDUAL',
+      votesByVoter,
+    });
   };
 
   const advanceAfterVoterAction = (nextVotes: Record<string, number>, nextVotesByVoter: Record<string, string>) => {
@@ -167,6 +184,34 @@ const VoteScreen: React.FC<Props> = ({ players, voteMode, onVoteFinished, onBack
               <div className="px-3 py-1 rounded-full border border-indigo-500/60 text-[10px] font-black uppercase tracking-wider text-indigo-400">Expulsar</div>
             </button>
           ))}
+        </div>
+      ) : isTieBreakStep ? (
+        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+          <div className="text-center space-y-2 mb-4">
+            <p className="text-[10px] font-black uppercase tracking-widest text-amber-400">Empate detectado</p>
+            <h3 className="text-2xl font-black italic tracking-tight text-white">Desempate final</h3>
+            <p className="text-slate-400 text-sm">
+              Hubo empate a {tieBreakVoteCount} voto{tieBreakVoteCount === 1 ? '' : 's'}. El grupo decide entre los empatados.
+            </p>
+          </div>
+
+          {tieBreakCandidates.map((candidate) => (
+            <button
+              key={candidate.id}
+              onClick={() => resolveTieBreak(candidate.id)}
+              className="w-full bg-slate-900 hover:bg-slate-800 border border-amber-500/30 p-5 rounded-2xl flex justify-between items-center active:scale-[0.98] transition-all"
+            >
+              <span className="font-bold text-lg text-slate-200">{candidate.name}</span>
+              <div className="px-3 py-1 rounded-full border border-amber-400/70 text-[10px] font-black uppercase tracking-wider text-amber-300">Expulsar</div>
+            </button>
+          ))}
+
+          <button
+            onClick={resetIndividualState}
+            className="w-full mt-2 bg-slate-950 border border-slate-800 p-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400"
+          >
+            Repetir votacion individual
+          </button>
         </div>
       ) : isPrivate ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-8 text-center">
