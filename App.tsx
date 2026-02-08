@@ -8,6 +8,8 @@ const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
 const THEME_STORAGE_KEY = 'impostor_theme_mode_v1';
 const THEME_RANDOM_STORAGE_KEY = 'impostor_theme_random_v1';
 const VOTE_MODE_SESSION_KEY = 'impostor_vote_mode_v2';
+const FORGOT_WORD_PENALTY_POINTS = -2;
+const FORGOT_WORD_IMPOSTOR_PENALTY_POINTS = -10;
 
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
@@ -22,6 +24,7 @@ const LibraryScreen = lazy(() => import('./screens/LibraryScreen'));
 const ResultScreen = lazy(() => import('./screens/ResultScreen'));
 const RevealScreen = lazy(() => import('./screens/RevealScreen'));
 const RoundScreen = lazy(() => import('./screens/RoundScreen'));
+const RulesScreen = lazy(() => import('./screens/RulesScreen'));
 const ScoreboardScreen = lazy(() => import('./screens/ScoreboardScreen'));
 const SetupScreen = lazy(() => import('./screens/SetupScreen'));
 const VoteScreen = lazy(() => import('./screens/VoteScreen'));
@@ -138,9 +141,14 @@ const App: React.FC = () => {
   const [sessionRoundCounter, setSessionRoundCounter] = useState(1);
   const [isScoreboardOpen, setIsScoreboardOpen] = useState(false);
   const [wordFlowModal, setWordFlowModal] = useState<WordFlowModalState | null>(null);
+  const [rulesReturnState, setRulesReturnState] = useState<GameState>(GameState.HOME);
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode());
   const [randomThemeEnabled, setRandomThemeEnabled] = useState<boolean>(getInitialRandomThemeEnabled());
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const [isForgotWordModalOpen, setIsForgotWordModalOpen] = useState(false);
+  const [forgotWordTargetId, setForgotWordTargetId] = useState<string | null>(null);
+  const [isForgotWordVisible, setIsForgotWordVisible] = useState(false);
+  const [forgotWordPenaltyApplied, setForgotWordPenaltyApplied] = useState(false);
 
   const usedWordsRef = useRef<UsedWordsByDifficulty>(loadUsedWordsFromSession());
   const wordFlowModalResolverRef = useRef<((action: WordFlowModalAction) => void) | null>(null);
@@ -180,7 +188,19 @@ const App: React.FC = () => {
   }, [isThemeMenuOpen]);
 
   const resetToHome = () => {
+    closeForgotWordModal();
     setGameState(GameState.HOME);
+  };
+
+  const openRulesScreen = () => {
+    if (gameState === GameState.RULES) return;
+    setRulesReturnState(gameState);
+    setIsThemeMenuOpen(false);
+    setGameState(GameState.RULES);
+  };
+
+  const closeRulesScreen = () => {
+    setGameState(rulesReturnState === GameState.RULES ? GameState.HOME : rulesReturnState);
   };
 
   const getRandomTheme = (exclude?: ThemeMode): ThemeMode => {
@@ -232,7 +252,7 @@ const App: React.FC = () => {
         if (expelled.role === Role.IMPOSTOR) {
           addDelta(voterId, 2, 'voto certero');
         } else {
-          addDelta(voterId, -1, 'voto a civil');
+          addDelta(voterId, -2, 'voto a civil');
         }
       });
     } else {
@@ -240,7 +260,7 @@ const App: React.FC = () => {
         if (expelled.role === Role.IMPOSTOR) {
           addDelta(participantId, 1, 'acierto grupal');
         } else {
-          addDelta(participantId, -1, 'fallo grupal');
+          addDelta(participantId, -2, 'fallo grupal');
         }
       });
     }
@@ -260,7 +280,7 @@ const App: React.FC = () => {
     if (gameHasEnded && winningRole) {
       updatedPlayers
         .filter((p) => p.role === winningRole)
-        .forEach((player) => addDelta(player.id, 5, 'gana con su faccion'));
+        .forEach((player) => addDelta(player.id, 3, 'gana con su faccion'));
 
       updatedPlayers
         .filter((p) => !p.isEliminated)
@@ -306,9 +326,81 @@ const App: React.FC = () => {
         expelledRole: expelled.role,
         deltas,
         notes,
+        entryType: 'VOTE',
       },
     ]);
     setSessionRoundCounter((prev) => prev + 1);
+  };
+
+  const closeForgotWordModal = () => {
+    setIsForgotWordModalOpen(false);
+    setForgotWordTargetId(null);
+    setIsForgotWordVisible(false);
+    setForgotWordPenaltyApplied(false);
+  };
+
+  const openForgotWordModal = () => {
+    setIsForgotWordModalOpen(true);
+    setForgotWordTargetId(null);
+    setIsForgotWordVisible(false);
+    setForgotWordPenaltyApplied(false);
+  };
+
+  const applyForgotWordPenalty = (playerId: string, penaltyPoints: number, reason: string, eventLabel: string) => {
+    const targetPlayer = players.find((player) => player.id === playerId);
+    if (!targetPlayer) return;
+
+    setScoreTotals((prev) => {
+      const next = { ...prev };
+      if (typeof next[playerId] !== 'number') next[playerId] = 0;
+      next[playerId] += penaltyPoints;
+      return next;
+    });
+
+    setScoreHistory((prev) => [
+      ...prev,
+      {
+        sessionRound: sessionRoundCounter,
+        gameRound: roundNumber,
+        expelledName: targetPlayer.name,
+        expelledRole: targetPlayer.role,
+        deltas: {
+          [playerId]: penaltyPoints,
+        },
+        notes: {
+          [playerId]: [reason],
+        },
+        entryType: 'PENALTY',
+        eventLabel,
+      },
+    ]);
+    setSessionRoundCounter((prev) => prev + 1);
+  };
+
+  const revealWordForSelectedPlayer = () => {
+    if (!forgotWordTargetId) return;
+    const targetPlayer = players.find((player) => player.id === forgotWordTargetId);
+    if (!targetPlayer) return;
+    const isImpostorTarget = targetPlayer.role === Role.IMPOSTOR;
+    if (!forgotWordPenaltyApplied) {
+      if (isImpostorTarget) {
+        applyForgotWordPenalty(
+          forgotWordTargetId,
+          FORGOT_WORD_IMPOSTOR_PENALTY_POINTS,
+          `${FORGOT_WORD_IMPOSTOR_PENALTY_POINTS} intento ver la palabra siendo impostor (tramposo)`,
+          `Intento de trampa: ${targetPlayer.name}`
+        );
+      } else {
+        applyForgotWordPenalty(
+          forgotWordTargetId,
+          FORGOT_WORD_PENALTY_POINTS,
+          `${FORGOT_WORD_PENALTY_POINTS} pidio volver a ver la palabra`,
+          `Recordatorio de palabra para ${targetPlayer.name}`
+        );
+      }
+      setForgotWordPenaltyApplied(true);
+    }
+    setIsForgotWordVisible(true);
   };
 
   const resolveWordFlowModal = (action: WordFlowModalAction) => {
@@ -475,6 +567,7 @@ const App: React.FC = () => {
       setSecretWord(word);
       applyRandomThemeForNewWord();
       setIvanCheatUsedForCurrentWord(false);
+      closeForgotWordModal();
       setRoundNumber(1);
       setGameState(GameState.ROLE_REVEAL);
     } catch (error: any) {
@@ -547,6 +640,20 @@ const App: React.FC = () => {
     }
   };
 
+  const activePlayers = players.filter((player) => !player.isEliminated);
+  const forgotWordTargetPlayer = forgotWordTargetId ? activePlayers.find((player) => player.id === forgotWordTargetId) || null : null;
+  const forgotWordTargetIsImpostor = forgotWordTargetPlayer?.role === Role.IMPOSTOR;
+  const forgotWordPenaltyDisplay = Math.abs(FORGOT_WORD_PENALTY_POINTS);
+  const forgotWordActualPenaltyDisplay = forgotWordTargetIsImpostor
+    ? Math.abs(FORGOT_WORD_IMPOSTOR_PENALTY_POINTS)
+    : Math.abs(FORGOT_WORD_PENALTY_POINTS);
+  const canUseForgotWordInGame =
+    (gameState === GameState.ROUND_CLUES ||
+      gameState === GameState.ROUND_DEBATE ||
+      gameState === GameState.ROUND_VOTE ||
+      gameState === GameState.ROUND_RESULT) &&
+    activePlayers.length > 0 &&
+    secretWord.trim() !== '';
   const impostorNames = players.filter((p) => p.role === Role.IMPOSTOR).map((p) => p.name);
 
   return (
@@ -560,7 +667,7 @@ const App: React.FC = () => {
           maxHeight: '111.11vh',
         }}
       >
-        {gameState !== GameState.HOME && gameState !== GameState.SETUP && gameState !== GameState.LIBRARY && (
+        {gameState !== GameState.HOME && gameState !== GameState.SETUP && gameState !== GameState.LIBRARY && gameState !== GameState.RULES && (
           <div className="absolute top-[4.4rem] right-4 z-50">
             <div className="bg-slate-800/90 backdrop-blur border-2 border-slate-700 px-4 py-2 rounded-full text-[10px] font-black tracking-widest uppercase shadow-xl">
               {config.difficulty}
@@ -581,8 +688,10 @@ const App: React.FC = () => {
                 bannerSrc={HOME_BANNER_BY_THEME[themeMode] || HOME_BANNER_BY_THEME.default}
                 onNewGame={() => setGameState(GameState.SETUP)}
                 onLibrary={() => setGameState(GameState.LIBRARY)}
+                onRules={openRulesScreen}
               />
             )}
+            {gameState === GameState.RULES && <RulesScreen onBack={closeRulesScreen} />}
             {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} initialConfig={config} />}
             {gameState === GameState.ROLE_REVEAL && (
               <RevealScreen
@@ -679,6 +788,108 @@ const App: React.FC = () => {
           </div>
         )}
 
+        {isForgotWordModalOpen && (
+          <div className="absolute inset-0 z-[145] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-6">
+            <div className="w-full max-w-sm bg-slate-900 border-2 border-slate-700 rounded-[2rem] p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+              {!forgotWordTargetPlayer ? (
+                <>
+                  <div className="text-center space-y-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.28em] text-indigo-400">Recordatorio</p>
+                    <h3 className="text-2xl font-black italic tracking-tight text-white">Quien va a ver la palabra?</h3>
+                    <p className="text-slate-300 text-sm">Selecciona la persona. Solo a ese jugador se le aplicara penalizacion.</p>
+                  </div>
+
+                  <div className="mt-5 space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+                    {activePlayers.map((player) => (
+                      <button
+                        key={player.id}
+                        onClick={() => {
+                          setForgotWordTargetId(player.id);
+                          setIsForgotWordVisible(false);
+                          setForgotWordPenaltyApplied(false);
+                        }}
+                        className="w-full bg-slate-800 border border-slate-700 text-slate-100 p-4 rounded-2xl font-black text-left uppercase tracking-wide hover:bg-slate-700 transition-all"
+                      >
+                        {player.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={closeForgotWordModal}
+                    className="mt-5 w-full bg-slate-800 text-slate-200 p-4 rounded-[1.4rem] font-black text-sm uppercase tracking-widest border border-slate-700 active:scale-95 transition-all"
+                  >
+                    Cancelar
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-center space-y-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.28em] text-indigo-400">Turno privado</p>
+                    <h3 className="text-2xl font-black italic tracking-tight text-white">{forgotWordTargetPlayer.name}</h3>
+                    <p className="text-slate-300 text-sm">
+                      {isForgotWordVisible && forgotWordTargetIsImpostor
+                        ? 'Eres el impostor: NO HAGAS TRAMPAS!!!'
+                        : `Al revelar la palabra se descuentan ${forgotWordPenaltyDisplay} puntos por falta de atencion.`}
+                    </p>
+                  </div>
+
+                  {!isForgotWordVisible ? (
+                    <div className="mt-6 space-y-3">
+                      <button
+                        onClick={revealWordForSelectedPlayer}
+                        className="w-full bg-white text-slate-950 p-4 rounded-[1.4rem] font-black text-sm uppercase tracking-widest active:scale-95 transition-all"
+                      >
+                        Mostrar Palabra (-{forgotWordPenaltyDisplay} pts)
+                      </button>
+                      <button
+                        onClick={() => {
+                          setForgotWordTargetId(null);
+                          setIsForgotWordVisible(false);
+                          setForgotWordPenaltyApplied(false);
+                        }}
+                        className="w-full bg-slate-800 text-slate-200 p-4 rounded-[1.4rem] font-black text-sm uppercase tracking-widest border border-slate-700 active:scale-95 transition-all"
+                      >
+                        Cambiar Jugador
+                      </button>
+                    </div>
+                  ) : forgotWordTargetIsImpostor ? (
+                    <div className="mt-6 space-y-4">
+                      <div className="w-full bg-red-950/25 border border-red-400/40 rounded-3xl p-5 text-center">
+                        <p className="text-[8px] font-black uppercase tracking-[0.2em] text-red-300 mb-2">Intento de trampa detectado</p>
+                        <p className="text-3xl font-black italic uppercase tracking-wide text-red-100">IMPOSTOR</p>
+                      </div>
+                      <p className="text-[10px] font-black text-red-300 uppercase tracking-widest text-center">
+                        Te quitamos {forgotWordActualPenaltyDisplay} puntos por tramposo.
+                      </p>
+                      <button
+                        onClick={closeForgotWordModal}
+                        className="w-full bg-white text-slate-950 p-4 rounded-[1.4rem] font-black text-sm uppercase tracking-widest active:scale-95 transition-all"
+                      >
+                        Cerrar y Continuar
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-6 space-y-4">
+                      <div className="w-full bg-indigo-950/25 border border-indigo-400/40 rounded-3xl p-5 text-center">
+                        <p className="text-[8px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-2">Palabra Secreta</p>
+                        <p className="text-3xl font-black italic uppercase tracking-wide text-white break-words">{secretWord}</p>
+                      </div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Pasa el movil al siguiente jugador antes de cerrar</p>
+                      <button
+                        onClick={closeForgotWordModal}
+                        className="w-full bg-white text-slate-950 p-4 rounded-[1.4rem] font-black text-sm uppercase tracking-widest active:scale-95 transition-all"
+                      >
+                        Cerrar y Continuar
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {isScoreboardOpen && (
           <Suspense fallback={null}>
             <ScoreboardScreen players={players} scoreTotals={scoreTotals} scoreHistory={scoreHistory} onClose={() => setIsScoreboardOpen(false)} />
@@ -693,6 +904,24 @@ const App: React.FC = () => {
             </p>
           </button>
         </div>
+
+        {gameState !== GameState.RULES && (
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[130]">
+            <button onClick={openRulesScreen} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-center shadow-xl backdrop-blur">
+              <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Guia</p>
+              <p className="text-[11px] text-white font-black uppercase tracking-wide">Normas</p>
+            </button>
+          </div>
+        )}
+
+        {canUseForgotWordInGame && (
+          <div className="absolute bottom-16 right-4 z-[130]">
+            <button onClick={openForgotWordModal} className="bg-slate-900/95 border border-amber-500/40 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">
+              <p className="text-[9px] text-amber-300 font-black uppercase tracking-widest">Ayuda</p>
+              <p className="text-[11px] text-white font-black uppercase tracking-wide">Ver Palabra</p>
+            </button>
+          </div>
+        )}
 
         <div ref={themeMenuRef} className="absolute top-4 right-4 z-[130]">
           <button onClick={() => setIsThemeMenuOpen((prev) => !prev)} className="bg-slate-900/95 border border-slate-700 rounded-2xl px-4 py-2 text-left shadow-xl backdrop-blur">

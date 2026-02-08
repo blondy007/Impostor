@@ -63,40 +63,43 @@ const ScoreboardScreen: React.FC<Props> = ({ players, scoreTotals, scoreHistory,
           <p className="text-sm text-slate-500">Aun no hay rondas puntuadas.</p>
         ) : (
           <div className="space-y-3">
-            {[...scoreHistory].reverse().map((round) => (
-              <div key={`score-round-${round.sessionRound}`} className="bg-slate-950/70 border border-slate-800 rounded-2xl p-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                    Sesion R{round.sessionRound} - Partida R{round.gameRound}
-                  </p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Expulsado: {round.expelledName} ({round.expelledRole})
-                  </p>
-                </div>
+            {[...scoreHistory].reverse().map((round) => {
+              const isPenaltyEntry = round.entryType === 'PENALTY';
+              return (
+                <div key={`score-round-${round.sessionRound}`} className="bg-slate-950/70 border border-slate-800 rounded-2xl p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                      {isPenaltyEntry ? `Sesion R${round.sessionRound} - Penalizacion` : `Sesion R${round.sessionRound} - Partida R${round.gameRound}`}
+                    </p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      {isPenaltyEntry ? round.eventLabel || 'Recordatorio de palabra' : `Expulsado: ${round.expelledName} (${round.expelledRole})`}
+                    </p>
+                  </div>
 
-                <div className="mt-2 space-y-1">
-                  {Object.entries(round.deltas)
-                    .filter(([, delta]) => delta !== 0)
-                    .map(([playerId, delta]) => {
-                      const playerName = players.find((p) => p.id === playerId)?.name || playerId;
-                      const notes = round.notes[playerId] || [];
-                      return (
-                        <div key={`${round.sessionRound}-${playerId}`} className="flex items-start justify-between gap-2 text-sm">
-                          <div>
-                            <p className="font-bold text-slate-200">{playerName}</p>
-                            {notes.map((note, i) => (
-                              <p key={`${playerId}-note-${i}`} className="text-[10px] text-slate-500 uppercase tracking-wide">
-                                {note}
-                              </p>
-                            ))}
+                  <div className="mt-2 space-y-1">
+                    {Object.entries(round.deltas)
+                      .filter(([, delta]) => delta !== 0)
+                      .map(([playerId, delta]) => {
+                        const playerName = players.find((p) => p.id === playerId)?.name || playerId;
+                        const notes = round.notes[playerId] || [];
+                        return (
+                          <div key={`${round.sessionRound}-${playerId}`} className="flex items-start justify-between gap-2 text-sm">
+                            <div>
+                              <p className="font-bold text-slate-200">{playerName}</p>
+                              {notes.map((note, i) => (
+                                <p key={`${playerId}-note-${i}`} className="text-[10px] text-slate-500 uppercase tracking-wide">
+                                  {note}
+                                </p>
+                              ))}
+                            </div>
+                            <p className={`font-black ${delta > 0 ? 'text-green-400' : 'text-red-400'}`}>{formatDelta(delta)} pts</p>
                           </div>
-                          <p className={`font-black ${delta > 0 ? 'text-green-400' : 'text-red-400'}`}>{formatDelta(delta)} pts</p>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -5,9 +5,10 @@ interface Props {
   bannerSrc?: string;
   onNewGame: () => void;
   onLibrary: () => void;
+  onRules: () => void;
 }
 
-const HomeScreen: React.FC<Props> = ({ bannerSrc, onNewGame, onLibrary }) => {
+const HomeScreen: React.FC<Props> = ({ bannerSrc, onNewGame, onLibrary, onRules }) => {
   const fallbackBanner = `${import.meta.env.BASE_URL}nuevos/noir.png`;
 
   return (
@@ -38,6 +39,12 @@ const HomeScreen: React.FC<Props> = ({ bannerSrc, onNewGame, onLibrary }) => {
           className="w-full bg-slate-900 text-white hover:bg-slate-800 active:scale-95 transition-all p-5 rounded-[2rem] font-black text-lg border-2 border-slate-800"
         >
           Biblioteca
+        </button>
+        <button
+          onClick={onRules}
+          className="w-full bg-slate-900/70 text-white hover:bg-slate-800 active:scale-95 transition-all p-5 rounded-[2rem] font-black text-lg border-2 border-slate-700"
+        >
+          Normas y Puntos
         </button>
       </div>
 

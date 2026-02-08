@@ -13,6 +13,7 @@ export enum Difficulty {
 
 export enum GameState {
   HOME = 'HOME',
+  RULES = 'RULES',
   SETUP = 'SETUP',
   ROLE_REVEAL = 'ROLE_REVEAL',
   ROUND_CLUES = 'ROUND_CLUES',
@@ -46,6 +47,8 @@ export interface ScoreRoundLog {
   expelledRole: Role;
   deltas: Record<string, number>;
   notes: Record<string, string[]>;
+  entryType?: 'VOTE' | 'PENALTY';
+  eventLabel?: string;
 }
 
 export interface GameConfig {

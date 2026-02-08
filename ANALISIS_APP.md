@@ -65,6 +65,8 @@ Estados validos:
 | A-048 | Baja | CORREGIDO | Bundle principal era demasiado grande para movil y red inestable | `vite.config.ts`, `App.tsx`, `services/geminiService.ts` | Reducir chunk principal mediante lazy loading de pantallas, carga dinamica de IA y chunking manual en build |
 | A-049 | Media | CORREGIDO | Voto individual no permitia abstencion | `screens/VoteScreen.tsx` | Permitir abstenerse por votante sin bloquear la ronda (requiriendo al menos un voto emitido para cerrar) |
 | A-050 | Baja | PENDIENTE | Lista de jugadores por defecto hardcodeada para mesa fija (Charlie como 7º en discordia) | `screens/SetupScreen.tsx` | Reemplazar hardcode de nombres por configuracion editable/persistente sin codificar jugadores concretos |
+| A-051 | Media | CORREGIDO | No existia forma nominativa de volver a ver palabra con penalizacion por despiste/trampa | `App.tsx`, `types.ts`, `screens/ScoreboardScreen.tsx` | Permitir recordatorio nominativo en rondas de juego, aplicar -2 al civil despistado o -10 al impostor tramposo y registrar evento en historial |
+| A-052 | Baja | CORREGIDO | Faltaba una pantalla unificada de normas y puntuacion con variantes | `types.ts`, `screens/RulesScreen.tsx`, `screens/HomeScreen.tsx`, `App.tsx` | Exponer pantalla explicativa con reglas completas, condiciones de victoria y todos los casos de puntuacion accesible desde inicio y desde cualquier pantalla por eleccion |
 
 ## Bitacora de correcciones
 
@@ -145,6 +147,13 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-07 | A-049 | CORREGIDO | Voto individual con opcion de abstencion por jugador; si todos intentan abstenerse, se exige al menos un voto para cerrar ronda | `npm run build` OK |
 | 2026-02-07 | A-050 | PENDIENTE | Ajuste temporal de producto: nombres por defecto hardcodeados para 6 jugadores fijos y Charlie como 7º | Validacion funcional en `SetupScreen` |
 | 2026-02-08 | A-046 | CORREGIDO | Configuracion inicial de App actualizada para temporizador activo por defecto y 60 segundos (timerEnabled=true, timerSeconds=60) | `npm run build` OK |
+| 2026-02-08 | A-051 | CORREGIDO | Se agrego modal de recordatorio nominativo de palabra durante rondas, con penalizacion fija de -2 puntos al mostrarla y trazabilidad en marcador | `npm run build` OK |
+| 2026-02-08 | A-051 | CORREGIDO | Recordatorio habilitado tambien en revelacion de rol; si el objetivo es impostor se aplica -10 y se muestra "IMPOSTOR" + aviso de tramposo en lugar de la palabra | `npm run build` OK |
+| 2026-02-08 | A-051 | CORREGIDO | Ajuste de UX: se retira `Ver palabra` de la pantalla de revelacion de rol para evitar metagame; se mantiene en pistas/debate/votacion/resultado | `npm run build` OK |
+| 2026-02-08 | A-051 | CORREGIDO | Ajuste de copy: en la vista final de penalizacion por trampa (impostor) el texto superior tambien indica que se le descuentan puntos por tramposo | `npm run build` OK |
+| 2026-02-08 | A-052 | CORREGIDO | Nueva pantalla `Normas y Puntos` integrada con resumen de reglas, condiciones de victoria y sistema de puntuacion (incluye variantes de voto, abstencion, recordatorios y penalizaciones) accesible desde Home | `npm run build` OK |
+| 2026-02-08 | A-036 | CORREGIDO | Recalibrada puntuacion segun reglas actuales: voto a civil -2 (individual), fallo grupal -2 y bonus de faccion ganadora +3; sincronizado en logica y pantalla de normas | `npm run build` OK |
+| 2026-02-08 | A-052 | CORREGIDO | `Normas y Puntos` pasa a estar accesible desde cualquier pantalla por eleccion y vuelve al estado previo al cerrar | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 
@@ -152,5 +161,8 @@ Cada vez que se corrija un hallazgo:
 1. Cambiar su `Estado` en la tabla principal.
 2. Anadir una fila en `Bitacora de correcciones` con fecha y validacion.
 3. Si la correccion no queda completa, dejar `EN PROGRESO` y documentar el bloqueo.
+
+
+
 
 
