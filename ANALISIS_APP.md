@@ -160,6 +160,7 @@ Agregar una linea por cada cambio aplicado:
 | 2026-02-08 | A-003 | CORREGIDO | Registro de pistas implementado como opcion configurable (apagada por defecto): captura nominativa por turno en ronda, paso de datos a `Debate` y visualizacion de resumen cuando esta activo | `npm run build` OK |
 | 2026-02-08 | A-005 | CORREGIDO | Migracion de Tailwind CDN a pipeline local (Tailwind + PostCSS + plugin de animaciones), import de `index.css` desde `index.tsx` y limpieza de dependencias de estilos en `index.html` | `npm run build` OK |
 | 2026-02-08 | A-005 | CORREGIDO | Ajuste de compatibilidad: se mantiene fallback `tailwindcss.com` en `index.html` para evitar vistas sin utilidades si el pipeline local de CSS no aplica en algun entorno | `npm run build` OK |
+| 2026-02-08 | A-003 | CORREGIDO | Se anadio flujo de "palabra muy dificil" con confirmacion explicita: cambia solo la palabra, mantiene orden/impostor y aplica -2 solo a civiles que ya la vieron | `npm run build` OK |
 
 ## Regla de actualizacion durante ejecucion
 

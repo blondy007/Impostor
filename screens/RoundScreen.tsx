@@ -85,7 +85,7 @@ const RoundScreen: React.FC<Props> = ({ players, roundNumber, clueCaptureEnabled
           <p className="text-indigo-500 text-[9px] font-black uppercase tracking-widest">Ronda {roundNumber}</p>
         </div>
         <button onClick={onChangeWord} className="text-[9px] font-black text-red-500 border border-red-500/20 px-3 py-1.5 rounded-full uppercase">
-          Reset
+          Cambiar palabra
         </button>
       </div>
 

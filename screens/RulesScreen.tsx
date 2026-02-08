@@ -74,7 +74,9 @@ const RulesScreen: React.FC<Props> = ({ onBack }) => {
           <ul className="text-sm text-slate-300 space-y-1">
             <li>1. Recordatorio nominativo de palabra: civil -2.</li>
             <li>2. Si el objetivo del recordatorio es impostor: -10 y aviso de trampa.</li>
-            <li>3. Todos los eventos quedan registrados en el marcador de sesion.</li>
+            <li>3. Cambio de palabra por dificultad: -2 a civiles que ya vieron la palabra actual.</li>
+            <li>4. Civiles que aun no la vieron e impostor mantienen sus puntos.</li>
+            <li>5. Todos los eventos quedan registrados en el marcador de sesion.</li>
           </ul>
         </section>
       </div>

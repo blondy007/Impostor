@@ -22,11 +22,23 @@ interface Props {
   impostorNames: string[];
   ivanCheatAvailable: boolean;
   onIvanCheatUsed: () => void;
+  onPlayerConfirmedReveal: (playerId: string) => void;
+  onRequestWordPass: () => void;
   onFinished: () => void;
   onBack: () => void;
 }
 
-const RevealScreen: React.FC<Props> = ({ players, secretWord, impostorNames, ivanCheatAvailable, onIvanCheatUsed, onFinished, onBack }) => {
+const RevealScreen: React.FC<Props> = ({
+  players,
+  secretWord,
+  impostorNames,
+  ivanCheatAvailable,
+  onIvanCheatUsed,
+  onPlayerConfirmedReveal,
+  onRequestWordPass,
+  onFinished,
+  onBack,
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shutterPos, setShutterPos] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -119,6 +131,9 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, impostorNames, iva
 
   const handleNext = () => {
     if (isTransitioningNext) return;
+    if (currentPlayer) {
+      onPlayerConfirmedReveal(currentPlayer.id);
+    }
 
     if (currentIndex === players.length - 1) {
       onFinished();
@@ -255,12 +270,19 @@ const RevealScreen: React.FC<Props> = ({ players, secretWord, impostorNames, iva
           </div>
         </div>
 
-        <div className="h-16 w-full flex items-center justify-center">
+        <div className="w-full max-w-[280px] flex flex-col items-center justify-center gap-2 min-h-16">
           {canProceed && (
-            <button onClick={handleNext} className="w-full max-w-[280px] bg-indigo-600 text-white p-5 rounded-[2rem] font-black text-lg shadow-xl active:scale-95 transition-all">
+            <button onClick={handleNext} className="w-full bg-indigo-600 text-white p-5 rounded-[2rem] font-black text-lg shadow-xl active:scale-95 transition-all">
               SIGUIENTE AGENTE
             </button>
           )}
+          <button
+            onClick={onRequestWordPass}
+            disabled={isTransitioningNext}
+            className="w-full bg-slate-900 border border-amber-500/30 text-amber-300 p-3 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50"
+          >
+            Palabra muy dificil
+          </button>
         </div>
       </div>
     </div>

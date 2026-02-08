@@ -11,6 +11,7 @@ const THEME_RANDOM_STORAGE_KEY = 'impostor_theme_random_v1';
 const VOTE_MODE_SESSION_KEY = 'impostor_vote_mode_v2';
 const FORGOT_WORD_PENALTY_POINTS = -2;
 const FORGOT_WORD_IMPOSTOR_PENALTY_POINTS = -10;
+const HARD_WORD_PASS_PENALTY_POINTS = -2;
 
 type UsedWordsByDifficulty = Record<Difficulty, Set<string>>;
 type WordFlowModalAction = 'primary' | 'secondary';
@@ -124,6 +125,8 @@ const App: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [secretWord, setSecretWord] = useState('');
   const [roundClues, setRoundClues] = useState<RoundClue[]>([]);
+  const [seenWordPlayerIds, setSeenWordPlayerIds] = useState<string[]>([]);
+  const [revealCycle, setRevealCycle] = useState(0);
   const [ivanCheatUsedForCurrentWord, setIvanCheatUsedForCurrentWord] = useState(false);
   const [roundNumber, setRoundNumber] = useState(1);
   const [lastExpelled, setLastExpelled] = useState<Player | null>(null);
@@ -182,6 +185,7 @@ const App: React.FC = () => {
   const resetToHome = () => {
     closeForgotWordModal();
     setRoundClues([]);
+    setSeenWordPlayerIds([]);
     setGameState(GameState.HOME);
   };
 
@@ -427,6 +431,47 @@ const App: React.FC = () => {
     ]);
   };
 
+  const markPlayerAsWordSeen = (playerId: string) => {
+    if (!playerId) return;
+    setSeenWordPlayerIds((prev) => (prev.includes(playerId) ? prev : [...prev, playerId]));
+  };
+
+  const applyHardWordPassPenalty = (penalizedCivilianIds: string[]) => {
+    if (penalizedCivilianIds.length === 0) return;
+
+    const notesByPlayer: Record<string, string[]> = {};
+    penalizedCivilianIds.forEach((playerId) => {
+      notesByPlayer[playerId] = [`${HARD_WORD_PASS_PENALTY_POINTS} cambio de palabra por dificultad`];
+    });
+
+    setScoreTotals((prev) => {
+      const next = { ...prev };
+      penalizedCivilianIds.forEach((playerId) => {
+        if (typeof next[playerId] !== 'number') next[playerId] = 0;
+        next[playerId] += HARD_WORD_PASS_PENALTY_POINTS;
+      });
+      return next;
+    });
+
+    setScoreHistory((prev) => [
+      ...prev,
+      {
+        sessionRound: sessionRoundCounter,
+        gameRound: roundNumber,
+        expelledName: 'Cambio de palabra',
+        expelledRole: Role.CIVIL,
+        deltas: penalizedCivilianIds.reduce<Record<string, number>>((acc, playerId) => {
+          acc[playerId] = HARD_WORD_PASS_PENALTY_POINTS;
+          return acc;
+        }, {}),
+        notes: notesByPlayer,
+        entryType: 'PENALTY',
+        eventLabel: 'Cambio de palabra por dificultad',
+      },
+    ]);
+    setSessionRoundCounter((prev) => prev + 1);
+  };
+
   const getUnusedLocalWord = (difficulty: Difficulty): Word | null => {
     const usedIds = usedWordsRef.current[difficulty];
     const candidates = INITIAL_WORDS.filter((word) => word.difficulty === difficulty && !usedIds.has(word.id));
@@ -508,6 +553,43 @@ const App: React.FC = () => {
     throw new Error(WORD_SELECTION_CANCELLED);
   };
 
+  const requestHardWordReplacement = async () => {
+    const activeCivilianPlayersSeen = players.filter((player) => !player.isEliminated && player.role === Role.CIVIL && seenWordPlayerIds.includes(player.id));
+    const civiliansPenalizedCount = activeCivilianPlayersSeen.length;
+    const penaltyPoints = Math.abs(HARD_WORD_PASS_PENALTY_POINTS);
+
+    const decision = await showWordFlowDecisionModal({
+      title: 'Palabra muy dificil',
+      message:
+        `Se cambiara la palabra actual por otra nueva.\n\n` +
+        `Penalizacion: -${penaltyPoints} puntos para ${civiliansPenalizedCount} civil(es) que ya la vieron.\n` +
+        `Civiles que no la vieron: sin cambio.\n` +
+        `Impostor: sin cambio.\n\n` +
+        `Confirmas el cambio?`,
+      primaryLabel: 'Si, cambiar palabra',
+      secondaryLabel: 'Cancelar',
+    });
+
+    if (decision !== 'primary') return;
+
+    try {
+      const { word, effectiveConfig } = await resolveSecretWord(config);
+      applyHardWordPassPenalty(activeCivilianPlayersSeen.map((player) => player.id));
+      setConfig(effectiveConfig);
+      setSecretWord(word);
+      setRoundClues([]);
+      setSeenWordPlayerIds([]);
+      setRevealCycle((prev) => prev + 1);
+      applyRandomThemeForNewWord();
+      setIvanCheatUsedForCurrentWord(false);
+      setGameState(GameState.ROLE_REVEAL);
+    } catch (error: any) {
+      if (error?.message !== WORD_SELECTION_CANCELLED) {
+        console.error('No se pudo cambiar a una palabra nueva:', error);
+      }
+    }
+  };
+
   const startGame = async (newConfig: GameConfig, playerNames: string[], options?: StartGameOptions) => {
     try {
       const totalPlayers = playerNames.length;
@@ -559,6 +641,8 @@ const App: React.FC = () => {
       setLastExpelled(null);
       setSecretWord(word);
       setRoundClues([]);
+      setSeenWordPlayerIds([]);
+      setRevealCycle(0);
       applyRandomThemeForNewWord();
       setIvanCheatUsedForCurrentWord(false);
       closeForgotWordModal();
@@ -690,12 +774,14 @@ const App: React.FC = () => {
             {gameState === GameState.SETUP && <SetupScreen onBack={() => setGameState(GameState.HOME)} onStart={startGame} initialConfig={config} />}
             {gameState === GameState.ROLE_REVEAL && (
               <RevealScreen
-                key={`reveal-${gameId}`}
-                players={players}
+                key={`reveal-${gameId}-${revealCycle}`}
+                players={activePlayers}
                 secretWord={secretWord}
                 impostorNames={impostorNames}
                 ivanCheatAvailable={!ivanCheatUsedForCurrentWord}
                 onIvanCheatUsed={() => setIvanCheatUsedForCurrentWord(true)}
+                onPlayerConfirmedReveal={markPlayerAsWordSeen}
+                onRequestWordPass={requestHardWordReplacement}
                 onFinished={() => {
                   setRoundClues([]);
                   setGameState(GameState.ROUND_CLUES);
@@ -713,20 +799,7 @@ const App: React.FC = () => {
                   setRoundClues(clues);
                   setGameState(GameState.ROUND_DEBATE);
                 }}
-                onChangeWord={async () => {
-                  try {
-                    const { word, effectiveConfig } = await resolveSecretWord(config);
-                    setConfig(effectiveConfig);
-                    setSecretWord(word);
-                    setRoundClues([]);
-                    applyRandomThemeForNewWord();
-                    setIvanCheatUsedForCurrentWord(false);
-                  } catch (error: any) {
-                    if (error?.message !== WORD_SELECTION_CANCELLED) {
-                      console.error('No se pudo cambiar palabra:', error);
-                    }
-                  }
-                }}
+                onChangeWord={requestHardWordReplacement}
                 onBack={resetToHome}
               />
             )}
