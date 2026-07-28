@@ -3,7 +3,6 @@ import { INITIAL_WORDS } from './constants';
 import { normalizeGameConfig } from './gameConfig';
 import { Difficulty, GameConfig, GameState, Player, Role, RoundClue, ScoreRoundLog, VoteResolution, Word } from './types';
 
-const START_WORD_TIMEOUT_MS = 5000;
 const USED_WORDS_SESSION_KEY = 'impostor_used_local_words_v1';
 const WORD_SELECTION_CANCELLED = 'WORD_SELECTION_CANCELLED';
 const THEME_STORAGE_KEY = 'impostor_theme_mode_v1';
@@ -414,23 +413,6 @@ const App: React.FC = () => {
     });
   };
 
-  const showWordFlowInfoModal = async (title: string, message: string, buttonLabel = 'Entendido'): Promise<void> => {
-    await showWordFlowDecisionModal({
-      title,
-      message,
-      primaryLabel: buttonLabel,
-    });
-  };
-
-  const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> => {
-    return await Promise.race([
-      promise,
-      new Promise<T>((resolve) => {
-        setTimeout(() => resolve(fallback), timeoutMs);
-      }),
-    ]);
-  };
-
   const markPlayerAsWordSeen = (playerId: string) => {
     if (!playerId) return;
     setSeenWordPlayerIds((prev) => (prev.includes(playerId) ? prev : [...prev, playerId]));
@@ -474,7 +456,13 @@ const App: React.FC = () => {
 
   const getUnusedLocalWord = (difficulty: Difficulty): Word | null => {
     const usedIds = usedWordsRef.current[difficulty];
-    const candidates = INITIAL_WORDS.filter((word) => word.difficulty === difficulty && !usedIds.has(word.id));
+    let candidates = INITIAL_WORDS.filter((word) => word.difficulty === difficulty && !usedIds.has(word.id));
+
+    if (candidates.length === 0) {
+      usedIds.clear();
+      candidates = INITIAL_WORDS.filter((word) => word.difficulty === difficulty);
+    }
+
     if (candidates.length === 0) return null;
 
     const selected = candidates[Math.floor(Math.random() * candidates.length)];
@@ -483,74 +471,13 @@ const App: React.FC = () => {
     return selected;
   };
 
-  const tryFetchAiWord = async (activeConfig: GameConfig): Promise<string> => {
-    try {
-      const { fetchSecretWord } = await import('./services/geminiService');
-      return await withTimeout(fetchSecretWord(activeConfig.difficulty, activeConfig.categories), START_WORD_TIMEOUT_MS, '');
-    } catch {
-      return '';
-    }
-  };
-
-  const askUserWhenLocalWordsExhausted = async (activeConfig: GameConfig): Promise<GameConfig | null> => {
-    const decision = await showWordFlowDecisionModal({
-      title: 'Sin palabras locales',
-      message:
-        `No quedan palabras locales para "${activeConfig.difficulty}" en esta sesion.\n\n` +
-        `Puedes cambiar la dificultad o activar busqueda por IA.`,
-      primaryLabel: 'Activar IA',
-      secondaryLabel: 'Cambiar dificultad',
-    });
-
-    if (decision !== 'primary') {
-      await showWordFlowInfoModal('Cambio requerido', 'Mantienes IA desactivada. Cambia la dificultad para continuar.');
-      return null;
-    }
-
-    const updatedConfig: GameConfig = {
-      ...activeConfig,
-      aiWordGenerationEnabled: true,
-    };
-    setConfig(updatedConfig);
-    return updatedConfig;
-  };
-
   const resolveSecretWord = async (baseConfig: GameConfig): Promise<{ word: string; effectiveConfig: GameConfig }> => {
-    if (!baseConfig.aiWordGenerationEnabled) {
-      const localWord = getUnusedLocalWord(baseConfig.difficulty);
-      if (localWord) {
-        return { word: localWord.text, effectiveConfig: baseConfig };
-      }
-
-      const updatedConfig = await askUserWhenLocalWordsExhausted(baseConfig);
-      if (!updatedConfig) {
-        throw new Error(WORD_SELECTION_CANCELLED);
-      }
-
-      const aiWord = await tryFetchAiWord(updatedConfig);
-      if (aiWord && aiWord.trim() !== '') {
-        return { word: aiWord.trim(), effectiveConfig: updatedConfig };
-      }
-
-      await showWordFlowInfoModal('IA sin respuesta', 'No se pudo obtener palabra por IA. Cambia dificultad o reintenta.');
-      throw new Error(WORD_SELECTION_CANCELLED);
+    const localWord = getUnusedLocalWord(baseConfig.difficulty);
+    if (!localWord) {
+      throw new Error(`No hay palabras configuradas para la dificultad "${baseConfig.difficulty}".`);
     }
 
-    const aiWord = await tryFetchAiWord(baseConfig);
-    if (aiWord && aiWord.trim() !== '') {
-      return { word: aiWord.trim(), effectiveConfig: baseConfig };
-    }
-
-    const fallbackLocalWord = getUnusedLocalWord(baseConfig.difficulty);
-    if (fallbackLocalWord) {
-      return { word: fallbackLocalWord.text, effectiveConfig: baseConfig };
-    }
-
-    await showWordFlowInfoModal(
-      'Sin palabras disponibles',
-      `No quedan palabras locales para "${baseConfig.difficulty}" y la IA no respondio a tiempo.\nCambia dificultad o reintenta la IA.`
-    );
-    throw new Error(WORD_SELECTION_CANCELLED);
+    return { word: localWord.text, effectiveConfig: baseConfig };
   };
 
   const requestHardWordReplacement = async () => {

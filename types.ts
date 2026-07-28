@@ -55,7 +55,6 @@ export interface GameConfig {
   difficulty: Difficulty;
   categories: string[];
   voteMode: 'INDIVIDUAL' | 'GROUP';
-  aiWordGenerationEnabled: boolean;
   clueCaptureEnabled: boolean;
   timerEnabled: boolean;
   timerSeconds: number;

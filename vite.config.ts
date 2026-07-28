@@ -13,7 +13,6 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks: {
               dnd_vendor: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
-              ai_vendor: ['@google/genai'],
             },
           },
         },
@@ -23,10 +22,6 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

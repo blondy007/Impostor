@@ -77,7 +77,7 @@ const ScoreboardScreen: React.FC<Props> = ({ players, scoreTotals, scoreHistory,
                   </div>
 
                   <div className="mt-2 space-y-1">
-                    {Object.entries(round.deltas)
+                    {(Object.entries(round.deltas) as Array<[string, number]>)
                       .filter(([, delta]) => delta !== 0)
                       .map(([playerId, delta]) => {
                         const playerName = players.find((p) => p.id === playerId)?.name || playerId;

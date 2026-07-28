@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
+import React, { useEffect, useMemo, useState } from 'react';
 import { DndContext, DragEndEvent, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -92,7 +91,6 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   const [impostorCount, setImpostorCount] = useState(normalizedInitialConfig.impostorCount);
   const [difficulty, setDifficulty] = useState<Difficulty>(normalizedInitialConfig.difficulty);
   const [voteMode, setVoteMode] = useState<'INDIVIDUAL' | 'GROUP'>(normalizedInitialConfig.voteMode);
-  const [aiWordGenerationEnabled, setAiWordGenerationEnabled] = useState(normalizedInitialConfig.aiWordGenerationEnabled);
   const [clueCaptureEnabled, setClueCaptureEnabled] = useState(normalizedInitialConfig.clueCaptureEnabled);
   const [timerEnabled, setTimerEnabled] = useState(normalizedInitialConfig.timerEnabled);
   const [timerSeconds, setTimerSeconds] = useState(normalizedInitialConfig.timerSeconds);
@@ -100,12 +98,9 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   const [categories, setCategories] = useState<string[]>(normalizedInitialConfig.categories);
   const [playerDrafts, setPlayerDrafts] = useState<PlayerDraft[]>([]);
   const [view, setView] = useState<'config' | 'names'>('config');
-  const [isListening, setIsListening] = useState(false);
-  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
 
   const requestedNames = ['Perea', 'Mario', 'Raquel', 'Lauri', 'May', 'Ivan', 'Charlie'];
-  const recognitionRef = useRef<any>(null);
   const maxImpostors = Math.max(1, Math.min(3, playerCount - 2));
 
   const sensors = useSensors(
@@ -161,29 +156,6 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
   const getDefaultName = (index: number) => requestedNames[index] || `Agente ${index + 1}`;
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = true;
-    recognitionRef.current.interimResults = false;
-    recognitionRef.current.lang = 'es-ES';
-
-    recognitionRef.current.onresult = async (event: any) => {
-      const transcript = Array.from(event.results)
-        .map((result: any) => result[0].transcript)
-        .join(' ');
-
-      await processTranscriptWithGemini(transcript);
-      stopListening();
-    };
-
-    recognitionRef.current.onerror = () => {
-      setIsListening(false);
-    };
-  }, []);
-
-  useEffect(() => {
     if (impostorCount > maxImpostors) {
       setImpostorCount(maxImpostors);
     }
@@ -194,7 +166,6 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
     setImpostorCount(normalizedInitialConfig.impostorCount);
     setDifficulty(normalizedInitialConfig.difficulty);
     setVoteMode(normalizedInitialConfig.voteMode);
-    setAiWordGenerationEnabled(normalizedInitialConfig.aiWordGenerationEnabled);
     setClueCaptureEnabled(normalizedInitialConfig.clueCaptureEnabled);
     setTimerEnabled(normalizedInitialConfig.timerEnabled);
     setTimerSeconds(normalizedInitialConfig.timerSeconds);
@@ -209,62 +180,6 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
       setDifficulty(firstAvailable);
     }
   }, [difficulty, exhaustedDifficulties]);
-
-  const startListening = () => {
-    if (!recognitionRef.current) return;
-    setIsListening(true);
-    recognitionRef.current.start();
-  };
-
-  const stopListening = () => {
-    if (!recognitionRef.current) return;
-    recognitionRef.current.stop();
-    setIsListening(false);
-  };
-
-  const processTranscriptWithGemini = async (text: string) => {
-    setIsProcessingVoice(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Analiza este dictado de nombres: "${text}". Devuelve solo un array JSON de strings con los nombres limpios.`,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
-          },
-        },
-      });
-
-      const detectedNames = JSON.parse(response.text || '[]');
-      if (!Array.isArray(detectedNames)) return;
-
-      const normalized = detectedNames
-        .map((name: unknown) => (typeof name === 'string' ? name.trim() : ''))
-        .filter((name: string) => name.length > 0)
-        .slice(0, MAX_PLAYERS);
-
-      if (normalized.length === 0) return;
-
-      while (normalized.length < MIN_PLAYERS) {
-        normalized.push(getDefaultName(normalized.length));
-      }
-
-      setPlayerDrafts(
-        normalized.map((name) => ({
-          id: createDraftId(),
-          name,
-        }))
-      );
-      setPlayerCount(normalized.length);
-    } catch (error) {
-      console.error('Gemini error:', error);
-    } finally {
-      setIsProcessingVoice(false);
-    }
-  };
 
   const handleNext = () => {
     const nextDrafts = Array.from({ length: playerCount }, (_, i) => {
@@ -337,7 +252,6 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
       difficulty,
       categories: [...categories],
       voteMode,
-      aiWordGenerationEnabled,
       clueCaptureEnabled,
       timerEnabled,
       timerSeconds,
@@ -521,29 +435,6 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
           <div className="bg-slate-900/50 p-4 rounded-3xl border border-slate-800">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Palabra por IA</p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Desactivado por defecto</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAiWordGenerationEnabled((prev) => !prev)}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full border p-1 transition-colors ${
-                  aiWordGenerationEnabled ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-800 border-slate-700'
-                }`}
-                aria-label="Activar o desactivar palabra por IA"
-              >
-                <span
-                  className={`absolute left-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white transition-transform ${
-                    aiWordGenerationEnabled ? 'translate-x-6' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/50 p-4 rounded-3xl border border-slate-800">
-            <div className="flex items-center justify-between gap-4">
-              <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Registro de pistas</p>
                 <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Opcional (recomendado online)</p>
               </div>
@@ -570,19 +461,9 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
         </div>
       ) : (
         <div className="flex-1 flex flex-col space-y-6">
-          <div className="flex justify-between items-center bg-indigo-950/20 p-4 rounded-3xl border border-indigo-500/30">
-            <div className="pl-2">
-              <p className="text-white font-black italic tracking-tighter">¿Esta el equipo listo?</p>
-              <p className="text-indigo-400 text-[9px] font-bold uppercase tracking-widest">Usa el micro para dictar todos</p>
-            </div>
-            <button
-              onClick={isListening ? stopListening : startListening}
-              className={`p-4 rounded-2xl transition-all shadow-lg ${isListening ? 'bg-red-500 animate-pulse' : 'bg-indigo-600 hover:bg-indigo-500'}`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
-            </button>
+          <div className="bg-indigo-950/20 p-4 rounded-3xl border border-indigo-500/30">
+            <p className="text-white font-black italic tracking-tighter">¿Esta el equipo listo?</p>
+            <p className="text-indigo-400 text-[9px] font-bold uppercase tracking-widest">Revisa los nombres y ordena la mesa</p>
           </div>
 
           <p className="text-center text-[9px] font-bold uppercase tracking-widest text-slate-500">Arrastra el icono de puntos para ordenar la mesa</p>
@@ -618,10 +499,10 @@ const SetupScreen: React.FC<Props> = ({ onBack, onStart, initialConfig }) => {
 
           <button
             onClick={handleStartGame}
-            disabled={isProcessingVoice || isStarting || playerDrafts.length < MIN_PLAYERS}
+            disabled={isStarting || playerDrafts.length < MIN_PLAYERS}
             className="w-full bg-indigo-600 p-6 rounded-[2rem] font-black text-xl shadow-xl shadow-indigo-900/40 disabled:opacity-50 active:scale-95 transition-all"
           >
-            {isStarting ? 'INICIANDO MISION...' : isProcessingVoice ? 'PROCESANDO...' : '¡A JUGAR!'}
+            {isStarting ? 'INICIANDO MISION...' : '¡A JUGAR!'}
           </button>
         </div>
       )}
